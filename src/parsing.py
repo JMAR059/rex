@@ -84,7 +84,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] ) -> pd.Dat
             if relations != None and relation not in relations:
                 raise ValueError(f"Relation {relation} not known")
 
-            newNode = relationNode(LHSVariable=relation, userInput=relation, 
+            newNode = relationNode(userInput=relation, 
                                    resultDF = relations[relation] if relations != None else None)
             
             if lhsNode is None:
@@ -99,16 +99,6 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] ) -> pd.Dat
             # check based on symbol, set op and op type, make mode according to op
             
             
-
-
-                
-                
-
-
-
-
-
-
 
 
 if __name__ == "__main__":

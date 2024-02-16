@@ -3,7 +3,6 @@ import pandas as pd
 
 class relationNode:
 
-    LHSVariable: str = ""
     userInput: str = ""
     resultDF: pd.DataFrame = None
 
@@ -17,7 +16,8 @@ class relationNode:
 
 class setOperationNode(relationNode):
 
-    RHSVariable: str = ""
+    LHSVariable: relationNode = None
+    RHSVariable: relationNode = None
     setOp: str = ""
 
     def resolve():
