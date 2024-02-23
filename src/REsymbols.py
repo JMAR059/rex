@@ -10,3 +10,9 @@ symbols = {
     "join": "⨝",
     "*": "⨝"
 }
+
+setOpSymbols = {
+    "∨",
+    "∧",
+    "-"
+}
