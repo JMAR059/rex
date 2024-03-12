@@ -15,3 +15,28 @@ setOpSymbols = {
     "∧",
     "-"
 }
+joinOpSymbols = {
+    "⨝",
+    "⨯"
+}
+
+singleOpSymbols = {
+    "σ",
+    "π"
+}
+
+booleanSymbols = {
+    "≤",
+    "≥",
+    "≠",
+    ">",
+    "<",
+    "="
+}
+
+booleanSymbolMap = {
+    "<=" : "≤",
+    ">=" : "≥",
+    "!=" : "≠",
+    "==" : "="    
+}
