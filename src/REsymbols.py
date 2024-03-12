@@ -1,4 +1,3 @@
-
 symbols = {
     "union": "∨",
     "intersect": "∧",
