@@ -23,33 +23,21 @@ def rexSplitLine( line: str ) -> [str]:
     line = line.replace(" ","")
     cleaned = whiteSpaceHandler(line)
     cleanedList = cleaned.split(sep='=')
-    print(cleanedList)
-    if len(cleanedList) == 1:
-        raise ValueError("Cannot assign ",cleaned[0]," to a csv")
+    newClean = [i for i in cleanedList if i != ""]
+    if len(newClean) == 1:
+        if ".csv" in newClean:
+            raise ValueError("Cannot assign ",newClean[0]," to a value")
+        else:
+            raise ValueError("Cannot assign ",newClean[0]," to a csv")
     else:
-        return cleanedList
+        return newClean
 def validRelationChar( char: str ) -> bool:
     return char.isalnum()
 
-'''
-def parenthetic_contents(string):
-
-    stack = []
-    final = []
-    for i, c in enumerate(string):
-        if c == '(':
-            stack.append(i)
-        elif c == ')' and stack:
-            start = stack.pop()
-            final.append(string[start + 1: i])
-    final.append(string)
-    return final
-'''
 def csvParser(line: str , relations: Dict[str, pd.DataFrame] = None):
     #print("Line:" ,line)
     splitLine = rexSplitLine(line)
     #print("Split Line: ", splitLine)
-
     currentDirectory = os.getcwd()
     #print("Current Directory: ",currentDirectory)
     dataTableFolder = os.path.join(currentDirectory, 'dataTables')
@@ -67,16 +55,16 @@ if __name__ == '__main__':
     csvs = {}
     test1 = "R =dinosaur.csv"
     print("TEST 1:\n")
-    csvParser(line = test1,relations=csvs)
+    #csvParser(line = test1,relations=csvs)
     print("\nTEST 2:\n")
     test2 = "S= pokedex.csv"
-    csvParser(line = test2,relations=csvs)
+    #csvParser(line = test2,relations=csvs)
     print("\nTEST 3:\n")
     test3 = "X = "
     #csvParser(line = test3,relations=csvs)
     print("\nTEST 4:\n")
     test4 = "sdfds.csv"
-    csvParser(line = test4,relations=csvs)
+    #csvParser(line = test4,relations=csvs)
     print("\nTEST 5:\n")
     test5 = "X = dinosaurs.csv"
     csvParser(line = test5,relations=csvs)

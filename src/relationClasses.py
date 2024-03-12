@@ -1,5 +1,4 @@
 import pandas as pd
-
 class relationNode:
 
     userInput: str = ""
