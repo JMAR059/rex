@@ -1,7 +1,8 @@
 
-from REsymbols import symbols, setOpSymbols
+from REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols
 from typing import Dict
-from relationClasses import relationNode, setOperationNode
+from relationClasses import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
+from relationBoolean import booleanParsing
 import pandas as pd
 
 
@@ -53,26 +54,45 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
         print(f"Starting to parse: {line}")
 
     index = 0
-    mode = "start"
+    mode = "start" #change mode to set for better optimization?
     while(index < len(line) + 1):
 
         if mode == "build":
-            # do stuff and set mode back to finding op
+            # build relation node and set mode back to finding op
             if op in setOpSymbols:
                 if (lhsNode == None or rhsNode == None or op == ""):
-                    raise ValueError("One or more varaibles not set in building") 
+                    raise ValueError("One or more varaibles not set in set operation building") 
 
                 if debug:
                     print(f"Index {index}: Making set operation of {op} between {lhsNode} and {rhsNode}")
-                newNode = setOperationNode( LHSVariable=lhsNode, RHSVariable=rhsNode, setOp = op, userInput = line[0:index])
+                newNode = setOperationNode( LHSVariable=lhsNode, RHSVariable=rhsNode, setOp=op, userInput=line[0:index])
 
                 lhsNode = newNode
                 
-                mode = "operation"
+            elif op in singleOpSymbols:
+                if (lhsNode == None or op == "" or condition == ""):
+                    raise ValueError("One or more varaibles not set in singleton building") 
+                
+                if debug:
+                    print(f"Index {index}: Making singleton operation of {op} for {lhsNode} with condition:{condition}")
+
+                newNode = singleOpNode(SingleVariable=lhsNode, singleOp=op, condition=condition, userInput=line[0:index])
+
+            elif op in joinOpSymbols:
+                
+                if (lhsNode == None or op == "" or rhsNode != None):
+                    raise ValueError("One or more varaibles not set in join building") 
+        
+                if debug:
+                    print(f"Index {index}: Making join operation of {op} for {lhsNode} | {rhsNode} with condition:{condition}")
+
+                newNode = joinOpNode(LHSVariable=lhsNode, RHSVariable=rhsNode, joinOp=op, condition=condition, userInput=line[0:index])
+
             else:
-                raise ValueError("Build failed")
+                raise ValueError(f"Operation not found, current op {op}")
 
             #Reset variables
+            mode = "operation"
             rhsNode = None
             op = ""
             condition = ""
@@ -89,7 +109,20 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             print(f"Index {index}: with char -- {char}")
 
         # relationFIND
-        if (validRelationChar(char)  or char == '(') and (mode == "start" or mode == "relation"):
+        if "comparison" in mode and char == '{':
+            conditionLine = ""
+            index += 1
+            while (index < len(line) and char != '}'):
+                char = line[index]
+                conditionLine += char
+                index += 1
+            
+            if debug:
+                print(f"Index {index}: found conditon: {conditionLine}")
+            
+            condition = conditionLine
+
+        elif (validRelationChar(char)  or char == '(') and (mode == "start" or "relation" in mode):
             
             # Case for parenthesis ignore looping below
             if char == '(':
@@ -147,9 +180,21 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
 
             if char in setOpSymbols:
                 mode = "relation"
-                op = char
+            elif char in singleOpSymbols:
+                if mode != "start":
+                    raise ValueError(f"Single operation found not at the start!")
+                mode = "comparison"
+                
+            elif char in joinOpSymbols:
+                if char == '⨯':
+                    mode = "relation"
+                else:
+                    mode = "comparisonRelation"
             else:
                 raise ValueError(f"Unexpected Symbol at index:{index}")
+
+            op = char
+
 
             if debug:
                 print(f"Index {index}: Found operation {op}")    
