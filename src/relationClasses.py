@@ -1,8 +1,12 @@
 
 from relationBoolean import booleanStatement
 import pandas as pd
-
-
+from union import union
+from difference import difference
+from projection import projection,selection
+from join import join
+from intersection import intersection
+from REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols
 class relationNode:
 
     userInput: str = ""
@@ -13,10 +17,19 @@ class relationNode:
 
     def __str__(self):
         return self.userInput
-
-    def resolve():
+    
+    def resolve(self,input,dataFrame):
+        self.userInput = input
+        self.resultDF = dataFrame
         # IMPORTS DF from CSV
         pass
+    def getDataFrame(self):
+        return self.resultDF
+    def getUserInput(self):
+        return self.userInput
+    def printNode(self):
+        print("Node Name: ", self.userInput)
+        print("Data Frame: \n",self.resultDF)
 
 
 class setOperationNode(relationNode):
@@ -27,8 +40,9 @@ class setOperationNode(relationNode):
 
     def printLine(self):
         return print(self.LHSVariable,self.setOp,self.RHSVariable)
-    def resolve():
+    def resolve(self):
         # CALLS RESOLVE ON LHS AND RHS, THEN GETS RESULTING DF FROM SET OPERATION
+        
         pass
 
 class singleOpNode(relationNode):

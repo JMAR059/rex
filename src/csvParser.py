@@ -6,8 +6,9 @@ from projection import projection,selection
 from join import join
 from intersection import intersection
 from typing import Dict
+from relationClasses import relationNode
 def whiteSpaceHandler( line: str ) -> str:
-    print(line)
+    #print(line)
     cleaned = ""
 
     previousWasSpace = False
@@ -34,7 +35,7 @@ def rexSplitLine( line: str ) -> [str]:
 def validRelationChar( char: str ) -> bool:
     return char.isalnum()
 
-def csvParser(line: str , relations: Dict[str, pd.DataFrame] = None):
+def csvParser(line: str , relations: list = None):
     #print("Line:" ,line)
     splitLine = rexSplitLine(line)
     #print("Split Line: ", splitLine)
@@ -42,23 +43,27 @@ def csvParser(line: str , relations: Dict[str, pd.DataFrame] = None):
     #print("Current Directory: ",currentDirectory)
     dataTableFolder = os.path.join(currentDirectory, 'dataTables')
     file = os.path.join(dataTableFolder,splitLine[1])
-    print(file)
+    #print(file)
     #print(pd.read_csv(file))
     if not os.path.isfile(file):
         raise ValueError("File does not exist:", file)
-        
-    relations[splitLine[0]] = pd.read_csv(file)
+    newRelationNode = relationNode()
+    newRelationNode.resolve(splitLine[0],pd.read_csv(file))
+    for node in relations:
+        if node.getUserInput() == newRelationNode.getUserInput():
+            raise ValueError("Already assigned ",node.getUserInput()," to a csv")
+    relations.append(newRelationNode)
     #print(len(inputList))
     return relations
 
 if __name__ == '__main__':
-    csvs = {}
+    csvs = []
     test1 = "R =dinosaur.csv"
     print("TEST 1:\n")
-    #csvParser(line = test1,relations=csvs)
+    csvParser(line = test1,relations=csvs)
     print("\nTEST 2:\n")
     test2 = "S= pokedex.csv"
-    #csvParser(line = test2,relations=csvs)
+    csvParser(line = test2,relations=csvs)
     print("\nTEST 3:\n")
     test3 = "X = "
     #csvParser(line = test3,relations=csvs)
@@ -66,8 +71,10 @@ if __name__ == '__main__':
     test4 = "sdfds.csv"
     #csvParser(line = test4,relations=csvs)
     print("\nTEST 5:\n")
-    test5 = "X = dinosaurs.csv"
-    csvParser(line = test5,relations=csvs)
+    test5 = "R = pokedex.csv"
+    #csvParser(line = test5,relations=csvs)
+    for i in csvs:
+        i.printNode()
     #print(csvs)
     df1 = pd.DataFrame({
         'A': [7, 2, 8, 1, 3],

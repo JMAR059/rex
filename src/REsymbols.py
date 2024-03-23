@@ -15,6 +15,7 @@ setOpSymbols = {
     "∧",
     "-"
 }
+
 joinOpSymbols = {
     "⨝",
     "⨯"
