@@ -1,10 +1,36 @@
 import math
 import re
 import copy
-
+from typing import Tuple, Set
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+
+class TextColor:
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    RESET = '\033[0m'  # Reset to default color
+
+
+def get_elem_color(elem: str, row_counter: int, changed_rows: {int}, functional_dependency: Tuple[Set[str], Set[str]]):
+
+    lhs = functional_dependency[0]
+    rhs = functional_dependency[1]
+    elemCapitalized = elem.capitalize()
+    # print(functional_dependency)
+    # print(elemCapitalized)
+    if row_counter not in changed_rows:
+        return ""
+    elif elemCapitalized not in lhs and elemCapitalized not in rhs:
+        return TextColor.YELLOW
+    else:
+        return TextColor.RED if elemCapitalized in lhs else TextColor.CYAN
 
 
 def validate(original_relation, decomposed_relations, fds):
@@ -33,7 +59,7 @@ def create_canonical(original_relation, decomposed_relations):
     return canonical
 
 
-def print_chase(original_relation, canonical):
+def print_chase(original_relation, canonical, changed_rows={}, functional_dependency=({}, {})):
     max_length = 0
     for row in canonical:
         for elem in sorted(row):
@@ -43,32 +69,35 @@ def print_chase(original_relation, canonical):
     for elem in original_relation:
         print(f'{elem:{width}}', end='')
     print()
+    row_counter = 0
     for row in canonical:
         for elem in sorted(row):
+            letter_color = get_elem_color(elem, row_counter, changed_rows, functional_dependency)
             if row[elem] is not None:
                 value = f'{elem}{row[elem]}'
             else:
                 value = f'{elem}'
-            print(f'{value:{width}}', end='')
+            print(f'{letter_color}{value:{width}}{TextColor.RESET}', end='')
         print()
+        row_counter += 1
 
 
 def format_fd(fd):
-    formatted = ''
+    formatted = TextColor.RED
     counter = 0
     for attribute in fd[0]:
         formatted += f'{attribute}'
         if counter != len(fd[0]) - 1:
             formatted += ', '
         counter += 1
-    formatted += ' -> '
+    formatted += TextColor.RESET + ' -> ' + TextColor.CYAN
     counter = 0
     for attribute in fd[1]:
         formatted += f'{attribute}'
         if counter != len(fd[1]) - 1:
             formatted += ', '
         counter += 1
-    return formatted
+    return formatted + TextColor.RESET
 
 
 def find_pairs_with_equal_lhs(canonical, lhs):
@@ -111,7 +140,7 @@ def chase(original_relation, canonical, fds):
                 for pair in pairs:
                     print(f'Changing rows {pair[0]} and {pair[1]}')
                     equalize(canonical, pair[0], pair[1], rhs)
-                    print_chase(original_relation, canonical)
+                    print_chase(original_relation, canonical, {pair[0], pair[1]}, fd)
                     print()
                     if chase_test(canonical):
                         return
@@ -144,5 +173,16 @@ def full_chase(original_relation, decomposed_relations, fds):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    pass
+    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
+    ex_decomposed_relations = {'R1': ('A', 'B', 'C', 'D', 'E'), 'R2': ('C', 'D', 'F'), 'R3': ('A', 'B', 'D', 'G'),
+                                'R4': ('A', 'F')}
+    ex_fds = (({'A', 'B'}, {'C'}), ({'C', 'D'}, {'E', 'F'}), ({'F'}, {'A'}))
+
+    message, canonical = full_chase(ex_original_relation, ex_decomposed_relations, ex_fds)
+
+        
+    # Example usage
+    print(TextColor.RED + "This text is highlighted in red!" + TextColor.RESET)
+    print(TextColor.GREEN + "This text is highlighted in green!" + TextColor.RESET)
+    print(TextColor.YELLOW + "This text is highlighted in yellow!" + TextColor.RESET)
 
