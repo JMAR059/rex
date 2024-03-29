@@ -28,7 +28,7 @@ def get_elem_color(elem: str, row_counter: int, changed_rows: {int}, functional_
     if row_counter not in changed_rows:
         return ""
     elif elemCapitalized not in lhs and elemCapitalized not in rhs:
-        return TextColor.YELLOW
+        return ""#TextColor.YELLOW
     else:
         return TextColor.RED if elemCapitalized in lhs else TextColor.CYAN
 
@@ -59,18 +59,24 @@ def create_canonical(original_relation, decomposed_relations):
     return canonical
 
 
-def print_chase(original_relation, canonical, changed_rows={}, functional_dependency=({}, {})):
+def print_chase(original_relation, canonical, changed_rows={}, functional_dependency=({}, {}), indent_width = 3):
     max_length = 0
     for row in canonical:
         for elem in sorted(row):
             if len(elem) > max_length:
                 max_length = len(elem)
     width = math.log(len(canonical), 10) + max_length + 4
+    print(f"{indent_width * ' '}", end='')
     for elem in original_relation:
         print(f'{elem:{width}}', end='')
     print()
     row_counter = 0
     for row in canonical:
+        if row_counter in changed_rows:
+            print(f"{TextColor.YELLOW}>{(indent_width-1) * ' '}{TextColor.RESET}", end='')
+        else: 
+            print(f"{indent_width * ' '}", end='')
+        
         for elem in sorted(row):
             letter_color = get_elem_color(elem, row_counter, changed_rows, functional_dependency)
             if row[elem] is not None:
@@ -128,29 +134,32 @@ def equalize(canonical, row_idx1, row_idx2, attributes):
 
 
 def chase(original_relation, canonical, fds):
+    print("Starting chase table:")
     print_chase(original_relation, canonical)
+    print()
     while True:
         old_canonical = copy.deepcopy(canonical)
         for fd in fds:
-            print(f'Using functional dependency {format_fd(fd)}')
+            print(f'Using functional dependency: {format_fd(fd)}')
             lhs = fd[0]
             rhs = fd[1]
             pairs = find_pairs_with_equal_lhs(canonical, lhs)
             if len(pairs) > 0:
                 for pair in pairs:
-                    print(f'Changing rows {pair[0]} and {pair[1]}')
+                    print(f'Changing rows {pair[0]} and {pair[1]}:')
                     equalize(canonical, pair[0], pair[1], rhs)
                     print_chase(original_relation, canonical, {pair[0], pair[1]}, fd)
                     print()
                     if chase_test(canonical):
                         return
             else:
-                print('Cannot apply this functional dependency')
+                print('Cannot apply this functional dependency.')
         if canonical == old_canonical:
             return
 
 
 def chase_test(canonical):
+    row_counter = 0
     for row in canonical:
         row_test = True
         for subscript in row.values():
@@ -166,6 +175,7 @@ def full_chase(original_relation, decomposed_relations, fds):
     validate(original_relation, decomposed_relations, fds)
     chase(original_relation, canonical, fds)
     if chase_test(canonical):
+
         message = 'Lossless'
     else:
         message = 'Lossy'
@@ -173,13 +183,12 @@ def full_chase(original_relation, decomposed_relations, fds):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
-    ex_decomposed_relations = {'R1': ('A', 'B', 'C', 'D', 'E'), 'R2': ('C', 'D', 'F'), 'R3': ('A', 'B', 'D', 'G'),
-                                'R4': ('A', 'F')}
-    ex_fds = (({'A', 'B'}, {'C'}), ({'C', 'D'}, {'E', 'F'}), ({'F'}, {'A'}))
+    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F')
+    ex_decomposed_relations = {'R1': ('A', 'B', 'C', 'F'), 'R2': ('A', 'D', 'E'), 'R3': ('B', 'D', 'F')}
+    ex_fds = (({'B'}, {'E'}), ({'E', 'F'}, {'C'}), ({'B', 'C'}, {'A'}), ({'A', 'D'}, {'E'}))
 
     message, canonical = full_chase(ex_original_relation, ex_decomposed_relations, ex_fds)
-
+    
         
     # Example usage
     print(TextColor.RED + "This text is highlighted in red!" + TextColor.RESET)
