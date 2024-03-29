@@ -18,6 +18,10 @@ class TextColor:
     RESET = '\033[0m'  # Reset to default color
 
 
+def wrap_color(elem, color):
+    return color + str(elem) + TextColor.RESET
+
+
 def get_elem_color(elem: str, row_counter: int, changed_rows: {int}, functional_dependency: Tuple[Set[str], Set[str]]):
 
     lhs = functional_dependency[0]
@@ -59,23 +63,24 @@ def create_canonical(original_relation, decomposed_relations):
     return canonical
 
 
-def print_chase(original_relation, canonical, changed_rows={}, functional_dependency=({}, {}), indent_width = 3):
+def chase_table_string(original_relation, canonical, changed_rows={}, functional_dependency=({}, {}), indicator = '>'):
+    indent_width = 3
     max_length = 0
     for row in canonical:
         for elem in sorted(row):
             if len(elem) > max_length:
                 max_length = len(elem)
     width = math.log(len(canonical), 10) + max_length + 4
-    print(f"{indent_width * ' '}", end='')
+    line = f"{indent_width * ' '}"
     for elem in original_relation:
-        print(f'{elem:{width}}', end='')
-    print()
+        line += f'{elem:{width}}'
+    line += '\n'
     row_counter = 0
     for row in canonical:
         if row_counter in changed_rows:
-            print(f"{TextColor.YELLOW}>{(indent_width-1) * ' '}{TextColor.RESET}", end='')
+            line += f"{TextColor.YELLOW}{indicator}{(indent_width-1) * ' '}{TextColor.RESET}"
         else: 
-            print(f"{indent_width * ' '}", end='')
+            line += f"{indent_width * ' '}"
         
         for elem in sorted(row):
             letter_color = get_elem_color(elem, row_counter, changed_rows, functional_dependency)
@@ -83,9 +88,10 @@ def print_chase(original_relation, canonical, changed_rows={}, functional_depend
                 value = f'{elem}{row[elem]}'
             else:
                 value = f'{elem}'
-            print(f'{letter_color}{value:{width}}{TextColor.RESET}', end='')
-        print()
+            line += f'{letter_color}{value:{width}}{TextColor.RESET}'
+        line += '\n'
         row_counter += 1
+    return line
 
 
 def format_fd(fd):
@@ -135,7 +141,7 @@ def equalize(canonical, row_idx1, row_idx2, attributes):
 
 def chase(original_relation, canonical, fds):
     print("Starting chase table:")
-    print_chase(original_relation, canonical)
+    print(chase_table_string(original_relation, canonical), end='')
     print()
     while True:
         old_canonical = copy.deepcopy(canonical)
@@ -146,9 +152,17 @@ def chase(original_relation, canonical, fds):
             pairs = find_pairs_with_equal_lhs(canonical, lhs)
             if len(pairs) > 0:
                 for pair in pairs:
-                    print(f'Changing rows {pair[0]} and {pair[1]}:')
+                    print(f'Changing rows {wrap_color(pair[0], TextColor.YELLOW)} and {wrap_color(pair[1], TextColor.YELLOW)}:')
+                    original_table_string = chase_table_string(original_relation, canonical, {pair[0], pair[1]}, fd)
                     equalize(canonical, pair[0], pair[1], rhs)
-                    print_chase(original_relation, canonical, {pair[0], pair[1]}, fd)
+                    changed_table_string = chase_table_string(original_relation, canonical, {pair[0], pair[1]}, fd, indicator=' ')
+                    original_lines = original_table_string.split(sep='\n')
+                    changed_lines = changed_table_string.split(sep='\n')
+                    for line_num in range(0, len(original_lines) - 1):
+                        arrow_color = TextColor.YELLOW if (line_num-1) in {pair[0], pair[1]} else ""
+                        gap = ' ' * 9 if line_num == 0 else f"{arrow_color} --->    {TextColor.RESET}"
+                        print(f"{original_lines[line_num]}{gap}{changed_lines[line_num]}")
+
                     print()
                     if chase_test(canonical):
                         return
@@ -156,6 +170,14 @@ def chase(original_relation, canonical, fds):
                 print('Cannot apply this functional dependency.')
         if canonical == old_canonical:
             return
+
+
+def row_test(row):
+    row_test = True
+    for subscript in row.values():
+        if subscript is not None:
+            row_test = False
+    return row_test
 
 
 def chase_test(canonical):
@@ -183,15 +205,15 @@ def full_chase(original_relation, decomposed_relations, fds):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F')
-    ex_decomposed_relations = {'R1': ('A', 'B', 'C', 'F'), 'R2': ('A', 'D', 'E'), 'R3': ('B', 'D', 'F')}
-    ex_fds = (({'B'}, {'E'}), ({'E', 'F'}, {'C'}), ({'B', 'C'}, {'A'}), ({'A', 'D'}, {'E'}))
+    ex_original_relation = ('RIN', 'NAME', 'EMAIL', 'MAJOR')
+    ex_decomposed_relations = {'R1': ('RIN', 'NAME', 'EMAIL'), 'R2': ('NAME', 'MAJOR')}
+    ex_fds = (({'RIN'}, {'NAME', 'EMAIL', 'MAJOR'}), )
 
     message, canonical = full_chase(ex_original_relation, ex_decomposed_relations, ex_fds)
-    
+    expected = "Lossy"
         
-    # Example usage
-    print(TextColor.RED + "This text is highlighted in red!" + TextColor.RESET)
-    print(TextColor.GREEN + "This text is highlighted in green!" + TextColor.RESET)
-    print(TextColor.YELLOW + "This text is highlighted in yellow!" + TextColor.RESET)
+    # # Example usage
+    # print(TextColor.RED + "This text is highlighted in red!" + TextColor.RESET)
+    # print(TextColor.GREEN + "This text is highlighted in green!" + TextColor.RESET)
+    # print(TextColor.YELLOW + "This text is highlighted in yellow!" + TextColor.RESET)
 
