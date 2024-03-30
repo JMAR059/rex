@@ -43,21 +43,19 @@ def csvParser(line: str , relations: list = None):
     #print("Current Directory: ",currentDirectory)
     dataTableFolder = os.path.join(currentDirectory, 'dataTables')
     file = os.path.join(dataTableFolder,splitLine[1])
-    #print(file)
+    print(file)
     #print(pd.read_csv(file))
     if not os.path.isfile(file):
         raise ValueError("File does not exist:", file)
-    newRelationNode = relationNode()
-    newRelationNode.resolve(splitLine[0],pd.read_csv(file))
-    for node in relations:
-        if node.getUserInput() == newRelationNode.getUserInput():
-            raise ValueError("Already assigned ",node.getUserInput()," to a csv")
-    relations.append(newRelationNode)
+    newRelationNode = relationNode(userInput = splitLine[0])
+    if splitLine[0] in relations:
+        raise ValueError("Already assigned ",splitLine[0]," to a csv")
+    relations[newRelationNode] = pd.read_csv(file)
     #print(len(inputList))
     return relations
 
 if __name__ == '__main__':
-    csvs = []
+    csvs = {}
     test1 = "R =dinosaur.csv"
     print("TEST 1:\n")
     csvParser(line = test1,relations=csvs)
@@ -73,8 +71,6 @@ if __name__ == '__main__':
     print("\nTEST 5:\n")
     test5 = "R = pokedex.csv"
     #csvParser(line = test5,relations=csvs)
-    for i in csvs:
-        i.printNode()
     #print(csvs)
     df1 = pd.DataFrame({
         'A': [7, 2, 8, 1, 3],

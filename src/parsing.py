@@ -66,8 +66,6 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                     print(f"Index {index}: Making set operation of {op} between {lhsNode} and {rhsNode}")
                 newNode = setOperationNode( LHSVariable=lhsNode, RHSVariable=rhsNode, setOp=op, userInput=line[0:index])
 
-                lhsNode = newNode
-                
             elif op in singleOpSymbols:
                 if (lhsNode == None or op == "" or condition == ""):
                     raise ValueError("One or more varaibles not set in singleton building") 

@@ -1,7 +1,6 @@
 
 import pandas as pd
 from REsymbols import booleanSymbols, booleanSymbolMap
-
 class booleanStatement:
 
     lhs: str = ""
@@ -17,7 +16,8 @@ class booleanStatement:
         return self.userInput
 
     def evaluate(self, row: pd.DataFrame):
-        # Check if row passes condition
+        return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
+        
         pass
 
 
@@ -33,7 +33,15 @@ class compoundStatement(booleanStatement):
 
     def evaluate(self, row: pd.DataFrame):
         # Check if row passes condition
-        pass
+        lhs = self.lhsBoolean.evaluate(row)
+        rhs = self.rhsBoolean.evaluate(row)
+        #print(lhs,rhs)
+        #lhs = eval(f"row.iloc[0][self.lhsBoolean.lhs] {self.lhsBoolean.booleanOp} {self.lhsBoolean.rhs}")
+        #rhs = eval(f"row.iloc[0][self.rhsBoolean.lhs] {self.rhsBoolean.booleanOp} {self.rhsBoolean.rhs}")
+        if self.compoundOp == "and":
+            return (lhs and rhs)
+        else:
+            return (lhs or rhs)
 
 
 def symbolizeComparators(line: str) -> str:

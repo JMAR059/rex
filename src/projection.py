@@ -1,6 +1,8 @@
 import pandas as pd
 import operator
 import re
+from relationBoolean import booleanStatement,booleanParsing
+'''
 def parenthetic_contents(string):
 
     stack = []
@@ -31,60 +33,54 @@ def parse_input(input_str):
 def parseCondition(conditionStr):
     conditions = parenthetic_contents(conditionStr)
     parsedConditions = []
-    logicalOp = None
-    print(conditions)
+    #print(conditions)
     
     for condition in conditions:
         tokens = re.split(r'\b(?:or|and)\b', condition)
         operators = re.findall(r'\b(?:or|and)\b', condition)
         for i in tokens:
             parsedConditions.append(i)
-    print(parsedConditions)
+    #print(parsedConditions)
     return parsedConditions, operators
 
 def constructConditionFunc(parsedConditions):
     ops = {'<': operator.lt, '<=': operator.le, '>': operator.gt, '>=': operator.ge, '==': operator.eq, '!=': operator.ne}
-    print("Parsed Conditions: ",parsedConditions)
     conditionFuncs = []
-    for i in parsedConditions:
-        lhs,op,rhs = i.split()
-        print(lhs,op,rhs)
-        try:
-            rhs = int(rhs)
-        except ValueError:
+    for condition in parsedConditions:
+        if condition.strip(): 
+            lhs, op, rhs = re.split(r'(<|>|<=|>=|==|!=)', condition.strip())
+            lhs = lhs.strip()
             try:
-                rhs = float(rhs)
+                rhs = int(rhs)
             except ValueError:
-                pass 
-        conditionFuncs.append(lambda df, lhs=lhs, op=op, rhs=rhs: ops[op](df[lhs], rhs))
-    print("ConditionFunc: ",conditionFuncs)
-    def conditionFunc(df):
-        result = conditionFuncs[0](df)
-        print("DSFSDFS",conditionFuncs[1](df))
-        for i in range(1,len(conditionFuncs)):
-            print("OPERATOR: ",parsedConditions[len(conditionFuncs)-1][i])
-            if parsedConditions[len(conditionFuncs)-1][i] == 'and':
-                result &= conditionFuncs[len(conditionFuncs)-1][i](df)
-            elif parsedConditions[len(conditionFuncs)-1][i] == 'or':
-                result |= conditionFuncs[len(conditionFuncs)-1][i](df)
-            
-        return result
-    
-    return conditionFunc
+                try:
+                    rhs = float(rhs)
+                except ValueError:
+                    pass 
+            conditionFuncs.append(lambda df, lhs=lhs, op=op, rhs=rhs: ops[op](df[lhs], rhs))
+    return conditionFuncs
 
-def selection(df, conditionStr, selectColumns, projectColumns):
-    parsedConditions, _ = parseCondition(conditionStr)
-    print(parsedConditions)
-    conditionFunc = constructConditionFunc(parsedConditions)
-    selectedRows = df[conditionFunc(df)].loc[:, selectColumns]
-    
+def selection(df, condition, selectColumns, projectColumns):
+    parsedConditions, _ = parseCondition(condition)
+    conditionFuncs = constructConditionFunc(parsedConditions)
+    combined_condition = conditionFuncs[0]
+    for func in conditionFuncs[1:]:
+        combined_condition = lambda df, combined_condition=combined_condition, func=func: combined_condition(df) & func(df)
+    selectedRows = df[combined_condition(df)].loc[:, selectColumns]
     if selectedRows.empty:
         return pd.DataFrame()
-    
     projectedRows = projection(selectedRows, projectColumns)
-    
     return projectedRows
+'''
 
+def selection(df,condition):
+    boolean = booleanParsing(condition,debug= False)
+    resultPD = pd.DataFrame(columns = df.columns)
+    for index, row in df.iterrows():
+        rowDF = pd.DataFrame([row], columns=df.columns)
+        if boolean.evaluate(rowDF):
+            resultPD.loc[len(resultPD.index)] = row
+    return resultPD
 def projection(dataTable1, conditions):
     if isinstance(conditions, list):
         dataTableList = pd.DataFrame()
@@ -110,8 +106,6 @@ if __name__ == '__main__':
     'D': [False, True, False, True, False],
     'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
     })
-    condition_str, query_str = parse_input("select { A > 2 and B < c} query")
-    print(condition_str)
-    selected_df = selection(df1, condition_str, df1.columns.tolist(), df1.columns.tolist())
-
+    condition_str = " A > 2 and D < 40"
+    selected_df = selection(df1, condition_str)
     print(selected_df)
