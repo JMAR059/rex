@@ -23,7 +23,7 @@ class relationNode:
             return self.resultDF
         else:
             raise ValueError("Date Frame Not Found")
-        
+    
 
 
 class setOperationNode(relationNode):
@@ -122,21 +122,19 @@ dataFrameDictionary['U'] = df4
 relationNode5 = relationNode(userInput = 'V')
 dataFrameDictionary['V'] = df5
 if __name__ == "__main__":
-    '''
     newSetOperationNode1 = setOperationNode(LHSVariable = relationNode1,setOp = '∨', RHSVariable = relationNode2)
     newSetOperationNode1.resolve(dataFrameDictionary)
     print(newSetOperationNode1.setOp,newSetOperationNode1.results)
     newSetOperationNode2 = setOperationNode(LHSVariable = relationNode1,setOp = '∧', RHSVariable = relationNode2)
     newSetOperationNode2.resolve(dataFrameDictionary)
-    print(newSetOperationNode1.setOp,newSetOperationNode2.results)
+    print(newSetOperationNode2.setOp,newSetOperationNode2.results)
     newSetOperationNode3 = setOperationNode(LHSVariable = relationNode1,setOp = '-', RHSVariable = relationNode2)
     newSetOperationNode3.resolve(dataFrameDictionary)
-    print(newSetOperationNode1.setOp,newSetOperationNode3.results)
-    '''
-    newSingleOperationNode1 = singleOpNode(singleOp = 'π',SingleVariable = relationNode1,condition = ['A','C','E'])
+    print(newSetOperationNode3.setOp,newSetOperationNode3.results)
+    newSingleOperationNode1 = singleOpNode(singleOp = 'π',SingleVariable = relationNode1,condition = "A,B")
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
-    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "E = kiwi")
+    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "E = kiwi or C < 30")
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
     newJoinNode1 = joinOpNode(LHSVariable =relationNode4, RHSVariable = relationNode5,joinOp = '⨝')
@@ -145,6 +143,7 @@ if __name__ == "__main__":
     newJoinNode2 = joinOpNode(LHSVariable =relationNode4, RHSVariable = relationNode5,joinOp = '⨯')
     newJoinNode2.resolve(dataFrameDictionary)
     print(newJoinNode2.joinOp,newJoinNode2.results)
-    newJoinNode3 = joinOpWithConditionNode(LHSVariable =relationNode1, RHSVariable = relationNode2,joinOp = '⨝',condition = "(A >= 3 and D = True) or E = kiwi")
+    newJoinNode3 = joinOpWithConditionNode(LHSVariable =relationNode1, RHSVariable = relationNode2,joinOp = '⨝',condition = "R.A > S.A")
     newJoinNode3.resolve(dataFrameDictionary)
-    print(newJoinNode3.joinOp,newJoinNode3.results)
+    print(newJoinNode3.results)
+ 

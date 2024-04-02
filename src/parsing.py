@@ -77,7 +77,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
 
             elif op in joinOpSymbols:
                 
-                if (lhsNode == None or op == "" or rhsNode != None):
+                if (lhsNode == None or op == "" or rhsNode == None):
                     raise ValueError("One or more varaibles not set in join building") 
         
                 if debug:
@@ -89,6 +89,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                 raise ValueError(f"Operation not found, current op {op}")
 
             #Reset variables
+            lhsNode = newNode
             mode = "operation"
             rhsNode = None
             op = ""
@@ -217,7 +218,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
 
 if __name__ == "__main__":
 
-    testLine = "(R intersect S union (2A- B1)) union P"
+    testLine = "R intersect S"
 
     print("Here is the current line: " + testLine)
     

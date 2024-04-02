@@ -15,13 +15,19 @@ class booleanStatement:
     def __str__(self):
         return self.userInput
 
-    def evaluate(self, row: pd.DataFrame):
+    def evaluate(self, row: pd.DataFrame):        
         for key,val in booleanSymbolMap.items():
             if self.booleanOp == val:
                 self.booleanOp = key
         if self.rhs.isnumeric():
             return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
-        else:   
+        elif "." in self.rhs:   
+            col1 = self.lhs.split('.')
+            col2 = self.rhs.split('.')
+            sec1 = col1[1]+"1"
+            sec2 = col2[1]+"2"
+            return eval(f"row.iloc[0][sec1] {self.booleanOp} row.iloc[0][sec2]")
+        else:
             return eval(f"row.iloc[0][self.lhs] {self.booleanOp} '{self.rhs}'")
         pass
 

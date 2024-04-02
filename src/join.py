@@ -2,12 +2,11 @@ import pandas as pd
 from projection import projection, selection
 
 def cartesianProduct(dataTable1,dataTable2):
-        cartesian = dataTable1.join(dataTable2,rsuffix = " Other", how = "cross")
+        cartesian = dataTable1.merge(dataTable2,suffixes= ("1","2"), how = "cross")
         return cartesian
 def naturalJoin(dataTable1,dataTable2):
     commonCols = set(dataTable1) & set(dataTable2)
     for col in commonCols:
-        print(col)
         if dataTable1[col].dtype != dataTable2[col].dtype:
             raise ValueError(f"Column '{col}' has mismatched data types: {df1[col].dtype} in df1, {df2[col].dtype} in df2")
     natural = pd.merge(dataTable1,dataTable2)
@@ -38,5 +37,5 @@ if __name__ == '__main__':
     df4 = pd.DataFrame({'ID': [1, 2, 4],
                     'Age': [25, 30, 35]})
     #print("Cartesian Product: \n",cartesianProduct(df1,df2))
-    print("Natural Join: \n", naturalJoin(df3,df4))
-    #print("Theta Join: \n", thetaJoin(df1,df2,'A >= 3 and D = True'))
+    #print("Natural Join: \n", naturalJoin(df3,df4))
+    print("Theta Join: \n", thetaJoin(df1,df2,'df1.A < df2.A'))

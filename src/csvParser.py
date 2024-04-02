@@ -1,10 +1,5 @@
 import pandas as pd
 import os
-from union import union
-from difference import difference
-from projection import projection,selection
-from join import join
-from intersection import intersection
 from typing import Dict
 from relationClasses import relationNode
 def whiteSpaceHandler( line: str ) -> str:
@@ -43,14 +38,15 @@ def csvParser(line: str , relations: list = None):
     #print("Current Directory: ",currentDirectory)
     dataTableFolder = os.path.join(currentDirectory, 'dataTables')
     file = os.path.join(dataTableFolder,splitLine[1])
-    print(file)
+    #print(file)
     #print(pd.read_csv(file))
     if not os.path.isfile(file):
         raise ValueError("File does not exist:", file)
     newRelationNode = relationNode(userInput = splitLine[0])
     if splitLine[0] in relations:
         raise ValueError("Already assigned ",splitLine[0]," to a csv")
-    relations[newRelationNode] = pd.read_csv(file)
+    newRelationNode.resultDF = pd.read_csv(file)
+    relations[splitLine[0]] = pd.read_csv(file)
     #print(len(inputList))
     return relations
 
@@ -71,7 +67,7 @@ if __name__ == '__main__':
     print("\nTEST 5:\n")
     test5 = "R = pokedex.csv"
     #csvParser(line = test5,relations=csvs)
-    #print(csvs)
+    print(csvs['R'])
     df1 = pd.DataFrame({
         'A': [7, 2, 8, 1, 3],
         'B': ['a', 'b', 'c', 'd', 'e'],
@@ -87,14 +83,5 @@ if __name__ == '__main__':
     'D': [False, True, False, True, False],
     'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
     })
-    #print("Union: \n" ,union(df1,df2))
-    #print("Difference: \n",difference(df1,df2))
-    #print("Projection: \n",projection(df1, ['A','C','E']))
-    #print(df1)
-    #print("Selection: \n", selection(df1,"A > 2 or B < 'e' or E = True"))
-    #print(parenthetic_contents("((a(d*c)+ab)b+(c+d*a))"))
-    #print(list(parenthetic_contents("((R x S) x T) and (V x B)")))
-    #print("Cartesian: \n",join.cartesianProduct(df1,df2))
-    #print("Intersection: \n",intersection(df1,df2))
-    #print("Natural Join: \n",join.naturalJoin(df1,df2))
+
 
