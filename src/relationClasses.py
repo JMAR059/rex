@@ -53,7 +53,7 @@ class singleOpNode(relationNode):
     def resolve(self,dataFrameDictionary):
         # Checks condition, solve different based on op and or row/select condition being not None
         if self.singleOp == 'σ':
-            self.results = selection(self.SingleVariable.resolve(dataFrameDictionary),self.condition,self.SingleVariable.resultDF.columns.tolist(),self.SingleVariable.resultDF.columns.tolist())
+            self.results = selection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)
         elif self.singleOp == 'π':
             self.results = projection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)  
         pass
@@ -63,10 +63,13 @@ class joinOpNode(relationNode):
     LHSVariable: relationNode = None
     RHSVariable: relationNode = None
     joinOp: str = ""
-
-    def resolve():
+    results = None
+    def resolve(self,dataFrameDictionary):
         # Join then filter if there is a selectCondition present
-
+        if self.joinOp == '⨯':
+            self.results = cartesianProduct(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
+        elif self.joinOp == '⨝':
+            self.results = naturalJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
         pass
 
 
@@ -74,8 +77,10 @@ class joinOpWithConditionNode(joinOpNode):
 
     condition: str = ""
 
-    def resolve():
+    def resolve(self,dataFrameDictionary):
         # Join then filter if there is a selectCondition present
+        if self.joinOp == '⨝':
+            self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),self.condition)
         pass
     
 df1 = pd.DataFrame({
@@ -100,13 +105,22 @@ df3 = pd.DataFrame({
     'D': [True, True, False, False, False],
     'E': ['apple', 'mango', 'orange', 'blueberry', 'kiwi']
     })    
+df4 = pd.DataFrame({'ID': [1, 2, 3],
+                    'Name': ['Alice', 'Bob', 'Charlie']})
+
+df5 = pd.DataFrame({'ID': [1, 2, 4],
+                    'Age': [25, 30, 35]})
 dataFrameDictionary = {}
 relationNode1 = relationNode(userInput = 'R')
 dataFrameDictionary['R'] = df1
 relationNode2 = relationNode(userInput = 'S')
 dataFrameDictionary['S'] = df2
-relationNode2 = relationNode(userInput = 'T')
+relationNode3 = relationNode(userInput = 'T')
 dataFrameDictionary['T'] = df3
+relationNode4 = relationNode(userInput = 'U')
+dataFrameDictionary['U'] = df4
+relationNode5 = relationNode(userInput = 'V')
+dataFrameDictionary['V'] = df5
 if __name__ == "__main__":
     '''
     newSetOperationNode1 = setOperationNode(LHSVariable = relationNode1,setOp = '∨', RHSVariable = relationNode2)
@@ -122,6 +136,15 @@ if __name__ == "__main__":
     newSingleOperationNode1 = singleOpNode(singleOp = 'π',SingleVariable = relationNode1,condition = ['A','C','E'])
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
-    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "A > 4 or C > 20")
+    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "E = kiwi")
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
+    newJoinNode1 = joinOpNode(LHSVariable =relationNode4, RHSVariable = relationNode5,joinOp = '⨝')
+    newJoinNode1.resolve(dataFrameDictionary)
+    print(newJoinNode1.joinOp,newJoinNode1.results)
+    newJoinNode2 = joinOpNode(LHSVariable =relationNode4, RHSVariable = relationNode5,joinOp = '⨯')
+    newJoinNode2.resolve(dataFrameDictionary)
+    print(newJoinNode2.joinOp,newJoinNode2.results)
+    newJoinNode3 = joinOpWithConditionNode(LHSVariable =relationNode1, RHSVariable = relationNode2,joinOp = '⨝',condition = "(A >= 3 and D = True) or E = kiwi")
+    newJoinNode3.resolve(dataFrameDictionary)
+    print(newJoinNode3.joinOp,newJoinNode3.results)

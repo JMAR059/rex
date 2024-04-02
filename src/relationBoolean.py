@@ -16,8 +16,13 @@ class booleanStatement:
         return self.userInput
 
     def evaluate(self, row: pd.DataFrame):
-        return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
-        
+        for key,val in booleanSymbolMap.items():
+            if self.booleanOp == val:
+                self.booleanOp = key
+        if self.rhs.isnumeric():
+            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
+        else:   
+            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} '{self.rhs}'")
         pass
 
 
@@ -36,8 +41,6 @@ class compoundStatement(booleanStatement):
         lhs = self.lhsBoolean.evaluate(row)
         rhs = self.rhsBoolean.evaluate(row)
         #print(lhs,rhs)
-        #lhs = eval(f"row.iloc[0][self.lhsBoolean.lhs] {self.lhsBoolean.booleanOp} {self.lhsBoolean.rhs}")
-        #rhs = eval(f"row.iloc[0][self.rhsBoolean.lhs] {self.rhsBoolean.booleanOp} {self.rhsBoolean.rhs}")
         if self.compoundOp == "and":
             return (lhs and rhs)
         else:

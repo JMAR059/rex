@@ -106,6 +106,6 @@ if __name__ == '__main__':
     'D': [False, True, False, True, False],
     'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
     })
-    condition_str = " A > 2 and D < 40"
+    condition_str = "A > 2 and D = True"
     selected_df = selection(df1, condition_str)
     print(selected_df)
