@@ -22,7 +22,7 @@ class relationNode:
             self.resultDF = dataFrameDictionary[self.userInput]
             return self.resultDF
         else:
-            raise ValueError(f"{self.userInput} Data Frame Not Found")
+            raise ValueError(f"Data Frame {self.userInput} Not Found")
     
 
 
@@ -54,7 +54,7 @@ class singleOpNode(relationNode):
     def resolve(self,dataFrameDictionary):
         # Checks condition, solve different based on op and or row/select condition being not None
         if self.singleOp == 'σ':
-            self.results = selection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)
+            self.results = selection(self.SingleVariable.resolve(dataFrameDictionary),self.condition,dataFrameDictionary)
         elif self.singleOp == 'π':
             self.results = projection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)  
         return self.results
@@ -69,7 +69,8 @@ class joinOpNode(relationNode):
     def resolve(self,dataFrameDictionary):
         # Join then filter if there is a selectCondition present
         if self.joinOp == '⨯':
-            self.results = cartesianProduct(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
+            self.results = cartesianProduct(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
+                                            self.LHSVariable.userInput, self.RHSVariable.userInput, dataFrameDictionary)
         elif self.joinOp == '⨝':
             self.results = naturalJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
         return self.results
@@ -83,7 +84,13 @@ class joinOpWithConditionNode(joinOpNode):
     def resolve(self,dataFrameDictionary):
         # Join then filter if there is a selectCondition present
         if self.joinOp == '⨝':
-            self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),self.condition)
+            if self.LHSVariable.userInput not in self.condition:
+                raise ValueError(f"{self.LHSVariable.userInput} is not in {self.condition}")
+            if self.RHSVariable.userInput not in self.condition:
+                raise ValueError(f"{self.RHSVariable.userInput} is not in {self.condition}")
+            
+            self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
+                                     self.condition,dataFrameDictionary,self.LHSVariable.userInput,self.RHSVariable.userInput)
         return self.results
         pass
     
@@ -138,7 +145,7 @@ if __name__ == "__main__":
     newSingleOperationNode1 = singleOpNode(singleOp = 'π',SingleVariable = relationNode1,condition = "A,B")
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
-    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "A >= 3")
+    newSingleOperationNode1 = singleOpNode(singleOp = 'σ',SingleVariable = relationNode1,condition = "D = True",dataFrameDictionary = dataFrameDictionary)
     newSingleOperationNode1.resolve(dataFrameDictionary)
     print(newSingleOperationNode1.singleOp,newSingleOperationNode1.results)
     newJoinNode1 = joinOpNode(LHSVariable =relationNode4, RHSVariable = relationNode5,joinOp = '⨝')

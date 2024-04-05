@@ -55,7 +55,6 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
     index = 0
     mode = "start" #change mode to set for better optimization?
     while(index < len(line) + 1):
-        print(condition)
         if mode == "build":
             # build relation node and set mode back to finding op
             if op in setOpSymbols:
@@ -81,7 +80,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                     raise ValueError("One or more varaibles not set in join building") 
         
                 if debug:
-                    print(f"Index {index}: Making join operation of {op} for {lhsNode} | {rhsNode} with condition:{condition}")
+                    print(f"Index {index}: Making join operation of {op} for {lhsNode} | {rhsNode} with condition: {condition}")
                 if condition == "":
                     newNode = joinOpNode(LHSVariable=lhsNode, RHSVariable=rhsNode, joinOp=op, condition=condition, userInput=line[0:index])
                 else:
@@ -256,11 +255,11 @@ dataFrameDictionary['U'] = df4
 relationNode5 = relationNode(userInput = 'V')
 dataFrameDictionary['V'] = df5
 if __name__ == "__main__":
-    #testLine = "project_ {A,C,E} R "
-    #testLine = "select_ {A >= 3} R "
+    #testLine = "project_ {A,C,E} R"
+    testLine = "select_ {D = True} R"
     #testLine = "U join_ V"
     #testLine = "U * V"
-    testLine = "R join_ {R.A > S.A} S"
+    #testLine = "R join_ {R.D = True} S"
     print("Here is the current line: " + testLine)
     
     testLine = symbolize(testLine)

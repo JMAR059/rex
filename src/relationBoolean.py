@@ -15,20 +15,24 @@ class booleanStatement:
     def __str__(self):
         return self.userInput
 
-    def evaluate(self, row: pd.DataFrame):        
+    def evaluate(self, row: pd.DataFrame,dataFrameDictionary):        
         for key,val in booleanSymbolMap.items():
             if self.booleanOp == val:
                 self.booleanOp = key
+        
         if self.rhs.isnumeric():
             return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
         elif "." in self.rhs:   
-            col1 = self.lhs.split('.')
-            col2 = self.rhs.split('.')
-            sec1 = col1[1]+"1"
-            sec2 = col2[1]+"2"
-            return eval(f"row.iloc[0][sec1] {self.booleanOp} row.iloc[0][sec2]")
+
+            if self.lhs not in row:
+                raise ValueError(f"{self.lhs} is not a data frame")
+            if self.rhs not in row:
+                raise ValueError(f"{self.rhs} is not a data frame")
+            if type(row.iloc[0][self.lhs]) != type(row.iloc[0][self.rhs]):
+                raise ValueError("Types do not match")
+            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} row.iloc[0][self.rhs]")
         else:
-            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} '{self.rhs}'")
+            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
         pass
 
 
@@ -42,10 +46,10 @@ class compoundStatement(booleanStatement):
         self.__dict__.update(kwargs)
         self.userInput = self.lhsBoolean.userInput + ' ' + self.compoundOp + ' ' + self.rhsBoolean.userInput
 
-    def evaluate(self, row: pd.DataFrame):
+    def evaluate(self, row: pd.DataFrame,dataFrameDictionary):
         # Check if row passes condition
-        lhs = self.lhsBoolean.evaluate(row)
-        rhs = self.rhsBoolean.evaluate(row)
+        lhs = self.lhsBoolean.evaluate(row,dataFrameDictionary)
+        rhs = self.rhsBoolean.evaluate(row,dataFrameDictionary)
         #print(lhs,rhs)
         if self.compoundOp == "and":
             return (lhs and rhs)

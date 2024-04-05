@@ -1,9 +1,18 @@
 import pandas as pd
 from projection import projection, selection
 
-def cartesianProduct(dataTable1,dataTable2):
-        cartesian = dataTable1.merge(dataTable2,suffixes= ("1","2"), how = "cross")
-        return cartesian
+def cartesianProduct(dataTable1,dataTable2,LHSName,RHSName, dataFrameDictionary={}):
+    commonCols = set(dataTable1) & set(dataTable2)
+    for col in commonCols:
+        if dataTable1[col].dtype != dataTable2[col].dtype:
+            raise ValueError(f"Column '{col}' has mismatched data types: {df1[col].dtype} in df1, {df2[col].dtype} in df2")
+    cartesian = dataTable1.merge(dataTable2,suffixes= ("1","2"), how = "cross")
+    for col in commonCols:
+        if LHSName in dataFrameDictionary:
+            cartesian = cartesian.rename(columns={col+"1": LHSName+'.'+col})
+        if RHSName in dataFrameDictionary:
+            cartesian = cartesian.rename(columns={col+"2": RHSName+'.'+col})
+    return cartesian
 def naturalJoin(dataTable1,dataTable2):
     commonCols = set(dataTable1) & set(dataTable2)
     for col in commonCols:
@@ -11,9 +20,9 @@ def naturalJoin(dataTable1,dataTable2):
             raise ValueError(f"Column '{col}' has mismatched data types: {df1[col].dtype} in df1, {df2[col].dtype} in df2")
     natural = pd.merge(dataTable1,dataTable2)
     return natural
-def thetaJoin(dataTable1,dataTable2,conditions):
-        cartesian = cartesianProduct(dataTable1,dataTable2)
-        theta = selection(cartesian,conditions)
+def thetaJoin(dataTable1,dataTable2,conditions,dataFrameDictionary,LHSName,RHSName):
+        cartesian = cartesianProduct(dataTable1,dataTable2,LHSName,RHSName,dataFrameDictionary)
+        theta = selection(cartesian,conditions,dataFrameDictionary)
         return theta
 if __name__ == '__main__':
     df1 = pd.DataFrame({

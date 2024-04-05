@@ -1,12 +1,12 @@
 import pandas as pd
 from relationBoolean import booleanParsing
 
-def selection(df,condition):
+def selection(df,condition,dataFrameDictionary):
     boolean = booleanParsing(condition,debug= False)
     resultPD = pd.DataFrame(columns = df.columns)
     for index, row in df.iterrows():
         rowDF = pd.DataFrame([row], columns=df.columns)
-        if boolean.evaluate(rowDF):
+        if boolean.evaluate(rowDF,dataFrameDictionary):
             resultPD.loc[len(resultPD.index)] = row
     return resultPD
 def projection(dataTable1, conditions):
