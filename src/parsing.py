@@ -1,4 +1,4 @@
-from REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols
+from REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols, allRelationSymbols
 from typing import Dict
 from relationClasses import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
 from relationBoolean import booleanParsing
@@ -37,7 +37,7 @@ def symbolize( line: str ) -> str:
 
 
 def validRelationChar( char: str ) -> bool:
-    return char.isalnum()
+    return char.isalnum() and char not in allRelationSymbols
 
 
 def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, debug = False) -> relationNode:
@@ -136,18 +136,17 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                     raise ValueError(f"Single operation found not at the start!")
                 mode = "relation"               
             elif char in joinOpSymbols:
-                    mode = "relation"
+                mode = "relation"
             else:
                 raise ValueError(f"Unexpected Symbol at index:{index}")
 
             op = char
 
-
             if debug:
                 print(f"Index {index}: Found operation {op}")    
             index += 1
 
-        elif (validRelationChar(char)  or char == '(') and (mode == "start" or "relation" in mode):
+        elif (validRelationChar(char) or char == '(') and (mode == "start" or "relation" in mode):
             # Case for parenthesis ignore looping below
             if char == '(':
                 parenthesisLine = ""
@@ -197,8 +196,6 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             else:
                 rhsNode = newNode
                 mode = "build"
-        
-     
         else:
             raise ValueError(f"Search mode: {mode} at index: {index}, got {char} instead.")
         
@@ -256,10 +253,10 @@ relationNode5 = relationNode(userInput = 'V')
 dataFrameDictionary['V'] = df5
 if __name__ == "__main__":
     #testLine = "project_ {A,C,E} R"
-    testLine = "select_ {D = True} R"
+    #testLine = "select_ {E = kiwi} R"
     #testLine = "U join_ V"
     #testLine = "U * V"
-    #testLine = "R join_ {R.D = True} S"
+    testLine = "U * V"
     print("Here is the current line: " + testLine)
     
     testLine = symbolize(testLine)

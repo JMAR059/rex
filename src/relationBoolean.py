@@ -1,6 +1,25 @@
 
 import pandas as pd
 from REsymbols import booleanSymbols, booleanSymbolMap
+import numpy as np
+
+def addQuotesIfNeeded(string):
+    if string.startswith('"') and string.endswith('"'):
+        return string
+    elif string.startswith('\'') and string.endswith('\''):
+        return string
+    else:
+        return f'"{string}"'
+
+def isRealNumber(s):
+    return np.core.defchararray.isnumeric(s.replace('.', '', 1))
+
+def handleStringCases(variable):
+    if isinstance(variable, str) and not isRealNumber(variable) and variable not in ["True", "False"]:
+        return addQuotesIfNeeded(variable)
+    else:
+        return variable
+
 class booleanStatement:
 
     lhs: str = ""
@@ -20,21 +39,26 @@ class booleanStatement:
             if self.booleanOp == val:
                 self.booleanOp = key
         
-        if self.rhs.isnumeric():
-            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
-        elif "." in self.rhs:   
+        usesOneRowElement = False
 
-            if self.lhs not in row:
-                raise ValueError(f"{self.lhs} is not a data frame")
-            if self.rhs not in row:
-                raise ValueError(f"{self.rhs} is not a data frame")
-            if type(row.iloc[0][self.lhs]) != type(row.iloc[0][self.rhs]):
-                raise ValueError("Types do not match")
-            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} row.iloc[0][self.rhs]")
-        else:
-            return eval(f"row.iloc[0][self.lhs] {self.booleanOp} {self.rhs}")
-        pass
+        LHSVariable = self.lhs
+        if self.lhs in row and not (self.lhs.isnumeric()):
+            LHSVariable = row.iloc[0][self.lhs]
+            usesOneRowElement = True
+        LHSVariable = handleStringCases(LHSVariable)
 
+        RHSVariable = self.rhs
+        if self.rhs in row and not (self.rhs.isnumeric()):
+            RHSVariable = row.iloc[0][self.rhs]
+            usesOneRowElement = True
+        RHSVariable = handleStringCases(RHSVariable)
+        
+        if usesOneRowElement == False:
+            raise ValueError("Condition does not depend on element of relation.")
+        '''print(type(LHSVariable),type(RHSVariable))
+        print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
+        print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))'''
+        return eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
 
 class compoundStatement(booleanStatement):
 
@@ -68,7 +92,7 @@ def symbolizeComparators(line: str) -> str:
 
 
 def validChar(char: str) -> bool:
-    return char.isalpha() or char.isdigit() or char in ['.', ""]
+    return char.isalpha() or char.isdigit() or char in ['.', '\'', '\"']
 
 
 def booleanParsing(line: str, debug = False) -> booleanStatement:

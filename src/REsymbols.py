@@ -26,6 +26,8 @@ singleOpSymbols = {
     "π"
 }
 
+allRelationSymbols = setOpSymbols | joinOpSymbols | singleOpSymbols
+
 booleanSymbols = {
     "≤",
     "≥",

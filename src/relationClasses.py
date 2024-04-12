@@ -43,7 +43,6 @@ class setOperationNode(relationNode):
         elif self.setOp =="-":
             self.results = difference(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
         return self.results
-        pass
 
 class singleOpNode(relationNode):
     
@@ -58,7 +57,6 @@ class singleOpNode(relationNode):
         elif self.singleOp == 'π':
             self.results = projection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)  
         return self.results
-        pass
 
 class joinOpNode(relationNode):
 
@@ -74,7 +72,6 @@ class joinOpNode(relationNode):
         elif self.joinOp == '⨝':
             self.results = naturalJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
         return self.results
-        pass
 
 
 class joinOpWithConditionNode(joinOpNode):
@@ -84,15 +81,9 @@ class joinOpWithConditionNode(joinOpNode):
     def resolve(self,dataFrameDictionary):
         # Join then filter if there is a selectCondition present
         if self.joinOp == '⨝':
-            if self.LHSVariable.userInput not in self.condition:
-                raise ValueError(f"{self.LHSVariable.userInput} is not in {self.condition}")
-            if self.RHSVariable.userInput not in self.condition:
-                raise ValueError(f"{self.RHSVariable.userInput} is not in {self.condition}")
-            
             self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
                                      self.condition,dataFrameDictionary,self.LHSVariable.userInput,self.RHSVariable.userInput)
         return self.results
-        pass
     
 df1 = pd.DataFrame({
         'A': [7, 2, 8, 1, 3],
