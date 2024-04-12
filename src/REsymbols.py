@@ -1,4 +1,3 @@
-
 symbols = {
     "union": "∨",
     "intersect": "∧",
@@ -26,6 +25,8 @@ singleOpSymbols = {
     "σ",
     "π"
 }
+
+allRelationSymbols = setOpSymbols | joinOpSymbols | singleOpSymbols
 
 booleanSymbols = {
     "≤",

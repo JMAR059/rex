@@ -1,6 +1,24 @@
 
 import pandas as pd
 from REsymbols import booleanSymbols, booleanSymbolMap
+import numpy as np
+
+def addQuotesIfNeeded(string):
+    if string.startswith('"') and string.endswith('"'):
+        return string
+    elif string.startswith('\'') and string.endswith('\''):
+        return string
+    else:
+        return f'"{string}"'
+
+def isRealNumber(s):
+    return np.core.defchararray.isnumeric(s.replace('.', '', 1))
+
+def handleStringCases(variable):
+    if isinstance(variable, str) and not isRealNumber(variable) and variable not in ["True", "False"]:
+        return addQuotesIfNeeded(variable)
+    else:
+        return variable
 
 class booleanStatement:
 
@@ -16,10 +34,31 @@ class booleanStatement:
     def __str__(self):
         return self.userInput
 
-    def evaluate(self, row: pd.DataFrame):
-        # Check if row passes condition
-        pass
+    def evaluate(self, row: pd.DataFrame,dataFrameDictionary):        
+        for key,val in booleanSymbolMap.items():
+            if self.booleanOp == val:
+                self.booleanOp = key
+        
+        usesOneRowElement = False
 
+        LHSVariable = self.lhs
+        if self.lhs in row and not (self.lhs.isnumeric()):
+            LHSVariable = row.iloc[0][self.lhs]
+            usesOneRowElement = True
+        LHSVariable = handleStringCases(LHSVariable)
+
+        RHSVariable = self.rhs
+        if self.rhs in row and not (self.rhs.isnumeric()):
+            RHSVariable = row.iloc[0][self.rhs]
+            usesOneRowElement = True
+        RHSVariable = handleStringCases(RHSVariable)
+        
+        if usesOneRowElement == False:
+            raise ValueError("Condition does not depend on element of relation.")
+        '''print(type(LHSVariable),type(RHSVariable))
+        print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
+        print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))'''
+        return eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
 
 class compoundStatement(booleanStatement):
 
@@ -31,9 +70,15 @@ class compoundStatement(booleanStatement):
         self.__dict__.update(kwargs)
         self.userInput = self.lhsBoolean.userInput + ' ' + self.compoundOp + ' ' + self.rhsBoolean.userInput
 
-    def evaluate(self, row: pd.DataFrame):
+    def evaluate(self, row: pd.DataFrame,dataFrameDictionary):
         # Check if row passes condition
-        pass
+        lhs = self.lhsBoolean.evaluate(row,dataFrameDictionary)
+        rhs = self.rhsBoolean.evaluate(row,dataFrameDictionary)
+        #print(lhs,rhs)
+        if self.compoundOp == "and":
+            return (lhs and rhs)
+        else:
+            return (lhs or rhs)
 
 
 def symbolizeComparators(line: str) -> str:
@@ -47,7 +92,7 @@ def symbolizeComparators(line: str) -> str:
 
 
 def validChar(char: str) -> bool:
-    return char.isalpha() or char.isdigit() or char in ['.', ""]
+    return char.isalpha() or char.isdigit() or char in ['.', '\'', '\"']
 
 
 def booleanParsing(line: str, debug = False) -> booleanStatement:
