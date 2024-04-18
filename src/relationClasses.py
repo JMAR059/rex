@@ -83,6 +83,7 @@ class joinOpWithConditionNode(joinOpNode):
         if self.joinOp == '⨝':
             self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
                                      self.condition,dataFrameDictionary,self.LHSVariable.userInput,self.RHSVariable.userInput)
+        #throw error ELSE CASE NEEDED
         return self.results
     
 df1 = pd.DataFrame({

@@ -32,6 +32,7 @@ def symbolize( line: str ) -> str:
 
     for symbol in symbols:
         result = result.replace(symbol, symbols[symbol])
+        result = result.replace(symbol.upper(), symbols[symbol])
 
     return result
 

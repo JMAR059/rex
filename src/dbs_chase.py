@@ -212,10 +212,10 @@ def full_chase(original_relation, decomposed_relations, fds, printing=False):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
-    ex_decomposed_relations = {'R1': ('A', 'B', 'C', 'D', 'E'), 'R2': ('C', 'D', 'F'), 'R3': ('A', 'B', 'D', 'G'),
-                                   'R4': ('A', 'F')}
-    ex_fds = (({'A', 'B'}, {'C'}), ({'C', 'D'}, {'E', 'F'}), ({'F'}, {'A'}))
+    ex_original_relation = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+    ex_decomposed_relations = {'R1': ['A', 'B', 'C', 'D', 'E'], 'R2': ['C', 'D', 'F'], 'R3': ['A', 'B', 'D', 'G'],
+                                   'R4': ['A', 'F']}
+    ex_fds = [({'A', 'B'}, {'C'}), ({'C', 'D'}, {'E', 'F'}), ({'F'}, {'A'})]
 
     message, canonical = full_chase(ex_original_relation, ex_decomposed_relations, ex_fds, printing=True)
     print(message)
