@@ -1,6 +1,7 @@
-from dbs_chase import full_chase
+from dbs_chase import full_chase, TextColor
 #from src.REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols, allRelationSymbols
 from parsing import relationalParser, symbolize
+import pandas as pd
 # from typing import Dict
 # from src.relationClasses import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
 
@@ -61,20 +62,20 @@ def relationalAlgebraSimulation(completeDataframes):
             print("Resulting Dataframe:")
             print(resultDF)
         except Exception as error:
-            print(f"Error \"{error}\" occured! Please try inputting again!\n")
+            print(f"{TextColor.RED}Error \"{error}\" occured!{TextColor.RESET} Please try inputting again!\n")
             continue
 
-        print("\nRelational algebra query complete! Enter CONT to run it again, or EXIT to go back to the menu.")
+        print(f"\n{TextColor.GREEN}Relational algebra query complete!{TextColor.RESET} Enter CONT to run it again, or EXIT to go back to the menu.")
         
         while True:
-            userInput = input("Input: ")
+            userInput = input("Choice: ")
 
             if userInput == "CONT":
                 break
             elif userInput == "EXIT":
                 return
             else:
-                print("Unexpected Input! Please try again.")
+                print(f"{TextColor.RED}Unexpected Input!{TextColor.RESET} Please try again.")
 
 
 def chaseAlgorithmSimulation():
@@ -92,7 +93,7 @@ def chaseAlgorithmSimulation():
             print()
             
             if len(originalInput) <= 2 or originalInput[0] != '(' or originalInput[len(originalInput) - 1] != ')':
-                print("Input in unexpected format! Please try again.\n")
+                print(f"{TextColor.RED}Input in unexpected format!{TextColor.RESET} Please try again.\n")
                 continue
                 
             originalRelation = originalInput[1:len(originalInput)-1].split(sep=',')
@@ -103,7 +104,7 @@ def chaseAlgorithmSimulation():
         
         decomposedRelations = {}
         relationNumber = 1
-        print("There can be multiple decomposed relations. Insert as many needed.\n")
+        print("\nThere can be multiple decomposed relations. Insert as many needed.\n")
         while True:
             if len(decomposedRelations) != 0:
                 print("Decomposed Relations so far:")
@@ -119,7 +120,7 @@ def chaseAlgorithmSimulation():
                 relationNumber = 1
                 continue
             if len(decompositionInput) <= 2 or decompositionInput[0] != '(' or decompositionInput[len(decompositionInput) - 1] != ')':
-                print("Input in unexpected format! Please try again.\n")
+                print(f"{TextColor.RED}Input in unexpected format!{TextColor.RESET} Please try again.\n")
                 continue
             
             decomposedRelation = decompositionInput[1:len(decompositionInput)-1].split(sep=',')
@@ -136,7 +137,7 @@ def chaseAlgorithmSimulation():
                 print("Functional Dependencies so far:")
                 printFDList(functionalDependencies)
             print("Insert a functional dependencies in the format (A) -> (B, C) or enter END to finish.")
-            print("If an error occured, enter RESET to start over.")
+            print("If a mistake was made, enter RESET to start over.")
             fdInput = input("Input for functional dependency: ").strip()
             print()
             if fdInput == "END":
@@ -153,26 +154,22 @@ def chaseAlgorithmSimulation():
             RHSInput = functionalDependency[1].strip()
 
             if len(LHSInput) <= 2 or LHSInput[0] != '(' or LHSInput[len(LHSInput) - 1] != ')':
-                print("Input for LHS of Functional Dependency in unexpected format! Please try again.\n")
+                print(f"{TextColor.RED}Input for LHS of Functional Dependency in unexpected format!{TextColor.RESET} Please try again.\n")
                 continue
             LHSList = list(map(lambda x: x.strip(), LHSInput[1:len(LHSInput)-1].split(sep=',')))
             
             if len(RHSInput) <= 2 or RHSInput[0] != '(' or RHSInput[len(RHSInput) - 1] != ')':
-                print("Input for RHS of Functional Dependency in unexpected format! Please try again.\n")
+                print(f"{TextColor.RED}Input for RHS of Functional Dependency in unexpected format!{TextColor.RESET} Please try again.\n")
                 continue
             RHSList = list(map(lambda x: x.strip(), RHSInput[1:len(RHSInput)-1].split(sep=',')))
 
             print("Functional depency given: " + str(LHSList) + ' -> ' + str(RHSList))
             functionalDependencies.append( (LHSList, RHSList) )
         
-        print(originalRelation)
-        print(decomposedRelations)
-        print(functionalDependencies)
-        
         message, canonical = full_chase(originalRelation, decomposedRelations, functionalDependencies, printing=True)
         print(message)
 
-        print("\nChase Algorithm complete! Enter CONT to run it again, or EXIT to go back to the menu.")
+        print(f"\n{TextColor.GREEN}Chase Algorithm complete!{TextColor.RESET} Enter CONT to try it again, or EXIT to go back to the menu.")
         
         while True:
             userInput = input("Input: ")
@@ -182,13 +179,45 @@ def chaseAlgorithmSimulation():
             elif userInput == "EXIT":
                 return
             else:
-                print("Unexpected Input! Please try again.")
+                print(f"{TextColor.RED}Unexpected Input!{TextColor.RESET} Please try again.")
 
 
 if __name__ == "__main__":
 
 
-    testingDataframes = {}
+    df1 = pd.DataFrame({
+            'A': [7, 2, 8, 1, 3],
+            'B': ['a', 'b', 'c', 'd', 'e'],
+            'C': [10.5, 20.3, 30.1, 40.7, 50.9],
+            'D': [True, False, True, False, True],
+            'E': ['apple', 'banana', 'orange', 'grape', 'kiwi']
+        })
+
+    df2 = pd.DataFrame({
+        'A': [4, 1, 5, 6, 9],
+        'B': ['x', 'y', 'z', 'w', 'v'],
+        'C': [15.2, 25.6, 35.8, 45.3, 55.1],
+        'D': [False, True, False, True, False],
+        'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
+        })
+    df3 = pd.DataFrame({
+        'F': [2, 3, 4, 7, 8],
+        'G': ['a', 'y', 'c', 'w', 'd'],
+        'H': [45.2, 15.6, 65.8, 35.3, 53.1],
+        'I': [True, True, False, False, False],
+        'J': ['apple', 'mango', 'orange', 'blueberry', 'kiwi']
+        })    
+    df4 = pd.DataFrame({'ID': [1, 2, 3],
+                        'Name': ['Alice', 'Bob', 'Charlie']})
+
+    df5 = pd.DataFrame({'ID': [1, 2, 4],
+                        'Age': [25, 30, 35]})
+    dataFrameDictionary = {}
+    dataFrameDictionary['R'] = df1
+    dataFrameDictionary['S'] = df2
+    dataFrameDictionary['T'] = df3
+    dataFrameDictionary['U'] = df4
+    dataFrameDictionary['V'] = df5
     ### INSERT TEST FOR EXPO HERE
 
     printRex()
@@ -205,7 +234,7 @@ if __name__ == "__main__":
         print()
 
         if userInput == "1":
-            relationalAlgebraSimulation(testingDataframes)
+            relationalAlgebraSimulation(dataFrameDictionary)
         elif userInput == "2": 
             chaseAlgorithmSimulation()
         elif userInput == "EXIT":

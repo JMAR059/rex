@@ -82,8 +82,14 @@ def chase_table_string(original_relation, canonical, changed_rows={}, functional
             line += f"{TextColor.YELLOW}" 
         line += f"R{row_counter+1}{TextColor.RESET} |{(indent_width-4) * ' '}"
         
+        row_test = True
+        for subscript in row.values():
+            if subscript is not None:
+                row_test = False
+
         for elem in sorted(row):
             letter_color = get_elem_color(elem, row_counter, changed_rows, functional_dependency)
+            letter_color = letter_color if row_test == False else TextColor.GREEN
             if row[elem] is not None:
                 value = f'{elem}{row[elem]}'
             else:
@@ -212,11 +218,11 @@ def full_chase(original_relation, decomposed_relations, fds, printing=False):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    ex_original_relation = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
-    ex_decomposed_relations = {'R1': ['A', 'B', 'C', 'D', 'E'], 'R2': ['C', 'D', 'F'], 'R3': ['A', 'B', 'D', 'G'],
-                                   'R4': ['A', 'F']}
-    ex_fds = [({'A', 'B'}, {'C'}), ({'C', 'D'}, {'E', 'F'}), ({'F'}, {'A'})]
-
+    ex_original_relation = ('A', 'B', 'C', 'D', 'E', 'F', 'G')
+    ex_decomposed_relations = {'R1': ('A', 'B', 'C'), 'R2': ('A', 'B', 'E'), 'R3': ('C', 'E', 'F', 'G'),
+                               'R4': ('A', 'B', 'C', 'D')}
+    ex_fds = (({'A', 'C'}, {'E', 'F'}), ({'E', 'G'}, {'A'}), ({'B', 'F'}, {'C', 'D'}), ({'C', 'G'}, {'A'}),
+                  ({'C', 'E'}, {'G'}), ({'E'}, {'A', 'B'}))
     message, canonical = full_chase(ex_original_relation, ex_decomposed_relations, ex_fds, printing=True)
     print(message)
         

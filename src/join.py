@@ -18,7 +18,10 @@ def naturalJoin(dataTable1,dataTable2):
     for col in commonCols:
         if dataTable1[col].dtype != dataTable2[col].dtype:
             raise ValueError(f"Column '{col}' has mismatched data types: {df1[col].dtype} in df1, {df2[col].dtype} in df2")
-    natural = pd.merge(dataTable1,dataTable2)
+    if len(commonCols) != 0:
+        natural = pd.merge(dataTable1,dataTable2)
+    else:
+        natural = pd.DataFrame()
     return natural
 def thetaJoin(dataTable1,dataTable2,conditions,dataFrameDictionary,LHSName,RHSName):
         cartesian = cartesianProduct(dataTable1,dataTable2,LHSName,RHSName,dataFrameDictionary)

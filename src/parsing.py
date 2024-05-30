@@ -83,7 +83,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                 if debug:
                     print(f"Index {index}: Making join operation of {op} for {lhsNode} | {rhsNode} with condition: {condition}")
                 if condition == "":
-                    newNode = joinOpNode(LHSVariable=lhsNode, RHSVariable=rhsNode, joinOp=op, condition=condition, userInput=line[0:index])
+                    newNode = joinOpNode(LHSVariable=lhsNode, RHSVariable=rhsNode, joinOp=op, userInput=line[0:index])
                 else:
                     newNode = joinOpWithConditionNode(LHSVariable=lhsNode, RHSVariable=rhsNode, joinOp=op, condition=condition, userInput=line[0:index])
 
@@ -214,50 +214,49 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             
             
 
-df1 = pd.DataFrame({
-        'A': [7, 2, 8, 1, 3],
-        'B': ['a', 'b', 'c', 'd', 'e'],
-        'C': [10.5, 20.3, 30.1, 40.7, 50.9],
-        'D': [True, False, True, False, True],
-        'E': ['apple', 'banana', 'orange', 'grape', 'kiwi']
-    })
 
-df2 = pd.DataFrame({
-    'A': [4, 1, 5, 6, 9],
-    'B': ['x', 'y', 'z', 'w', 'v'],
-    'C': [15.2, 25.6, 35.8, 45.3, 55.1],
-    'D': [False, True, False, True, False],
-    'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
-    })
-df3 = pd.DataFrame({
-    'A': [2, 3, 4, 7, 8],
-    'B': ['a', 'y', 'c', 'w', 'd'],
-    'C': [45.2, 15.6, 65.8, 35.3, 53.1],
-    'D': [True, True, False, False, False],
-    'E': ['apple', 'mango', 'orange', 'blueberry', 'kiwi']
-    })    
-df4 = pd.DataFrame({'ID': [1, 2, 3],
-                    'Name': ['Alice', 'Bob', 'Charlie']})
-
-df5 = pd.DataFrame({'ID': [1, 2, 4],
-                    'Age': [25, 30, 35]})
-dataFrameDictionary = {}
-relationNode1 = relationNode(userInput = 'R')
-dataFrameDictionary['R'] = df1
-relationNode2 = relationNode(userInput = 'S')
-dataFrameDictionary['S'] = df2
-relationNode3 = relationNode(userInput = 'T')
-dataFrameDictionary['T'] = df3
-relationNode4 = relationNode(userInput = 'U')
-dataFrameDictionary['U'] = df4
-relationNode5 = relationNode(userInput = 'V')
-dataFrameDictionary['V'] = df5
 if __name__ == "__main__":
+
+    df1 = pd.DataFrame({
+            'A': [7, 2, 8, 1, 3],
+            'B': ['a', 'b', 'c', 'd', 'e'],
+            'C': [10.5, 20.3, 30.1, 40.7, 50.9],
+            'D': [True, False, True, False, True],
+            'E': ['apple', 'banana', 'orange', 'grape', 'kiwi']
+        })
+
+    df2 = pd.DataFrame({
+        'A': [4, 1, 5, 6, 9],
+        'B': ['x', 'y', 'z', 'w', 'v'],
+        'C': [15.2, 25.6, 35.8, 45.3, 55.1],
+        'D': [False, True, False, True, False],
+        'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
+        })
+    df3 = pd.DataFrame({
+        'F': [2, 3, 4, 7, 8],
+        'G': ['a', 'y', 'c', 'w', 'd'],
+        'H': [45.2, 15.6, 65.8, 35.3, 53.1],
+        'I': [True, True, False, False, False],
+        'J': ['apple', 'mango', 'orange', 'blueberry', 'kiwi']
+        })    
+    df4 = pd.DataFrame({'ID': [1, 2, 3],
+                        'Name': ['Alice', 'Bob', 'Charlie']})
+
+    df5 = pd.DataFrame({'ID': [1, 2, 4],
+                        'Age': [25, 30, 35]})
+    dataFrameDictionary = {}
+    dataFrameDictionary['R'] = df1
+    dataFrameDictionary['S'] = df2
+    dataFrameDictionary['T'] = df3
+    dataFrameDictionary['U'] = df4
+    dataFrameDictionary['V'] = df5
+
+
     #testLine = "project_ {A,C,E} R"
     #testLine = "select_ {E = kiwi} R"
     #testLine = "U join_ V"
     #testLine = "U * V"
-    testLine = "U * V"
+    testLine = "U X V"
     print("Here is the current line: " + testLine)
     
     testLine = symbolize(testLine)
@@ -265,5 +264,6 @@ if __name__ == "__main__":
     rootNode = relationalParser(line=testLine, debug=True)
 
     print("This is testLine after symbolize: " + testLine)
-    print("Here is our root: " + str(rootNode))
+    print("Here is our query: " + str(rootNode))
     print(rootNode.resolve(dataFrameDictionary))
+    print('\n' * 4)
