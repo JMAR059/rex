@@ -1,7 +1,7 @@
-
-import pandas as pd
-from REsymbols import booleanSymbols, booleanSymbolMap
 import numpy as np
+import pandas as pd
+
+from src.relationalAlgebra.REsymbols import booleanSymbols, booleanSymbolMap
 
 def addQuotesIfNeeded(string):
     if string.startswith('"') and string.endswith('"'):
@@ -45,19 +45,33 @@ class booleanStatement:
         if self.lhs in row and not (self.lhs.isnumeric()):
             LHSVariable = row.iloc[0][self.lhs]
             usesOneRowElement = True
+        elif self.lhs not in row and not (self.lhs.isnumeric()) and '.' in self.lhs:
+            specifySplit = self.lhs.split('.')
+            possibleColL = specifySplit[1]
+            if possibleColL in row:
+                LHSVariable = row.iloc[0][possibleColL]
+                usesOneRowElement = True
         LHSVariable = handleStringCases(LHSVariable)
-
+        # R.A case
+    
         RHSVariable = self.rhs
         if self.rhs in row and not (self.rhs.isnumeric()):
             RHSVariable = row.iloc[0][self.rhs]
             usesOneRowElement = True
-        RHSVariable = handleStringCases(RHSVariable)
+        elif self.rhs not in row and not (self.rhs.isnumeric()) and '.' in self.rhs:
+            specifySplit = self.rhs.split('.')
+            possibleColR = specifySplit[1]
+            if possibleColR in row:
+                RHSVariable = row.iloc[0][possibleColR]
+                usesOneRowElement = True
+
+        RHSVariable = handleStringCases(RHSVariable)        
         
         if usesOneRowElement == False:
             raise ValueError("Condition does not depend on element of relation.")
-        '''print(type(LHSVariable),type(RHSVariable))
-        print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
-        print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))'''
+        # print(type(LHSVariable),type(RHSVariable))
+        # print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
+        # print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))
         return eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
 
 class compoundStatement(booleanStatement):
@@ -249,4 +263,3 @@ if __name__ == "__main__":
 
     print("This is testLine after symbolize: " + testLine)
     print("Here is our root: " + str(rootBoolean))
-

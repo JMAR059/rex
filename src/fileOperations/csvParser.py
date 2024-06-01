@@ -1,7 +1,9 @@
-import pandas as pd
-import os
 from typing import Dict
-from relationClasses import relationNode
+from src.relationalAlgebra.relationClasses import relationNode
+import os
+import pandas as pd
+
+
 def whiteSpaceHandler( line: str ) -> str:
     #print(line)
     cleaned = ""
@@ -15,6 +17,7 @@ def whiteSpaceHandler( line: str ) -> str:
         previousWasSpace = True if char == ' ' else False
     return cleaned
 
+
 def rexSplitLine( line: str ) -> [str]:
     line = line.replace(" ","")
     cleaned = whiteSpaceHandler(line)
@@ -27,8 +30,11 @@ def rexSplitLine( line: str ) -> [str]:
             raise ValueError("Cannot assign ",newClean[0]," to a csv")
     else:
         return newClean
+
+
 def validRelationChar( char: str ) -> bool:
     return char.isalnum()
+
 
 def csvParser(line: str , relations: list = None):
     #print("Line:" ,line)
@@ -49,6 +55,7 @@ def csvParser(line: str , relations: list = None):
     relations[splitLine[0]] = pd.read_csv(file)
     #print(len(inputList))
     return relations
+
 
 if __name__ == '__main__':
     csvs = {}

@@ -1,10 +1,7 @@
 import pandas as pd
-from union import union
-from difference import difference
-from projection import projection,selection
-from join import cartesianProduct,naturalJoin,thetaJoin
-from intersection import intersection
-from REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols
+
+from src.relationalAlgebra.dataframeOperations import union, difference, projection, selection, cartesianProduct, naturalJoin, thetaJoin, intersection
+from src.relationalAlgebra.REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols
 
 class relationNode:
 
@@ -16,8 +13,8 @@ class relationNode:
 
     def __str__(self):
         return self.userInput
-    
-    def resolve(self,dataFrameDictionary):
+      
+    def resolve(self, dataFrameDictionary):
         if self.userInput in dataFrameDictionary:
             self.resultDF = dataFrameDictionary[self.userInput]
             return self.resultDF
@@ -50,13 +47,13 @@ class singleOpNode(relationNode):
     SingleVariable: relationNode = None
     condition: str = ""
     results= None
-    def resolve(self,dataFrameDictionary):
+    def resolve(self, dataFrameDictionary):
         # Checks condition, solve different based on op and or row/select condition being not None
         if self.singleOp == 'σ':
             self.results = selection(self.SingleVariable.resolve(dataFrameDictionary),self.condition,dataFrameDictionary)
         elif self.singleOp == 'π':
-            self.results = projection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)  
-        return self.results
+            self.results = projection(self.SingleVariable.resolve(dataFrameDictionary),self.condition)
+            return self.results
 
 class joinOpNode(relationNode):
 
@@ -64,13 +61,14 @@ class joinOpNode(relationNode):
     RHSVariable: relationNode = None
     joinOp: str = ""
     results = None
-    def resolve(self,dataFrameDictionary):
+    def resolve(self, dataFrameDictionary):
         # Join then filter if there is a selectCondition present
         if self.joinOp == '⨯':
             self.results = cartesianProduct(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
                                             self.LHSVariable.userInput, self.RHSVariable.userInput, dataFrameDictionary)
         elif self.joinOp == '⨝':
             self.results = naturalJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary))
+        #ELSE ERROR CASE
         return self.results
 
 
@@ -83,6 +81,7 @@ class joinOpWithConditionNode(joinOpNode):
         if self.joinOp == '⨝':
             self.results = thetaJoin(self.LHSVariable.resolve(dataFrameDictionary),self.RHSVariable.resolve(dataFrameDictionary),
                                      self.condition,dataFrameDictionary,self.LHSVariable.userInput,self.RHSVariable.userInput)
+        #ELSE ERROR CASE
         return self.results
     
 df1 = pd.DataFrame({
@@ -123,6 +122,8 @@ relationNode4 = relationNode(userInput = 'U')
 dataFrameDictionary['U'] = df4
 relationNode5 = relationNode(userInput = 'V')
 dataFrameDictionary['V'] = df5
+
+
 if __name__ == "__main__":
     newSetOperationNode1 = setOperationNode(LHSVariable = relationNode1,setOp = '∨', RHSVariable = relationNode2)
     newSetOperationNode1.resolve(dataFrameDictionary)
