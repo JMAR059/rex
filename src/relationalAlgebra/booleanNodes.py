@@ -36,18 +36,18 @@ def compareActual(LHSVariable, RHSVariable, compareSymbol):
 
     if compareSymbol == "<=":
         return LHSVariable <= RHSVariable
-    elif compareSymbol == ">=":
+    if compareSymbol == ">=":
         return LHSVariable >= RHSVariable
-    elif compareSymbol == "!=":
+    if compareSymbol == "!=":
         return LHSVariable != RHSVariable
-    elif compareSymbol == ">":
+    if compareSymbol == ">":
         return LHSVariable > RHSVariable
-    elif compareSymbol == "<":
+    if compareSymbol == "<":
         return LHSVariable < RHSVariable
-    elif compareSymbol == "==":
+    if compareSymbol == "==":
         return LHSVariable == RHSVariable
-    else:
-        raise ValueError(f"Unknown symbol found {compareSymbol} between {LHSVariable} and {RHSVariable}")
+    
+    raise ValueError(f"Unknown symbol found {compareSymbol} between {LHSVariable} and {RHSVariable}")
 
 
 class booleanStatement:
