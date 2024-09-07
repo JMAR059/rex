@@ -24,6 +24,31 @@ def handleStringCases(variable):
         return addQuotesIfNeeded(variable)
     return variable
 
+# 'Convert' variable to boolean representation. Handles given True/False constants given in parsing
+def handleTrueFalse(variable):
+    if variable == "True":
+        return True
+    if variable == "False":
+        return False
+    return variable
+
+def compareActual(LHSVariable, RHSVariable, compareSymbol):
+
+    if compareSymbol == "<=":
+        return LHSVariable <= RHSVariable
+    elif compareSymbol == ">=":
+        return LHSVariable >= RHSVariable
+    elif compareSymbol == "!=":
+        return LHSVariable != RHSVariable
+    elif compareSymbol == ">":
+        return LHSVariable > RHSVariable
+    elif compareSymbol == "<":
+        return LHSVariable < RHSVariable
+    elif compareSymbol == "==":
+        return LHSVariable == RHSVariable
+    else:
+        raise ValueError(f"Unknown symbol found {compareSymbol} between {LHSVariable} and {RHSVariable}")
+
 
 class booleanStatement:
     """
@@ -65,37 +90,45 @@ class booleanStatement:
         # as numbers, booleans (True/False), or strings. Use those as the value to compare,
         # otherwise, search known relations and specific row to get actual value from table.
         LHSVariable = self.lhs
-        if self.lhs in row and not (self.lhs.isnumeric()):
+        if self.lhs in row and not (isRealNumber(self.lhs)):
             LHSVariable = row.iloc[0][self.lhs]
             usesOneRowElement = True
-        elif self.lhs not in row and not (self.lhs.isnumeric()) and '.' in self.lhs:
+        elif self.lhs not in row and not (isRealNumber(self.lhs)) and '.' in self.lhs:
             specifySplit = self.lhs.split('.')
             possibleColL = specifySplit[1]
             if possibleColL in row:
                 LHSVariable = row.iloc[0][possibleColL]
                 usesOneRowElement = True
+        elif isRealNumber(self.lhs):
+            LHSVariable = float(LHSVariable)
         
+        # Small edge case handlers
         LHSVariable = handleStringCases(LHSVariable)
+        LHSVariable = handleTrueFalse(LHSVariable)
     
         RHSVariable = self.rhs
-        if self.rhs in row and not (self.rhs.isnumeric()):
+        if self.rhs in row and not (isRealNumber(self.rhs)):
             RHSVariable = row.iloc[0][self.rhs]
             usesOneRowElement = True
-        elif self.rhs not in row and not (self.rhs.isnumeric()) and '.' in self.rhs:
+        elif self.rhs not in row and not (isRealNumber(self.rhs)) and '.' in self.rhs:
             specifySplit = self.rhs.split('.')
             possibleColR = specifySplit[1]
             if possibleColR in row:
                 RHSVariable = row.iloc[0][possibleColR]
                 usesOneRowElement = True
-
-        RHSVariable = handleStringCases(RHSVariable)        
+        elif isRealNumber(self.rhs):
+            RHSVariable = float(RHSVariable)
+        
+        # Small edge case handlers
+        RHSVariable = handleStringCases(RHSVariable)
+        RHSVariable = handleTrueFalse(RHSVariable)     
         
         if usesOneRowElement == False:
             raise ValueError("Condition does not depend on element of relation.")
         # print(type(LHSVariable),type(RHSVariable))
         # print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
         # print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))
-        return eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
+        return compareActual(LHSVariable, RHSVariable, self.booleanOp)
 
 
 class compoundStatement(booleanStatement):

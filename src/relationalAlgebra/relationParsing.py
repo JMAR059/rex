@@ -224,7 +224,8 @@ if __name__ == "__main__":
 
 
     #testLine = "project_ {A,C,E} R"
-    testLine = "select_ {E = apple} R"
+    #testLine = "select_ {True != R.D} R"
+    testLine = "select_{30.2 > R.C} R"
     #testLine = "U join_ V"
     #testLine = "U * V"
     #testLine = "U X V"
