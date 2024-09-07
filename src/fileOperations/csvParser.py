@@ -1,20 +1,19 @@
 from typing import Dict
-from src.relationalAlgebra.relationClasses import relationNode
+from src.relationalAlgebra.relationNodes import relationNode
 import os
 import pandas as pd
 
+# Simple wrapper functionality 
 
 def whiteSpaceHandler( line: str ) -> str:
     #print(line)
     cleaned = ""
-
     previousWasSpace = False
     for char in line:
-
         if not(previousWasSpace and char == ' '):
             cleaned += char
-
         previousWasSpace = True if char == ' ' else False
+
     return cleaned
 
 
@@ -30,10 +29,6 @@ def rexSplitLine( line: str ) -> [str]:
             raise ValueError("Cannot assign ",newClean[0]," to a csv")
     else:
         return newClean
-
-
-def validRelationChar( char: str ) -> bool:
-    return char.isalnum()
 
 
 def csvParser(line: str , relations: list = None):
@@ -63,7 +58,7 @@ if __name__ == '__main__':
     print("TEST 1:\n")
     csvParser(line = test1,relations=csvs)
     print("\nTEST 2:\n")
-    test2 = "S= pokedex.csv"
+    test2 = "S= pokedex.csv" # pokedex.csv may be spaced strangely
     csvParser(line = test2,relations=csvs)
     print("\nTEST 3:\n")
     test3 = "X = "
@@ -74,21 +69,4 @@ if __name__ == '__main__':
     print("\nTEST 5:\n")
     test5 = "R = pokedex.csv"
     #csvParser(line = test5,relations=csvs)
-    print(csvs['R'])
-    df1 = pd.DataFrame({
-        'A': [7, 2, 8, 1, 3],
-        'B': ['a', 'b', 'c', 'd', 'e'],
-        'C': [10.5, 20.3, 30.1, 40.7, 50.9],
-        'D': [True, False, True, False, True],
-        'E': ['apple', 'banana', 'orange', 'grape', 'kiwi']
-    })
-
-    df2 = pd.DataFrame({
-    'A': [4, 1, 5, 6, 9],
-    'B': ['x', 'y', 'z', 'w', 'v'],
-    'C': [15.2, 25.6, 35.8, 45.3, 55.1],
-    'D': [False, True, False, True, False],
-    'E': ['pineapple', 'mango', 'strawberry', 'blueberry', 'watermelon']
-    })
-
-
+    print(csvs['R']) # Should be dinosaurs, since it was the first 'R' relation defined

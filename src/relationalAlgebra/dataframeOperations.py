@@ -1,72 +1,83 @@
 import pandas as pd
-from src.relationalAlgebra.relationBoolean import booleanParsing
-
-#SINGLETON OPERATIONS
-def selection(df, condition, dataFrameDictionary={}):
-    boolean = booleanParsing(condition,debug= False)
-    resultPD = pd.DataFrame(columns = df.columns)
-    for index, row in df.iterrows():
-        rowDF = pd.DataFrame([row], columns=df.columns)
-        if boolean.evaluate(rowDF,dataFrameDictionary):
-            resultPD.loc[len(resultPD.index)] = row
-    return resultPD
+from src.relationalAlgebra.booleanParsing import booleanParser
 
 
-def projection(dataTable1, conditions):
-    conditionList = conditions.split(',')
-    for index in range(conditionList):
-        conditionList[index] = conditionList[index].strip("")
-    dataTableList = pd.DataFrame()
-    for condition in conditionList:
-        dataTableList[condition] = pd.Series(dataTable1[condition])
-    return dataTableList
+# Most use boolean parser (MORE DOCUMENTATION)
+
+# Select: New dataframe containing the rows of the given dataframe that pass the boolean condition
+def selection(dataframe, conditionString, knownRelations={}):
+    rowCondition = booleanParser(conditionString,debug= False)
+    selectResult = pd.DataFrame(columns = dataframe.columns)
+    for index, row in dataframe.iterrows():
+        dataframeRow = pd.DataFrame([row], columns=dataframe.columns)
+        if rowCondition.evaluate(dataframeRow, knownRelations):
+            selectResult.loc[len(selectResult.index)] = row
+    return selectResult
 
 
-#JOIN OPERATIONS
-def cartesianProduct(dataTable1, dataTable2, LHSName, RHSName, dataFrameDictionary={}):
-    commonCols = set(dataTable1) & set(dataTable2)
-    for col in commonCols:
-        if dataTable1[col].dtype != dataTable2[col].dtype:
-            raise ValueError(f"Column '{col}' has mismatched data types: {dataTable1[col].dtype} in df1, {dataTable2[col].dtype} in df2")
-    cartesian = dataTable1.merge(dataTable2,suffixes= ("1","2"), how = "cross")
-    for col in commonCols:
-        if LHSName in dataFrameDictionary:
-            cartesian = cartesian.rename(columns={col+"1": LHSName+'.'+col})
-        if RHSName in dataFrameDictionary:
-            cartesian = cartesian.rename(columns={col+"2": RHSName+'.'+col})
-    return cartesian
+# Project: New Dataframe with only the specified columns (seperated by ',' in the given string)
+def projection(dataframe1, columnNames):
+    specifiedColumns = columnNames.split(',')
+    for index in range(len(specifiedColumns)):
+        specifiedColumns[index] = specifiedColumns[index].strip("")
+    projectResult = pd.DataFrame()
+    for columnName in specifiedColumns:
+        projectResult[columnName] = pd.Series(dataframe1[columnName])
+    return projectResult
 
 
-def naturalJoin(dataTable1, dataTable2):
-    commonCols = set(dataTable1) & set(dataTable2)
-    for col in commonCols:
-        if dataTable1[col].dtype != dataTable2[col].dtype:
-            raise ValueError(f"Column '{col}' has mismatched data types: {dataTable1[col].dtype} in df1, {dataTable2[col].dtype} in df2")
-    if len(commonCols) != 0:
-        natural = pd.merge(dataTable1,dataTable2)
+# Cartesian Product: Cartesian Dataframe with renaming, done in cases where both dataframes have identical columns
+# Given dataframe R, S both having column A, after merge method would have columns: [A1, A2] --> [R.A, S.A]
+def cartesianProduct(dataframe1, dataframe2, LHSRelationName, RHSRelationName, knownRelations={}):
+    commonColumns = set(dataframe1) & set(dataframe2)
+    for col in commonColumns:
+        if dataframe1[col].dtype != dataframe2[col].dtype:
+            raise ValueError(f"Column '{col}' has mismatched data types: {dataframe1[col].dtype} in df1, {dataframe2[col].dtype} in df2")
+    cartesianResult = dataframe1.merge(dataframe2,suffixes= ("1","2"), how = "cross")
+    for col in commonColumns:
+        if LHSRelationName in knownRelations:
+            cartesianResult = cartesianResult.rename(columns={col+"1": LHSRelationName+'.'+col})
+        if RHSRelationName in knownRelations:
+            cartesianResult = cartesianResult.rename(columns={col+"2": RHSRelationName+'.'+col})
+    return cartesianResult
+
+
+# Natural Join: Merge on identical column names, otherwise, results in cartesian product 
+def naturalJoin(dataframe1, dataframe2, LHSRelationName, RHSRelationName, knownRelations={}):
+    commonColumns = set(dataframe1) & set(dataframe2)
+    for col in commonColumns:
+        if dataframe1[col].dtype != dataframe2[col].dtype:
+            raise ValueError(f"Column '{col}' has mismatched data types: {dataframe1[col].dtype} in df1, {dataframe2[col].dtype} in df2")
+    if len(commonColumns) != 0:
+        naturalJoinResult = pd.merge(dataframe1,dataframe2)
     else:
-        natural = pd.DataFrame()
-    return natural
+        naturalJoinResult = cartesianProduct(dataframe1, dataframe2, LHSRelationName, RHSRelationName, knownRelations) #Should do cartesian instead
+    return naturalJoinResult
 
 
-def thetaJoin(dataTable1, dataTable2, conditions, dataFrameDictionary, LHSName, RHSName):
-    cartesian = cartesianProduct(dataTable1,dataTable2,LHSName,RHSName,dataFrameDictionary)
-    theta = selection(cartesian,conditions,dataFrameDictionary)
-    return theta
+# Theta Join: Cartesian product with a selection
+def thetaJoin(dataframe1, dataframe2, conditions, knownRelations, LHSRelationName, RHSRelationName):
+    cartesian = cartesianProduct(dataframe1,dataframe2,LHSRelationName,RHSRelationName,knownRelations)
+    thetaResult = selection(cartesian,conditions,knownRelations)
+    return thetaResult
 
 
-def union(dataTable1, dataTable2):
-    newTable = pd.concat([dataTable1,dataTable2]).drop_duplicates()
-    return newTable
+# Union: Concatinating all unique rows
+def union(dataframe1, dataframe2):
+    unionResult = pd.concat([dataframe1,dataframe2]).drop_duplicates()
+    return unionResult
 
 
-def difference(dataTable1, dataTable2):
-    mergedDt = pd.merge(dataTable1, dataTable2, how='outer', indicator=True)
+# Difference: Original dataframe without the identical rows found in the second dataframe
+def difference(dataframe1, dataframe2):
+    mergedDt = pd.merge(dataframe1, dataframe2, how='outer', indicator=True)
     setDifference = mergedDt[mergedDt['_merge'] == 'left_only'].drop(columns='_merge')
     return setDifference
 
-def intersection(dataTable1,dataTable2):
-    intersection =pd.merge(dataTable1, dataTable2, how='inner')
+
+# Intersection: Dataframe of rows that are found in both dataframes
+def intersection(dataframe1,dataframe2):
+    intersection = pd.merge(dataframe1, dataframe2, how='inner')
     return intersection
 
 

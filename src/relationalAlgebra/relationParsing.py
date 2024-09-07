@@ -1,85 +1,60 @@
+from typing import Dict
 import pandas as pd
 
 from src.relationalAlgebra.REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols, allRelationSymbols
-from typing import Dict
-from src.relationalAlgebra.relationClasses import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
+from src.relationalAlgebra.relationNodes import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
 
 
-def whiteSpaceHandler( line: str ) -> str:
-
-    cleaned = ""
-
-    previousWasSpace = False
-    for char in line:
-
-        if not(previousWasSpace and char == ' '):
-            cleaned += char
-
-        previousWasSpace = True if char == ' ' else False
-
-    return cleaned
-
-
-def rexSplitLine( line: str ) -> [str]:
-
-    cleaned = whiteSpaceHandler(line)
-
-    return cleaned.split(sep=' ')
-
+# Converts any text version of operation strings into standard symbols: "intersect" --> "∧"
 def symbolize( line: str ) -> str:
-
     result = line
-
     for symbol in symbols:
         result = result.replace(symbol, symbols[symbol])
         result = result.replace(symbol.upper(), symbols[symbol])
-
     return result
 
 
+# Validates possible character for relation name, only allows letters and numbers
 def validRelationChar( char: str ) -> bool:
     return char.isalnum() and char not in allRelationSymbols
 
 
+# Relation Parser to convert string to relational algebra node tree representation
 def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, debug = False) -> relationNode:
 
     lhsNode = None
     rhsNode = None
     op = ""
     condition = ""
-    opType = ""
-    
 
     if debug:
         print(f"Starting to parse: {line}")
 
     index = 0
-    mode = "start" #change mode to set for better optimization?
+    mode = "start"
     while(index < len(line) + 1):
-        if mode == "build":
-            # build relation node and set mode back to finding op
-            if op in setOpSymbols:
-                if (lhsNode == None or rhsNode == None or op == ""):
-                    raise ValueError("One or more varaibles not set in set operation building") 
 
+        # If relation node pieces found, make the appropriate relation node
+        if mode == "build":
+            # build relation node and set parsing mode back to looking for operation symbol
+            if op in setOpSymbols:
+                if (lhsNode is None or rhsNode is None or op == ""):
+                    raise ValueError("One or more varaibles not set in set operation building") 
                 if debug:
                     print(f"Index {index}: Making set operation of {op} between {lhsNode} and {rhsNode}")
                 newNode = setOperationNode( LHSVariable=lhsNode, RHSVariable=rhsNode, setOp=op, userInput=line[0:index])
 
             elif op in singleOpSymbols:
-                if (lhsNode == None or op == "" or condition == ""):
+                if (lhsNode is None or op == "" or condition == ""):
                     raise ValueError("One or more varaibles not set in singleton building") 
-                
                 if debug:
                     print(f"Index {index}: Making singleton operation of {op} for {lhsNode} with condition:{condition}")
-
                 newNode = singleOpNode(SingleVariable=lhsNode, singleOp=op, condition=condition, userInput=line[0:index])
 
             elif op in joinOpSymbols:
                 
-                if (lhsNode == None or op == "" or rhsNode == None):
+                if (lhsNode is None or op == "" or rhsNode is None):
                     raise ValueError("One or more varaibles not set in join building") 
-        
                 if debug:
                     print(f"Index {index}: Making join operation of {op} for {lhsNode} | {rhsNode} with condition: {condition}")
                 if condition == "":
@@ -90,10 +65,10 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             else:
                 raise ValueError(f"Operation not found, current op {op}")
 
-            #Reset variables
+            # Reset variables for parsing
             lhsNode = newNode
-            mode = "operation"
             rhsNode = None
+            mode = "operation"
             op = ""
             condition = ""
             continue
@@ -101,13 +76,14 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
         if index == len(line):
             break
         char = line[index]
-        if char == " ":
+        if char == " ": #skip whitespace
             index += 1
             continue
         if debug:
-            print(f"Index {index}: with char -- {char}")
-        # relationFIND
-        if char == '{':
+            print(f"Index {index}: with char -- {char}")       
+
+        # Finding a condition/boolean
+        if char == '{':  # No mode check, if condition found for operation that does not require it, error will be thrown when building node
             conditionLine = ""
             index += 1
             while index < len(line):
@@ -123,8 +99,8 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             
             condition = conditionLine
             index+=1
-
-        elif char in symbols.values() and (mode == "start" or mode == "operation"):
+        # Finding a symbol for an operation
+        elif char in symbols.values() and (mode in {"start", "operation"}):
 
             # check based on symbol, set op and op type, make mode according to op
 
@@ -134,7 +110,7 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                 mode = "relation"
             elif char in singleOpSymbols:
                 if mode != "start":
-                    raise ValueError(f"Single operation found not at the start!")
+                    raise ValueError("Single operation found not at the start!")
                 mode = "relation"               
             elif char in joinOpSymbols:
                 mode = "relation"
@@ -144,11 +120,11 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
             op = char
 
             if debug:
-                print(f"Index {index}: Found operation {op}")    
+                print(f"Index {index}: Found operation {op}")
             index += 1
-
-        elif (validRelationChar(char) or char == '(') and (mode == "start" or "relation" in mode):
-            # Case for parenthesis ignore looping below
+        # Building a relation variable/node
+        elif (validRelationChar(char) or char == '(') and (mode in {"start", "relation"}):
+            # Parenthesis case for nested expressions
             if char == '(':
                 parenthesisLine = ""
                 parenthesisCount = 1
@@ -180,17 +156,17 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                 
                 if relation == "":
                     raise ValueError(f"Expected relation at index {index} with line: {line}")
-                if relations != None and relation not in relations:
+                if relations is not None and relation not in relations:
                     raise ValueError(f"Relation {relation} not known, found at index {index}")
 
                 if debug:
                     print(f"Index {index}: Found relation {relation}, making node.")
 
                 newNode = relationNode(userInput=relation, 
-                                    resultDF = relations[relation] if relations != None else None)  
+                                    resultDF = relations[relation] if relations is not None else None)
             if op in singleOpSymbols:
                 lhsNode = newNode
-                mode = "build"    
+                mode = "build"
             elif lhsNode is None:
                 lhsNode = newNode
                 mode = "operation"
@@ -200,16 +176,14 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
         else:
             raise ValueError(f"Search mode: {mode} at index: {index}, got {char} instead.")
         
-    
+    # Error checking nothing was left over
     if lhsNode is None:
         raise ValueError("No valid relation built")
-    
-    if op != "" or condition != "" or rhsNode != None:
+    if op != "" or condition != "" or rhsNode is not None:
         raise ValueError(f"Still expecting more arguments, currently built node: {lhsNode} versus remaining line: {line}")
-
+    
     if debug:
         print(f"Index {index}: Returning node: {lhsNode}")
-
     return lhsNode
 
 
@@ -250,10 +224,10 @@ if __name__ == "__main__":
 
 
     #testLine = "project_ {A,C,E} R"
-    #testLine = "select_ {E = kiwi} R"
+    testLine = "select_ {E = apple} R"
     #testLine = "U join_ V"
     #testLine = "U * V"
-    testLine = "U X V"
+    #testLine = "U X V"
     print("Here is the current line: " + testLine)
     
     testLine = symbolize(testLine)

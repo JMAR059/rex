@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src.chaseAlgorithm.dbs_chase import full_chase, TextColor
-from src.relationalAlgebra.parsing import relationalParser, symbolize
+from src.relationalAlgebra.relationParsing import relationalParser, symbolize
 
 def printRex():
     print("""

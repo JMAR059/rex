@@ -208,7 +208,6 @@ def full_chase(original_relation, decomposed_relations, fds, printing=False):
     validate(original_relation, decomposed_relations, fds)
     chase(original_relation, canonical, fds, printing)
     if chase_test(canonical):
-
         message = 'Lossless'
     else:
         message = 'Lossy'
