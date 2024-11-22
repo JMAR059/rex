@@ -117,3 +117,38 @@ body, html {
 .Execute:hover {
   background-color: #997cbb; /* Slightly different color on hover */
 }
+
+
+.cheatDino {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  color: #FFFFFF;
+  padding-left: 162px;
+}
+
+.Cheat{
+  font-family: 'Syne Mono', monospace;
+  background-color: #DCE3FD;
+  width: 25%;
+  color:#424549;
+  padding-left: 20px;
+  border-radius: 5px;
+  display: flex;
+}
+
+.List1 {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.List2 {
+  display: flex;
+  justify-self: flex-start;
+  flex-direction: column;
+  align-self: flex-end;
+  /* align-self: center; */
+}
+
+
