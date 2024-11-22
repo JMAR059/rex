@@ -11,6 +11,19 @@ export default function App() {
         wiki🌐
       </button>
      </div>
+     <div className = "Calc">
+        <h3 className = "Relations">
+          Relations
+        </h3>
+        <textarea
+          className="Query"
+          placeholder="Type Query Here..."
+        />
+      </div>
+      
+      <div className = "Butt">
+        <button className = "Execute">Execute Query</button> 
+      </div>
     </div>
   );
 }    
