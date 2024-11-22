@@ -58,3 +58,62 @@ body, html {
 .Wiki:hover {
   background-color: #ADBDF0; /* Slightly different color on hover */
 }
+
+/* Calculation Section of the Home Web Page */
+.Calc {
+  display: flex;
+  justify-content: space-between;
+  color: #FFFFFF;
+  font-family: 'Syne Mono', monospace;
+  padding: 25px;
+  align-items: stretch;
+  height: 500px;
+} 
+
+.Relations{
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: #DCE3FD;
+  width: 20%;
+  font-size: calc(12px + 1vmin);
+  border-radius: 5px;
+  color: #424549;  
+}
+
+.Query{
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start; 
+  background-color: #DCE3FD;
+  width: 75%;
+  padding-left: 20px;
+  border-radius: 5px;
+  color: #424549;
+  font-family: 'Syne Mono', monospace;
+  font-size: calc(12px + 1vmin);
+}
+
+.Butt {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 23px;
+}
+
+.Execute {
+  background-color: #ADBDF0; /* Matches title background */
+  color: #FFFFFF; /* Matches text color of the cheat sheet */
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-family: 'Syne Mono', monospace;
+  font-size: calc(8px + 1vmin);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 50px;
+}
+
+.Execute:hover {
+  background-color: #997cbb; /* Slightly different color on hover */
+}
