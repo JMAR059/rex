@@ -1,0 +1,60 @@
+/* Apply a universal box-sizing rule for consistency */
+* {
+  box-sizing: border-box; /* Ensures padding and border don't affect element width/height */
+}
+
+/* Reset margin and padding for all elements */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Syne Mono', monospace; /* Ensures font consistency */
+}
+
+.Container {
+  background-color: #424549;
+  width: 100%; 
+  min-height: 100vh;
+}
+
+/* Header Section of the Home Web Page, somewhat similar to a Nav Bar */
+
+ .Header {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Syne Mono', monospace;
+  color: #FFFFFF;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-size: 1rem;
+  /* font-size: calc(5px + 1vmin); */
+  align-items: center;
+} 
+
+.Title {
+  display: flex;
+  flex-direction: flex-start;
+  background-color: #ADBDF0;
+  border-radius: 5px;
+  width: 80% ;
+  height: 50px;
+  padding-left: 10px;
+  align-items: center;
+}
+
+.Wiki {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #DCE3FD; 
+  border-radius: 5px; 
+  width: 90px;
+  height: 57px;
+  padding-left: 5px;
+  color: #FFFFFF;
+  font-family: 'Syne Mono', monospace;
+  font-size: 20px;
+}
+
+.Wiki:hover {
+  background-color: #ADBDF0; /* Slightly different color on hover */
+}
