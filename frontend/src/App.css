@@ -1,0 +1,154 @@
+/* Apply a universal box-sizing rule for consistency */
+* {
+  box-sizing: border-box; /* Ensures padding and border don't affect element width/height */
+}
+
+/* Reset margin and padding for all elements */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Syne Mono', monospace; /* Ensures font consistency */
+}
+
+.Container {
+  background-color: #424549;
+  width: 100%; 
+  min-height: 100vh;
+}
+
+/* Header Section of the Home Web Page, somewhat similar to a Nav Bar */
+
+ .Header {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Syne Mono', monospace;
+  color: #FFFFFF;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-size: 1rem;
+  /* font-size: calc(5px + 1vmin); */
+  align-items: center;
+} 
+
+.Title {
+  display: flex;
+  flex-direction: flex-start;
+  background-color: #ADBDF0;
+  border-radius: 5px;
+  width: 80% ;
+  height: 50px;
+  padding-left: 10px;
+  align-items: center;
+}
+
+.Wiki {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #DCE3FD; 
+  border-radius: 5px; 
+  width: 90px;
+  height: 57px;
+  padding-left: 5px;
+  color: #FFFFFF;
+  font-family: 'Syne Mono', monospace;
+  font-size: 20px;
+}
+
+.Wiki:hover {
+  background-color: #ADBDF0; /* Slightly different color on hover */
+}
+
+/* Calculation Section of the Home Web Page */
+.Calc {
+  display: flex;
+  justify-content: space-between;
+  color: #FFFFFF;
+  font-family: 'Syne Mono', monospace;
+  padding: 25px;
+  align-items: stretch;
+  height: 500px;
+} 
+
+.Relations{
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: #DCE3FD;
+  width: 20%;
+  font-size: calc(12px + 1vmin);
+  border-radius: 5px;
+  color: #424549;  
+}
+
+.Query{
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start; 
+  background-color: #DCE3FD;
+  width: 75%;
+  padding-left: 20px;
+  border-radius: 5px;
+  color: #424549;
+  font-family: 'Syne Mono', monospace;
+  font-size: calc(12px + 1vmin);
+}
+
+.Butt {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 23px;
+}
+
+.Execute {
+  background-color: #ADBDF0; /* Matches title background */
+  color: #FFFFFF; /* Matches text color of the cheat sheet */
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-family: 'Syne Mono', monospace;
+  font-size: calc(8px + 1vmin);
+  cursor: pointer;
+  transition: background-color 0.3s;
+  height: 50px;
+}
+
+.Execute:hover {
+  background-color: #997cbb; /* Slightly different color on hover */
+}
+
+
+.cheatDino {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  color: #FFFFFF;
+  padding-left: 162px;
+}
+
+.Cheat{
+  font-family: 'Syne Mono', monospace;
+  background-color: #DCE3FD;
+  width: 25%;
+  color:#424549;
+  padding-left: 20px;
+  border-radius: 5px;
+  display: flex;
+}
+
+.List1 {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}
+
+.List2 {
+  display: flex;
+  justify-self: flex-start;
+  flex-direction: column;
+  align-self: flex-end;
+  /* align-self: center; */
+}
+
+
