@@ -1,0 +1,16 @@
+{
+  "short_name": "REX",
+  "name": "Relational Algebra Explorer ",
+  "icons": [
+    {
+      "src": "rex_doll.ico",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "dinoASCII.png",
+      "type": "image/png"
+    }
+  ],
+  "description": "REX is an education tool intended for the 4000-level Computer Science course 'Database Systems' at Rensselaer Polytechnic Institute.",
+  "language": "EN"
+}
