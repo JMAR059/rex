@@ -1,6 +1,7 @@
-import './App.css';
-import dinoASCII from './dinoASCII.png';
-export default function App() {
+import './App.css'
+import dinoASCII from '/dinoASCII.png';
+
+function App() {
   return (
     <div className = "Container"> 
 
@@ -27,8 +28,6 @@ export default function App() {
         <button className = "Execute">Execute Query</button> 
       </div>
 
-
-
       <div className = "cheatDino">
         <h4 className = "Cheat">
           <ul className = "List1">
@@ -52,6 +51,7 @@ export default function App() {
         <img src={dinoASCII} alt="Dino"  style={{ width: '225px', height: '125px' }}/>
       </div>
     </div>
-  );
+  )
 }
 
+export default App
