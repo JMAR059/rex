@@ -1,5 +1,5 @@
 import './App.css'
-// import dinoASCII from './dinoASCII.png';
+import dinoASCII from '/dinoASCII.png';
 
 function App() {
   return (
@@ -48,7 +48,7 @@ function App() {
         {/* <h5 className = "Dino">
                             
         </h5> */}
-        {/* <img src={dinoASCII} alt="Dino"  style={{ width: '225px', height: '125px' }}/> */}
+        <img src={dinoASCII} alt="Dino"  style={{ width: '225px', height: '125px' }}/>
       </div>
     </div>
   )
