@@ -17,6 +17,14 @@ GitHub: https://github.com/JMAR059/rex
 ### Frontend
 
 This project was created with Vite + React JS.
+To contribute to the frontend:
+- Clone Repository.
+- cd into 'proj'.
+- run 'npm install' to have all the required dependencies.
+- run 'npm run dev' and follow the link to view the front-end.
+- Create a PR!
+
+Note. Work on a separate branch or on a fork!
 
 ### Backend
 Python 3.5 or higher required. Run individual files for testing with the module command. For example:
