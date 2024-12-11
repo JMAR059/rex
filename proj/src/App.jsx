@@ -2,6 +2,10 @@ import './App.css'
 import dinoASCII from '/dinoASCII.png';
 
 function App() {
+  const onWikiClick = () => {
+    window.location.href = 'https://github.com/JMAR059/rex/wiki'
+  };
+
   return (
     <div className = "Container"> 
 
@@ -9,7 +13,7 @@ function App() {
       <h1 className = "Title">
         REX - Relational Algebra Explorer
       </h1>
-      <button className = "Wiki">
+      <button className = "Wiki" onClick={onWikiClick}>
         wiki🌐
       </button>
      </div>
