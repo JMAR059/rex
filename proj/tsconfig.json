@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "ES2022",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "strict": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "react-jsx",
+        "noEmit": true,
+      },
+    "include": [
+      "src/**/*"
+    ]
+}
