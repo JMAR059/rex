@@ -1,17 +1,14 @@
 import './App.css'
 import Navbar from './components/navbar';
-
+import SideBar from './components/sidebar';
+import QueryBody from './components/query';
+import Panels from './components/panel';
 const App: React.FC = () => {
-  const onWikiClick = () => {
-    window.location.href = 'https://github.com/JMAR059/rex/wiki';
-  };
 
   return (
     <div>
       <Navbar></Navbar>
-      <div>
-        <button className="Execute">Execute Query</button>
-      </div>
+      <Panels></Panels>
     </div>
   );
 }
