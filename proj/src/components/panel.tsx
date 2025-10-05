@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import CheatSheet from './cheat';
 import QueryBody from './query';
 import Divider from './divider';
+import ResultBody from './result';
 
 const Panels = () => {
   const [panelWidths, setPanelWidths] = useState<number[]>([200, 400, 300]); // Initial widths of the panels
@@ -85,12 +86,12 @@ const Panels = () => {
             boxSizing: 'border-box',
           }}
         >
-          Results appear here
+          <ResultBody></ResultBody>
         </div>
 
         <Divider onMouseDown={startResize} index={1} />
 
-        <div className="w-xs"
+        <div className=""
           style={{
             width: `${panelWidths[2]}px`,
             padding: '10px',
