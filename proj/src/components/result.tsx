@@ -6,10 +6,10 @@ export const replaceResult = (resp: {result:string}) =>{
 };
 
 interface ResultProps {
+    result: string
 }
 
-const ResultBody: React.FC<ResultProps> = ({}) => {
-    const [result, setResult] = useState<string>('Results appear here');
+const ResultBody: React.FC<ResultProps> = ({result}) => {
     return (
     <div>
         {result}

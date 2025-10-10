@@ -1,8 +1,9 @@
 import { useState } from 'react';
 
-interface NavbarProps {
+interface QueryProps {
   replaceResult: (resp: {result: string}) => void;
-  addToHistory: (query: string) => void;
+  addToHistory: (query: string, resp:{result: string}) => void;
+  
 }
 
 const executeQuery = (query: string) => {
@@ -10,16 +11,16 @@ const executeQuery = (query: string) => {
   return {"result": query};
 }
 
-const handleOnClick = (query: string, replaceResult: NavbarProps['replaceResult'], addToHistory: NavbarProps['addToHistory']) => {
+const handleOnClick = (query: string, replaceResult: QueryProps['replaceResult'], addToHistory: QueryProps['addToHistory']) => {
   //Ok so we want to execute the query, then receive the response 
   const resp = executeQuery(query);
   // and store it in the results
   replaceResult(resp);
   //We then want to save the query as a new element in the left bar, the history
-  addToHistory(query);
+  addToHistory(query, resp);
 };
 
-const QueryBody: React.FC<NavbarProps> = ({ replaceResult, addToHistory }) => {
+const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   const [query, setQuery] = useState<string>('');
   return (
     <div className="flex flex-col">
@@ -30,7 +31,7 @@ const QueryBody: React.FC<NavbarProps> = ({ replaceResult, addToHistory }) => {
             Input here
         </textarea>
         <button 
-        onClick={() => handleOnClick(QueryBody, replaceResult, addToHistory)}
+        onClick={() => handleOnClick(query, replaceResult, addToHistory)}
         type="button"
         className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md self-end hover:bg-blue-700">
             Submit

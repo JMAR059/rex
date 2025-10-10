@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import CheatSheet from './cheat';
+import SideBar from './sidebar';
 import QueryBody from './query';
 import Divider from './divider';
 import ResultBody from './result';
+
+
 
 const Panels = () => {
   const [panelWidths, setPanelWidths] = useState<number[]>([200, 400, 300]); // Initial widths of the panels
@@ -10,7 +12,18 @@ const Panels = () => {
   const [startX, setStartX] = useState<number>(0);
   const [startWidths, setStartWidths] = useState<number[]>([]);
   const [startIndex, setStartIndex] = useState<number | null>(null); // Index of the panel being resized
+  const [lastQuery, setLastQuery] = useState('');
+  const [result, setResult] = useState('');
 
+  function replaceResult(resp:{result: string}){
+    setResult(resp["result"]);
+  }
+
+  function addToHistory(query:string, resp: {result:string}){
+    setLastQuery(query);
+    //Redundant in the event that replace result changes
+    setResult(resp["result"]);
+  }
   const startResize = (index: number, e: React.MouseEvent<HTMLDivElement>) => {
     setIsResizing(true);
     setStartX(e.clientX);
@@ -74,7 +87,7 @@ const Panels = () => {
             boxSizing: 'border-box',
           }}
         >
-          <CheatSheet></CheatSheet>
+          <SideBar lastQuery={lastQuery} result={result} replaceResult={replaceResult}/>
         </div>
 
         <Divider onMouseDown={startResize} index={0} />
@@ -86,7 +99,7 @@ const Panels = () => {
             boxSizing: 'border-box',
           }}
         >
-          <ResultBody></ResultBody>
+          <ResultBody result={result}></ResultBody>
         </div>
 
         <Divider onMouseDown={startResize} index={1} />
@@ -98,7 +111,7 @@ const Panels = () => {
             boxSizing: 'border-box',
           }}
         >
-          <QueryBody></QueryBody>
+          <QueryBody replaceResult={replaceResult} addToHistory={addToHistory}></QueryBody>
         </div>
       </div>
     </div>
