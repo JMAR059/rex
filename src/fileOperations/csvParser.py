@@ -30,7 +30,7 @@ def rexSplitLine( line: str ) -> [str]:
     else:
         return newClean
 
-
+# Given 
 def csvParser(line: str , relations: list = None):
     #print("Line:" ,line)
     splitLine = rexSplitLine(line)
