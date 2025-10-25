@@ -1,2 +1,2 @@
 pandas>=2.2.2
-django==5.2.7
+"fastapi[standard]" == 3.7.1
