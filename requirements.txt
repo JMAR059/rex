@@ -1,2 +1,2 @@
 pandas>=2.2.2
-"fastapi[standard]" == 3.7.1
+fastapi[standard] == 0.120.4

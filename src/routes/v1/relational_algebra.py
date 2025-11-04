@@ -2,7 +2,9 @@ from typing import Any
 
 from fastapi import APIRouter
 from pydantic import BaseModel
+import pandas as pd
 
+from src.relationalAlgebra.relationParsing import symbolize, relationalParser
 
 router = APIRouter()
 
@@ -34,7 +36,7 @@ Errors: 400 if the cannonical does not exist
 '''
 @router.post("/chase")
 async def chase_algorithm(relation: Relation):
-    return [{"username": "Rick"}, {"username": "Morty"}]
+    return 
 
 '''
 Given a relation, runs the specified commands.
@@ -44,4 +46,10 @@ Errors: 400 if there is any error in executing the query on the user side, eg a 
 '''
 @router.post("/process_relational_algebra")
 def relational_parser(relation: Relation):
-    return [{"username": "Rick"}, {"username": "Morty"}]
+    #Symbolize the input
+    df = pd.DataFrame(relation.relation)
+    symbolized = symbolize(df)
+    #then parse it
+    rootNode = relationalParser(line=symbolized, debug=False)
+    rootNode.resolve(dataFrameDictionary)
+    return 
