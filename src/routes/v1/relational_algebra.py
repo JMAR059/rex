@@ -9,7 +9,7 @@ from src.relationalAlgebra.relationParsing import symbolize, relationalParser
 router = APIRouter()
 
 class Relation(BaseModel):
-    relation: dict[str, list[Any]]
+    relation: Any
 
 #Ok so what do we want?
 #Chase ig, uhh what else
@@ -44,8 +44,8 @@ Returns: The data as a result of the relational algebra
 Errors: 400 if there is any error in executing the query on the user side, eg a syntax error
         500 if there is an error during the algorithm
 '''
-@router.post("/process_relational_algebra")
-def relational_parser(relation: Relation):
+@router.post("/relational_algebra")
+async def relational_parser(relation: Relation):
     #Symbolize the input
     df = pd.DataFrame(relation.relation)
     symbolized = symbolize(df)
