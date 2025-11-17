@@ -25,7 +25,7 @@ async function executeQuery(rows: TableRow[], columns: string[]): Promise<{resul
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(columnData),
+    body: JSON.stringify({"relation": columnData}),
   });
   const data = await response.json();
   return {"result": data.result};

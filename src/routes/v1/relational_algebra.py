@@ -9,7 +9,11 @@ from src.relationalAlgebra.relationParsing import symbolize, relationalParser
 router = APIRouter()
 
 class Relation(BaseModel):
-    relation: Any
+    #While it would be nice to the type be known, the user can put it any relation
+    #Ig we can restrict it to be a string, but the problem remains
+    relation: dict[str, list[Any]]
+    query: list[str]
+     
 
 #Ok so what do we want?
 #Chase ig, uhh what else
@@ -46,10 +50,13 @@ Errors: 400 if there is any error in executing the query on the user side, eg a 
 '''
 @router.post("/relational_algebra")
 async def relational_parser(relation: Relation):
+    #print(relation)
     #Symbolize the input
     df = pd.DataFrame(relation.relation)
-    symbolized = symbolize(df)
+    #symbolized = symbolize()
+    #print(symbolized)
     #then parse it
-    rootNode = relationalParser(line=symbolized, debug=False)
-    rootNode.resolve(dataFrameDictionary)
-    return 
+    rootNode = relationalParser(line=relation.query, debug=True)
+    rootNode.resolve(df)
+    print(rootNode)
+    return 200
