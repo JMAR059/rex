@@ -9,9 +9,8 @@ from src.relationalAlgebra.relationParsing import symbolize, relationalParser
 router = APIRouter()
 
 class Relation(BaseModel):
-    #While it would be nice to the type be known, the user can put it any relation
-    #Ig we can restrict it to be a string, but the problem remains
-    relation: dict[str, list[Any]]
+    # Multiple tables - dict where keys are table names, values are the table data
+    relations: dict[str, dict[str, list[Any]]]
     queries: list[str]
      
 
@@ -49,14 +48,23 @@ Errors: 400 if there is any error in executing the query on the user side, eg a 
         500 if there is an error during the algorithm
 '''
 @router.post("/relational_algebra")
-async def relational_parser(relation: Relation):
-    #print(relation)
-    #Symbolize the input
-    df = pd.DataFrame(relation.relation)
-    #symbolized = symbolize()
-    #print(symbolized)
-    #then parse it
-    rootNode = relationalParser(line=relation.query, debug=True)
-    rootNode.resolve(df)
-    print(rootNode)
-    return 200
+async def relational_parser(data: Relation):
+    # Convert each table to a DataFrame
+    knownRelations = {}
+    for table_name, table_data in data.relations.items():
+        knownRelations[table_name] = pd.DataFrame(table_data)
+        print(f"Table {table_name}:")
+        print(knownRelations[table_name])
+    
+    results = []
+    for query in data.queries:
+        print("This is the current query: " + query)
+        symbolized_query = symbolize(query)
+        print("This is the symbolized query: " + symbolized_query)
+        rootNode = relationalParser(line=symbolized_query, relations=knownRelations, debug=True)
+        result = rootNode.resolve(knownRelations)
+        print("Result:")
+        print(result)
+        results.append(result.to_dict())
+    
+    return {"status": 200, "results": results}

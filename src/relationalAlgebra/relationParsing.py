@@ -26,7 +26,6 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
     rhsNode = None
     op = ""
     condition = ""
-
     if debug:
         print(f"Starting to parse: {line}")
 
