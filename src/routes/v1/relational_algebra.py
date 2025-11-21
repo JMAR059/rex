@@ -12,7 +12,7 @@ class Relation(BaseModel):
     #While it would be nice to the type be known, the user can put it any relation
     #Ig we can restrict it to be a string, but the problem remains
     relation: dict[str, list[Any]]
-    query: list[str]
+    queries: list[str]
      
 
 #Ok so what do we want?

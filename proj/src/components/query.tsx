@@ -12,7 +12,7 @@ interface TableRow {
   [key: string]: string | number;
 }
 
-async function executeQuery(rows: TableRow[], columns: string[]): Promise<{result: string}> {
+async function executeQuery(rows: TableRow[], columns: string[], query:string): Promise<{result: string}> {
   // Transform data to {column1: [values...], column2: [values...]}
   const columnData: Record<string, (string | number)[]> = {};
   
@@ -25,7 +25,7 @@ async function executeQuery(rows: TableRow[], columns: string[]): Promise<{resul
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({"relation": columnData}),
+    body: JSON.stringify({"relation": columnData, "query": query}),
   });
   const data = await response.json();
   return {"result": data.result};
@@ -33,12 +33,13 @@ async function executeQuery(rows: TableRow[], columns: string[]): Promise<{resul
 
 const handleOnClick = async (
   rows: TableRow[], 
-  columns: string[], 
+  columns: string[],
+  query: string, 
   replaceResult: QueryProps['replaceResult'], 
   addToHistory: QueryProps['addToHistory']
 ) => {
-  const resp = await executeQuery(rows, columns);
-  const query = JSON.stringify({ columns, rows });
+  const resp = await executeQuery(rows, columns, query);
+  const queryStr = JSON.stringify({ columns, rows });
   replaceResult(resp);
   addToHistory(query, resp);
 };
@@ -47,6 +48,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   const [columns, setColumns] = useState<string[]>(['Column1', 'Column2']);
   const [rows, setRows] = useState<TableRow[]>([{ id: 1 }]);
   const [newColumnName, setNewColumnName] = useState<string>('');
+  const [query, setQuery] = useState<string>('');
 
   const addColumn = () => {
     if (newColumnName.trim()) {
@@ -142,6 +144,17 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         </table>
       </div>
 
+      <div className="flex flex-col gap-2">
+        <label className="font-semibold">Query:</label>
+        <textarea
+          value={query}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
+          placeholder="Enter relational algebra queries (one per line)"
+          className="px-3 py-2 border rounded-md min-h-[100px] font-mono"
+          rows={5}
+        />
+      </div>
+
       <div className="flex gap-2 justify-between">
         <button
           onClick={addRow}
@@ -150,7 +163,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
           Add Row
         </button>
         <button
-          onClick={() => handleOnClick(rows, columns, replaceResult, addToHistory)}
+          onClick={() => handleOnClick(rows, columns, query, replaceResult, addToHistory)}
           className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700"
         >
           Submit
