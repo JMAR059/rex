@@ -246,74 +246,103 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Preset Table Dropdown - Outside Modal */}
-      <div className="flex flex-col gap-2">
-        <label className="font-semibold">Select Table to Change:</label>
-        <select
-          value={selectedPreset}
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => loadPreset(e.target.value)}
-          className="px-3 py-2 border rounded-md"
-        >
-          {allTables.map((preset) => (
-            <option key={preset.name} value={preset.name}>
-              {preset.name}
-            </option>
-          ))}
-          <option value="custom">Create a new Table</option>
-          <option value="import">Import tables</option>
-        </select>
-      </div>
-
-      {/* Import File Dialog */}
-      {isImportMode && (
-        <div className="flex flex-col gap-2 p-4 bg-blue-50 rounded-md">
-          <label className="font-semibold">Import Tables from JSON:</label>
-          <input
-            type="file"
-            accept=".json"
-            onChange={handleFileImport}
-            className="px-3 py-2 border rounded-md"
-          />
-          <button
-            onClick={() => setIsImportMode(false)}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+    <div className="flex h-screen">
+      {/* Left Sidebar */}
+      <div className="w-64 bg-gray-100 border-r border-gray-300 p-4 flex flex-col gap-4 overflow-y-auto">
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold text-sm">Select Table:</label>
+          <select
+            value={selectedPreset}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => loadPreset(e.target.value)}
+            className="px-2 py-1 border rounded text-sm"
           >
-            Cancel
-          </button>
+            {allTables.map((preset) => (
+              <option key={preset.name} value={preset.name}>
+                {preset.name}
+              </option>
+            ))}
+            <option value="custom">Create a new Table</option>
+            <option value="import">Import tables</option>
+          </select>
         </div>
-      )}
 
-      {/* Multi-select tables for queries */}
-      <div className="flex flex-col gap-2">
-        <label className="font-semibold">Tables to Include in Query:</label>
-        <div className="flex flex-wrap gap-2">
+        {/* Import File Dialog */}
+        {isImportMode && (
+          <div className="flex flex-col gap-2 p-3 bg-blue-50 rounded border border-blue-200">
+            <label className="font-semibold text-sm">Import JSON:</label>
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleFileImport}
+              className="text-xs"
+            />
+            <button
+              onClick={() => setIsImportMode(false)}
+              className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {/* Table List */}
+        <div className="flex flex-col gap-1">
+          <label className="font-semibold text-sm mb-1">Tables:</label>
           {allTables.map((preset) => (
-            <label key={preset.name} className="flex items-center gap-2">
+            <div key={preset.name} className="flex items-center gap-2 py-1">
               <input
                 type="checkbox"
                 checked={selectedTables.indexOf(preset.name) !== -1}
                 onChange={() => toggleTableSelection(preset.name)}
+                className="cursor-pointer"
               />
-              {preset.name}
-            </label>
+              <span className="text-sm">{preset.name}</span>
+            </div>
           ))}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-2 mt-auto">
+          <button
+            onClick={() => setIsTableOpen(true)}
+            className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-700"
+          >
+            Edit Table
+          </button>
+          <button
+            onClick={handleExportTables}
+            className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-700"
+          >
+            Export Tables
+          </button>
         </div>
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={() => setIsTableOpen(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
-        >
-          Define Table Data
-        </button>
-        <button
-          onClick={handleExportTables}
-          className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-700"
-        >
-          Export Selected Tables
-        </button>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Query Input Area */}
+        <div className="flex-1 p-4 flex flex-col">
+          <textarea
+            value={query}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
+            placeholder="your query goes here ..."
+            className="flex-1 px-3 py-2 border rounded font-mono text-sm resize-none"
+          />
+        </div>
+
+        {/* Bottom Action Bar */}
+        <div className="border-t border-gray-300 p-4 bg-gray-50 flex justify-start">
+          <button
+            onClick={() => {
+              const queries = query.split('\n').filter((q: string) => q.trim() !== '');
+              const tables = getSelectedTablesData();
+              handleOnClick(tables, queries, replaceResult, addToHistory);
+            }}
+            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-700 font-semibold"
+          >
+            ▶ execute query
+          </button>
+        </div>
       </div>
 
       {/* Modal/Popup */}
@@ -410,30 +439,6 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
           </div>
         </div>
       )}
-
-      <div className="flex flex-col gap-2">
-        <label className="font-semibold">Query:</label>
-        <textarea
-          value={query}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
-          placeholder="Enter relational algebra queries (one per line). EG: select_ {id = 1} Students"
-          className="px-3 py-2 border rounded-md min-h-[100px] font-mono"
-          rows={5}
-        />
-      </div>
-
-      <div className="flex gap-2 justify-between">
-        <button
-          onClick={() => {
-            const queries = query.split('\n').filter((q: string) => q.trim() !== '');
-            const tables = getSelectedTablesData();
-            handleOnClick(tables, queries, replaceResult, addToHistory);
-          }}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700"
-        >
-          Submit
-        </button>
-      </div>
     </div>
   );
 };
