@@ -103,6 +103,8 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   const [selectedTables, setSelectedTables] = useState<string[]>(['Students']);
   const [importedTables, setImportedTables] = useState<PresetTable[]>([]);
   const [isImportMode, setIsImportMode] = useState<boolean>(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [queryHistory, setQueryHistory] = useState<Array<{query: string, result: string, timestamp: Date}>>([]);
 
   const allTables = [...PRESET_TABLES, ...importedTables];
 
@@ -245,27 +247,23 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
     ));
   };
 
-  return (
-    <div className="flex h-screen">
-      {/* Left Sidebar */}
-      <div className="w-64 bg-gray-100 border-r border-gray-300 p-4 flex flex-col gap-4 overflow-y-auto">
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold text-sm">Select Table:</label>
-          <select
-            value={selectedPreset}
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => loadPreset(e.target.value)}
-            className="px-2 py-1 border rounded text-sm"
-          >
-            {allTables.map((preset) => (
-              <option key={preset.name} value={preset.name}>
-                {preset.name}
-              </option>
-            ))}
-            <option value="custom">Create a new Table</option>
-            <option value="import">Import tables</option>
-          </select>
-        </div>
+  const handleExecuteQuery = async () => {
+    const queries = query.split('\n').filter((q: string) => q.trim() !== '');
+    const tables = getSelectedTablesData();
+    const resp = await executeQuery(tables, queries);
+    const queryStr = queries.join('\n');
+    
+    // Add to local history
+    setQueryHistory([...queryHistory, { query: queryStr, result: resp.result, timestamp: new Date() }]);
+    
+    replaceResult(resp);
+    addToHistory(queryStr, resp);
+  };
 
+  return (
+    <div className="flex flex-1 overflow-hidden">
+      {/* Left Sidebar */}
+      <div className="w-64 bg-gray-100 border-r border-gray-300 p-3 flex flex-col gap-3 overflow-y-auto">
         {/* Import File Dialog */}
         {isImportMode && (
           <div className="flex flex-col gap-2 p-3 bg-blue-50 rounded border border-blue-200">
@@ -288,7 +286,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         {/* Table List */}
         <div className="flex flex-col gap-1">
           <label className="font-semibold text-sm mb-1">Tables:</label>
-          {allTables.map((preset) => (
+          {allTables.sort((a: PresetTable, b: PresetTable) => a.name.localeCompare(b.name)).map((preset) => (
             <div key={preset.name} className="flex items-center gap-2 py-1">
               <input
                 type="checkbox"
@@ -304,10 +302,28 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         {/* Action Buttons */}
         <div className="flex flex-col gap-2 mt-auto">
           <button
+            onClick={() => setIsHistoryOpen(true)}
+            className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-700"
+          >
+            View History
+          </button>
+          <button
+            onClick={() => loadPreset('custom')}
+            className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-700"
+          >
+            Create Table
+          </button>
+          <button
             onClick={() => setIsTableOpen(true)}
             className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-700"
           >
             Edit Table
+          </button>
+          <button
+            onClick={() => loadPreset('import')}
+            className="px-3 py-2 bg-indigo-500 text-white rounded text-sm hover:bg-indigo-700"
+          >
+            Import Tables
           </button>
           <button
             onClick={handleExportTables}
@@ -319,25 +335,21 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Query Input Area */}
-        <div className="flex-1 p-4 flex flex-col">
+        <div className="flex-1 p-4 flex flex-col overflow-hidden">
           <textarea
             value={query}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
             placeholder="your query goes here ..."
-            className="flex-1 px-3 py-2 border rounded font-mono text-sm resize-none"
+            className="w-full h-full px-3 py-2 border rounded font-mono text-sm resize-none"
           />
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t border-gray-300 p-4 bg-gray-50 flex justify-start">
+        <div className="border-t border-gray-300 p-3 bg-gray-50 flex justify-start">
           <button
-            onClick={() => {
-              const queries = query.split('\n').filter((q: string) => q.trim() !== '');
-              const tables = getSelectedTablesData();
-              handleOnClick(tables, queries, replaceResult, addToHistory);
-            }}
+            onClick={handleExecuteQuery}
             className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-700 font-semibold"
           >
             ▶ execute query
@@ -350,7 +362,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Define Table Data</h2>
+              <h2 className="text-xl font-bold">Edit Table Data</h2>
               <button
                 onClick={() => setIsTableOpen(false)}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -360,6 +372,23 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
             </div>
 
             <div className="flex flex-col gap-4">
+              {/* Table Selector */}
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold">Select Table to Edit:</label>
+                <select
+                  value={selectedPreset}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => loadPreset(e.target.value)}
+                  className="px-3 py-2 border rounded-md"
+                >
+                  {allTables.map((preset) => (
+                    <option key={preset.name} value={preset.name}>
+                      {preset.name}
+                    </option>
+                  ))}
+                  <option value="custom">Create a new Table</option>
+                </select>
+              </div>
+
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -435,6 +464,76 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
                   Done
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto w-3/4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Query History</h2>
+              <button
+                onClick={() => setIsHistoryOpen(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {queryHistory.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No query history yet. Execute a query to see it here!</p>
+              ) : (
+                queryHistory.map((item, index) => (
+                  <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg">Query #{queryHistory.length - index}</h3>
+                      <span className="text-sm text-gray-500">
+                        {item.timestamp.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="mb-3">
+                      <label className="font-semibold text-sm text-gray-700">Query:</label>
+                      <pre className="bg-white p-3 rounded border mt-1 text-sm font-mono whitespace-pre-wrap">
+                        {item.query}
+                      </pre>
+                    </div>
+                    <div>
+                      <label className="font-semibold text-sm text-gray-700">Result:</label>
+                      <pre className="bg-white p-3 rounded border mt-1 text-sm font-mono whitespace-pre-wrap max-h-48 overflow-y-auto">
+                        {item.result}
+                      </pre>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setQuery(item.query);
+                        setIsHistoryOpen(false);
+                      }}
+                      className="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 text-sm"
+                    >
+                      Load This Query
+                    </button>
+                  </div>
+                )).reverse()
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setQueryHistory([])}
+                className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
+              >
+                Clear History
+              </button>
+              <button
+                onClick={() => setIsHistoryOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

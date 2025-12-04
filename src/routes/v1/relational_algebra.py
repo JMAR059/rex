@@ -1,7 +1,7 @@
 from typing import Any
 
-from fastapi import APIRouter
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, ValidationError
 import pandas as pd
 
 from src.relationalAlgebra.relationParsing import symbolize, relationalParser
@@ -12,7 +12,6 @@ class Relation(BaseModel):
     # Multiple tables - dict where keys are table names, values are the table data
     relations: dict[str, dict[str, list[Any]]]
     queries: list[str]
-     
 
 #Ok so what do we want?
 #Chase ig, uhh what else
@@ -49,22 +48,26 @@ Errors: 400 if there is any error in executing the query on the user side, eg a 
 '''
 @router.post("/relational_algebra")
 async def relational_parser(data: Relation):
-    # Convert each table to a DataFrame
-    knownRelations = {}
-    for table_name, table_data in data.relations.items():
-        knownRelations[table_name] = pd.DataFrame(table_data)
-        print(f"Table {table_name}:")
-        print(knownRelations[table_name])
-    
-    results = []
-    for query in data.queries:
-        print("This is the current query: " + query)
-        symbolized_query = symbolize(query)
-        print("This is the symbolized query: " + symbolized_query)
-        rootNode = relationalParser(line=symbolized_query, relations=knownRelations, debug=True)
-        result = rootNode.resolve(knownRelations)
-        print("Result:")
-        print(result)
-        results.append(result.to_dict())
-    
-    return {"status": 200, "results": results}
+    try:
+        # Convert each table to a DataFrame
+        knownRelations = {}
+        for table_name, table_data in data.relations.items():
+            knownRelations[table_name] = pd.DataFrame(table_data)
+            print(f"Table {table_name}:")
+            print(knownRelations[table_name])
+        
+        results = []
+        for query in data.queries:
+            print("This is the current query: " + query)
+            symbolized_query = symbolize(query)
+            print("This is the symbolized query: " + symbolized_query)
+            rootNode = relationalParser(line=symbolized_query, relations=knownRelations, debug=True)
+            result = rootNode.resolve(knownRelations)
+            print("Result:")
+            print(result)
+            results.append(result.to_dict())
+        
+        return {"status": 200, "results": results}
+    except Exception as e:
+        print(f"Error processing query: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
