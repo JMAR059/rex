@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ActionButtons from './actionButtons';
 
 const apiUrl = "http://localhost:8000/relational_algebra";
 
@@ -105,6 +106,8 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   const [isImportMode, setIsImportMode] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [queryHistory, setQueryHistory] = useState<Array<{query: string, result: string, timestamp: Date}>>([]);
+  const [currentResult, setCurrentResult] = useState<string>('');
+  const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
 
   const allTables = [...PRESET_TABLES, ...importedTables];
 
@@ -247,14 +250,91 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
     ));
   };
 
+  const getColumnType = (columnName: string, table: PresetTable): string => {
+    if (table.rows.length === 0) return 'unknown';
+    const firstValue = table.rows[0][columnName];
+    if (typeof firstValue === 'number') {
+      return Number.isInteger(firstValue) ? 'number' : 'number';
+    }
+    if (typeof firstValue === 'string') return 'string';
+    if (typeof firstValue === 'boolean') return 'boolean';
+    return 'unknown';
+  };
+
+  const formatResultAsTable = (resultJson: string): string => {
+    try {
+      const data = JSON.parse(resultJson);
+      
+      // Check if data is empty
+      if (!data || typeof data !== 'object') {
+        return 'No results';
+      }
+
+      const columns = Object.keys(data);
+      if (columns.length === 0) {
+        return 'No results';
+      }
+
+      // Get number of rows (assumes all columns have same length)
+      const firstColumn = data[columns[0]];
+      const rowCount = Object.keys(firstColumn).length;
+
+      if (rowCount === 0) {
+        return 'No results';
+      }
+
+      // Helper function to pad strings (alternative to padEnd)
+      const padString = (str: string, length: number): string => {
+        while (str.length < length) {
+          str += ' ';
+        }
+        return str;
+      };
+
+      // Calculate max width for each column
+      const columnWidths: { [key: string]: number } = {};
+      columns.forEach((col: string) => {
+        let maxWidth = col.length;
+        for (let i = 0; i < rowCount; i++) {
+          const value = String(data[col][i.toString()] || '');
+          maxWidth = Math.max(maxWidth, value.length);
+        }
+        columnWidths[col] = maxWidth;
+      });
+
+      // Build header row
+      const headerRow = columns.map((col: string) => 
+        padString(col, columnWidths[col])
+      ).join('  ');
+      let result = headerRow + '\n';
+
+      // Build data rows
+      for (let i = 0; i < rowCount; i++) {
+        const rowValues = columns.map((col: string) => {
+          const value = String(data[col][i.toString()] || '');
+          return padString(value, columnWidths[col]);
+        });
+        result += rowValues.join('  ') + '\n';
+      }
+
+      return result;
+    } catch (e) {
+      return resultJson; // Return original if parsing fails
+    }
+  };
+
   const handleExecuteQuery = async () => {
     const queries = query.split('\n').filter((q: string) => q.trim() !== '');
     const tables = getSelectedTablesData();
     const resp = await executeQuery(tables, queries);
     const queryStr = queries.join('\n');
     
+    // Format and display current result
+    const formattedResult = formatResultAsTable(resp.result);
+    setCurrentResult(formattedResult);
+    
     // Add to local history
-    setQueryHistory([...queryHistory, { query: queryStr, result: resp.result, timestamp: new Date() }]);
+    setQueryHistory([...queryHistory, { query: queryStr, result: formattedResult, timestamp: new Date() }]);
     
     replaceResult(resp);
     addToHistory(queryStr, resp);
@@ -284,66 +364,98 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         )}
 
         {/* Table List */}
-        <div className="flex flex-col gap-1">
-          <label className="font-semibold text-sm mb-1">Tables:</label>
-          {allTables.sort((a: PresetTable, b: PresetTable) => a.name.localeCompare(b.name)).map((preset) => (
-            <div key={preset.name} className="flex items-center gap-2 py-1">
-              <input
-                type="checkbox"
-                checked={selectedTables.indexOf(preset.name) !== -1}
-                onChange={() => toggleTableSelection(preset.name)}
-                className="cursor-pointer"
-              />
-              <span className="text-sm">{preset.name}</span>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded text-sm text-left flex justify-between items-center hover:bg-gray-50"
+          >
+            <span>
+              Select Tables ({selectedTables.length > 0 ? selectedTables.join(', ') : 'None'})
+            </span>
+            <span className="text-gray-500">{isTableDropdownOpen ? '▲' : '▼'}</span>
+          </button>
+          
+          {isTableDropdownOpen && (
+            <div className="border border-gray-300 rounded bg-white max-h-60 overflow-y-auto">
+              {allTables.sort((a: PresetTable, b: PresetTable) => a.name.localeCompare(b.name)).map((preset) => (
+                <div
+                  key={preset.name}
+                  onClick={() => {
+                    const index = selectedTables.indexOf(preset.name);
+                    if (index === -1) {
+                      setSelectedTables([...selectedTables, preset.name]);
+                    } else {
+                      setSelectedTables(selectedTables.filter((t: string) => t !== preset.name));
+                    }
+                  }}
+                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedTables.indexOf(preset.name) !== -1}
+                    readOnly
+                    className="cursor-pointer"
+                  />
+                  <span>{preset.name}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
+        {/* Selected Tables Schema Display */}
+        {selectedTables.length > 0 && (
+          <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-gray-300">
+            <label className="font-semibold text-sm">Schema:</label>
+            {selectedTables.sort().map((tableName) => {
+              const table = allTables.find((t: PresetTable) => t.name === tableName);
+              if (!table) return null;
+              return (
+                <div key={tableName} className="mb-2">
+                  <div className="font-semibold text-sm mb-1">{tableName}</div>
+                  <div className="ml-3 text-xs">
+                    {table.columns.map((col) => (
+                      <div key={col} className="flex justify-between py-0.5">
+                        <span className="text-gray-700">{col}</span>
+                        <span className="text-gray-500">{getColumnType(col, table)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* Action Buttons */}
-        <div className="flex flex-col gap-2 mt-auto">
-          <button
-            onClick={() => setIsHistoryOpen(true)}
-            className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-700"
-          >
-            View History
-          </button>
-          <button
-            onClick={() => loadPreset('custom')}
-            className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-700"
-          >
-            Create Table
-          </button>
-          <button
-            onClick={() => setIsTableOpen(true)}
-            className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-700"
-          >
-            Edit Table
-          </button>
-          <button
-            onClick={() => loadPreset('import')}
-            className="px-3 py-2 bg-indigo-500 text-white rounded text-sm hover:bg-indigo-700"
-          >
-            Import Tables
-          </button>
-          <button
-            onClick={handleExportTables}
-            className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-700"
-          >
-            Export Tables
-          </button>
-        </div>
+        <ActionButtons
+          onViewHistory={() => setIsHistoryOpen(true)}
+          onCreateTable={() => loadPreset('custom')}
+          onEditTable={() => setIsTableOpen(true)}
+          onImportTables={() => loadPreset('import')}
+          onExportTables={handleExportTables}
+        />
       </div>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Query Input Area */}
-        <div className="flex-1 p-4 flex flex-col overflow-hidden">
+        {/* Query Input Area - 2/3 of space */}
+        <div className="flex-2 p-4 flex flex-col overflow-hidden" style={{flex: '2'}}>
+          <label className="font-semibold text-sm mb-2">Query:</label>
           <textarea
             value={query}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
             placeholder="your query goes here ..."
             className="w-full h-full px-3 py-2 border rounded font-mono text-sm resize-none"
           />
+        </div>
+
+        {/* Result Display Area - 1/3 of space */}
+        <div className="flex-1 p-4 pt-0 flex flex-col overflow-hidden">
+          <label className="font-semibold text-sm mb-2">Result:</label>
+          <pre className="w-full h-full px-3 py-2 border rounded bg-gray-50 font-mono text-sm overflow-auto">
+            {currentResult || 'Results will appear here after executing a query...'}
+          </pre>
         </div>
 
         {/* Bottom Action Bar */}
