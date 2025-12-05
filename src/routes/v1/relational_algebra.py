@@ -58,16 +58,13 @@ async def relational_parser(data: Relation):
         
         results = []
         for query in data.queries:
-            print("This is the current query: " + query)
             symbolized_query = symbolize(query)
-            print("This is the symbolized query: " + symbolized_query)
             rootNode = relationalParser(line=symbolized_query, relations=knownRelations, debug=True)
             result = rootNode.resolve(knownRelations)
-            print("Result:")
-            print(result)
             results.append(result.to_dict())
-        
-        return {"status": 200, "results": results}
+        if (len(results) != 1):
+            print("ERROR: Multiple results when only one expected")
+        return {"status": 200, "results": results[0]}
     except Exception as e:
         print(f"Error processing query: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
