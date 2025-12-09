@@ -6,7 +6,7 @@ import HistoryModal from './historyModal';
 
 const apiUrl = "http://localhost:8000/relational_algebra";
 
-interface QueryProps {
+interface BodyProps {
   replaceResult: (resp: {result: string}) => void;
   addToHistory: (query: string, resp:{result: string}) => void;
 }
@@ -86,8 +86,8 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
 const handleOnClick = async (
   tables: TableData[],
   queries: string[], 
-  replaceResult: QueryProps['replaceResult'], 
-  addToHistory: QueryProps['addToHistory']
+  replaceResult: BodyProps['replaceResult'], 
+  addToHistory: BodyProps['addToHistory']
 ) => {
   const resp = await executeQuery(tables, queries);
   const queryStr = queries.join('\n');
@@ -95,7 +95,7 @@ const handleOnClick = async (
   addToHistory(queryStr, resp);
 };
 
-const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
+const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const studentsPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Students');
   const [columns, setColumns] = useState<string[]>(studentsPreset?.columns || ['Column1', 'Column2']);
   const [rows, setRows] = useState<TableRow[]>(studentsPreset?.rows || [{ id: 1 }]);
@@ -112,30 +112,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   const [currentResult, setCurrentResult] = useState<string>('');
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
 
-  // Merge preset tables with imported tables, replacing presets with imported versions if names match
-  const allTables = (() => {
-    const tableMap: { [key: string]: PresetTable } = {};
-    
-    // Add all preset tables first
-    PRESET_TABLES.forEach((table: PresetTable) => {
-      tableMap[table.name] = table;
-    });
-    
-    // Override with imported tables (if they have the same name)
-    importedTables.forEach((table: PresetTable) => {
-      tableMap[table.name] = table;
-    });
-    console.log(tableMap);
-    // Convert map to array
-    const result: PresetTable[] = [];
-    for (const key in tableMap) {
-      if (tableMap.hasOwnProperty(key)) {
-        result.push(tableMap[key]);
-      }
-    }
-    console.log(result);
-    return result;
-  })();
+  const allTables = [...PRESET_TABLES, ...importedTables];
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -162,28 +139,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
           }))
         }));
 
-        // Merge with existing imported tables, replacing duplicates
-        const tableMap: { [key: string]: PresetTable } = {};
-        
-        // Add existing imported tables first
-        importedTables.forEach((table: PresetTable) => {
-          tableMap[table.name] = table;
-        });
-        
-        // Override with newly imported tables (if they have the same name)
-        processedTables.forEach((table: PresetTable) => {
-          tableMap[table.name] = table;
-        });
-        
-        // Convert map to array
-        const mergedTables: PresetTable[] = [];
-        for (const key in tableMap) {
-          if (tableMap.hasOwnProperty(key)) {
-            mergedTables.push(tableMap[key]);
-          }
-        }
-        
-        setImportedTables(mergedTables);
+        setImportedTables(processedTables);
         setIsImportMode(false);
         alert(`Successfully imported ${processedTables.length} table(s)`);
       } catch (error) {
@@ -237,6 +193,14 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
       }
     }
     setSelectedPreset(presetName);
+  };
+
+  const toggleTableSelection = (tableName: string) => {
+    setSelectedTables(prev => 
+      prev.indexOf(tableName) !== -1
+        ? prev.filter((t: string) => t !== tableName)
+        : [...prev, tableName]
+    );
   };
 
   const getSelectedTablesData = (): TableData[] => {
@@ -306,6 +270,7 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
         columns: columns,
         rows: rows
       };
+      console.log("Updating imported table:", updatedTables);
       setImportedTables(updatedTables);
     } else {
       // Check if it's a preset table we're modifying
@@ -494,4 +459,4 @@ const QueryBody: React.FC<QueryProps> = ({ replaceResult, addToHistory }) => {
   );
 };
 
-export default QueryBody;
+export default Body;

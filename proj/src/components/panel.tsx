@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import SideBar from './sidebar';
-import QueryBody from './query';
+import QueryBody from './body';
 import Divider from './divider';
 import ResultBody from './result';
 

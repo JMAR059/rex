@@ -1,6 +1,6 @@
 import './App.css'
 import Navbar from './components/navbar';
-import QueryBody from './components/query';
+import QueryBody from './components/body';
 import Footer from './components/footer';
 
 const App: React.FC = () => {
