@@ -71,7 +71,6 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
     relations[table.name] = columnData;
   });
   
-  console.log("Sending data to API:", { relations, queries });
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: {
@@ -83,17 +82,6 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
   return {"result": JSON.stringify(data.results)};
 }
 
-const handleOnClick = async (
-  tables: TableData[],
-  queries: string[], 
-  replaceResult: BodyProps['replaceResult'], 
-  addToHistory: BodyProps['addToHistory']
-) => {
-  const resp = await executeQuery(tables, queries);
-  const queryStr = queries.join('\n');
-  replaceResult(resp);
-  addToHistory(queryStr, resp);
-};
 
 const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const studentsPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Students');
@@ -112,7 +100,27 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const [currentResult, setCurrentResult] = useState<string>('');
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
 
-  const allTables = [...PRESET_TABLES, ...importedTables];
+  const allTables = (() => {
+    const tableMap: { [key: string]: PresetTable } = {};
+    
+    // Add all preset tables first
+    PRESET_TABLES.forEach((table: PresetTable) => {
+      tableMap[table.name] = table;
+    });
+    
+    // Override with imported tables (if they have the same name)
+    importedTables.forEach((table: PresetTable) => {
+      tableMap[table.name] = table;
+    });
+    // Convert map to array
+    const result: PresetTable[] = [];
+    for (const key in tableMap) {
+      if (tableMap.hasOwnProperty(key)) {
+        result.push(tableMap[key]);
+      }
+    }
+    return result;
+  })();
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -270,7 +278,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         columns: columns,
         rows: rows
       };
-      console.log("Updating imported table:", updatedTables);
       setImportedTables(updatedTables);
     } else {
       // Check if it's a preset table we're modifying

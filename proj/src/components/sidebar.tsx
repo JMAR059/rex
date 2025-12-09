@@ -53,7 +53,8 @@ export default function Sidebar({
   onImportTables,
   onExportTables,
 }: SidebarProps) {
-  return (
+    console.log(allTables);
+    return (
     <div className="w-64 bg-gray-100 border-r border-gray-300 p-3 flex flex-col gap-3 overflow-y-auto">
       {/* Import File Dialog */}
       {isImportMode && (
