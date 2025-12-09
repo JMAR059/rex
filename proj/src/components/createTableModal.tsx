@@ -5,24 +5,13 @@ interface TableRow {
   [key: string]: string | number;
 }
 
-interface PresetTable {
-  name: string;
-  columns: string[];
-  rows: TableRow[];
-}
-
-interface TableEditorModalProps {
+interface CreateTableModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedPreset: string;
-  allTables: PresetTable[];
-  onLoadPreset: (presetName: string) => void;
   columns: string[];
   rows: TableRow[];
   tableName: string;
   onTableNameChange: (value: string) => void;
-  columnDataTypes: string[];
-  onColumnDataTypeChange: (index: number, dataType: string) => void;
   onColumnNameChange: (index: number, newName: string) => void;
   newColumnName: string;
   onNewColumnNameChange: (value: string) => void;
@@ -31,20 +20,16 @@ interface TableEditorModalProps {
   onUpdateCell: (rowId: number, column: string, value: string) => void;
   onRemoveRow: (rowId: number) => void;
   onAddRow: () => void;
+  onSave: () => void;
 }
 
-export default function TableEditorModal({
+export default function CreateTableModal({
   isOpen,
   onClose,
-  selectedPreset,
-  allTables,
-  onLoadPreset,
   columns,
   rows,
   tableName,
   onTableNameChange,
-  columnDataTypes,
-  onColumnDataTypeChange,
   onColumnNameChange,
   newColumnName,
   onNewColumnNameChange,
@@ -53,15 +38,10 @@ export default function TableEditorModal({
   onUpdateCell,
   onRemoveRow,
   onAddRow,
-}: TableEditorModalProps) {
+  onSave,
+}: CreateTableModalProps) {
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
   const [editingColumnName, setEditingColumnName] = useState<string>('');
-  const [editingDataTypeIndex, setEditingDataTypeIndex] = useState<number | null>(null);
-  const [editingDataType, setEditingDataType] = useState<string>('');
-  const [editingTableName, setEditingTableName] = useState<boolean>(false);
-  const [tempTableName, setTempTableName] = useState<string>('');
-
-  if (!isOpen) return null;
 
   const handleColumnNameClick = (index: number) => {
     setEditingColumnIndex(index);
@@ -69,41 +49,19 @@ export default function TableEditorModal({
   };
 
   const handleColumnNameBlur = () => {
-    if (editingColumnIndex !== null && editingColumnName.trim() !== '') {
+    if (editingColumnIndex !== null && editingColumnName.trim()) {
       onColumnNameChange(editingColumnIndex, editingColumnName);
     }
     setEditingColumnIndex(null);
   };
 
-  const handleDataTypeClick = (index: number) => {
-    setEditingDataTypeIndex(index);
-    setEditingDataType(columnDataTypes[index] || 'String');
-  };
-
-  const handleDataTypeBlur = () => {
-    if (editingDataTypeIndex !== null && editingDataType.trim() !== '') {
-      onColumnDataTypeChange(editingDataTypeIndex, editingDataType);
-    }
-    setEditingDataTypeIndex(null);
-  };
-
-  const handleTableNameClick = () => {
-    setEditingTableName(true);
-    setTempTableName(tableName);
-  };
-
-  const handleTableNameBlur = () => {
-    if (tempTableName.trim() !== '') {
-      onTableNameChange(tempTableName);
-    }
-    setEditingTableName(false);
-  };
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Edit Table Data</h2>
+          <h2 className="text-xl font-bold">Create New Table</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -113,45 +71,19 @@ export default function TableEditorModal({
         </div>
 
         <div className="flex flex-col gap-4">
-          {/* Table Selector */}
-          <div className="flex flex-col gap-2">
-            <label className="font-semibold">Select Table to Edit:</label>
-            <select
-              value={selectedPreset}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onLoadPreset(e.target.value)}
-              className="px-3 py-2 border rounded-md"
-            >
-              {allTables.map((preset) => (
-                <option key={preset.name} value={preset.name}>
-                  {preset.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Table Name Editor */}
+          {/* Table Name Input */}
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Table Name:</label>
-            {editingTableName ? (
-              <input
-                type="text"
-                value={tempTableName}
-                onChange={(e) => setTempTableName(e.target.value)}
-                onBlur={handleTableNameBlur}
-                onKeyPress={(e) => e.key === 'Enter' && handleTableNameBlur()}
-                autoFocus
-                className="px-3 py-2 border rounded-md"
-              />
-            ) : (
-              <div
-                onClick={handleTableNameClick}
-                className="px-3 py-2 border rounded-md cursor-pointer hover:bg-gray-50"
-              >
-                {tableName}
-              </div>
-            )}
+            <input
+              type="text"
+              value={tableName}
+              onChange={(e) => onTableNameChange(e.target.value)}
+              placeholder="Enter table name"
+              className="px-3 py-2 border rounded-md"
+            />
           </div>
 
+          {/* Add Column */}
           <div className="flex gap-2">
             <input
               type="text"
@@ -168,6 +100,7 @@ export default function TableEditorModal({
             </button>
           </div>
 
+          {/* Table Editor */}
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse border border-gray-300">
               <thead>
@@ -230,6 +163,7 @@ export default function TableEditorModal({
             </table>
           </div>
 
+          {/* Action Buttons */}
           <div className="flex gap-2 justify-between">
             <button
               onClick={onAddRow}
@@ -237,12 +171,20 @@ export default function TableEditorModal({
             >
               Add Row
             </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
-            >
-              Done
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onSave}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700"
+              >
+                Create Table
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ActionButtons from './actionButtons';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
+import CreateTableModal from './createTableModal';
 import HistoryModal from './historyModal';
 
 const apiUrl = "http://localhost:8000/relational_algebra";
@@ -90,6 +91,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const [newColumnName, setNewColumnName] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
+  const [isCreateTableOpen, setIsCreateTableOpen] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('Students');
   const [tableName, setTableName] = useState<string>('Students');
   const [selectedTables, setSelectedTables] = useState<string[]>(['Students']);
@@ -192,15 +194,41 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
       setColumns(['Column1', 'Column2']);
       setRows([{ id: 1 }]);
       setTableName('CustomTable');
+      setSelectedPreset('custom');
+      setIsCreateTableOpen(true);
     } else {
       const preset = allTables.find((p: PresetTable) => p.name === presetName);
       if (preset) {
         setColumns(preset.columns);
         setRows(preset.rows);
         setTableName(presetName);
+        setSelectedPreset(presetName);
       }
     }
-    setSelectedPreset(presetName);
+  };
+
+  const handleColumnNameChange = (index: number, newName: string) => {
+    if (!newName.trim()) return;
+    
+    const oldName = columns[index];
+    const newColumns = [...columns];
+    newColumns[index] = newName;
+    setColumns(newColumns);
+    
+    // Update all row data to use new column name
+    const newRows = rows.map(row => {
+      const newRow = { ...row };
+      if (oldName in newRow) {
+        newRow[newName] = newRow[oldName];
+        delete newRow[oldName];
+      }
+      return newRow;
+    });
+    setRows(newRows);
+  };
+
+  const handleTableNameChange = (newName: string) => {
+    setTableName(newName);
   };
 
   const toggleTableSelection = (tableName: string) => {
@@ -297,6 +325,46 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const handleCloseTableEditor = () => {
     saveTableChanges();
     setIsTableOpen(false);
+  };
+
+  const handleCreateTable = () => {
+    // Validate table name
+    if (!tableName || tableName.trim() === '') {
+      alert('Please enter a table name');
+      return;
+    }
+
+    // Check if table name already exists
+    let existingTable = null;
+    for (let i = 0; i < allTables.length; i++) {
+      if (allTables[i].name === tableName) {
+        existingTable = allTables[i];
+        break;
+      }
+    }
+    
+    if (existingTable && tableName !== 'CustomTable') {
+      alert('A table with this name already exists. Please choose a different name.');
+      return;
+    }
+
+    // Create the new table
+    const newTable: PresetTable = {
+      name: tableName,
+      columns: columns,
+      rows: rows
+    };
+
+    // Add to imported tables
+    setImportedTables([...importedTables, newTable]);
+    
+    // Add to selected tables so it's ready to use
+    if (selectedTables.indexOf(tableName) === -1) {
+      setSelectedTables([...selectedTables, tableName]);
+    }
+
+    // Close the modal
+    setIsCreateTableOpen(false);
   };
 
   const formatResultAsTable = (resultJson: string): string => {
@@ -445,6 +513,9 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onLoadPreset={loadPreset}
         columns={columns}
         rows={rows}
+        tableName={tableName}
+        onTableNameChange={handleTableNameChange}
+        onColumnNameChange={handleColumnNameChange}
         newColumnName={newColumnName}
         onNewColumnNameChange={setNewColumnName}
         onAddColumn={addColumn}
@@ -452,6 +523,25 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onUpdateCell={updateCell}
         onRemoveRow={removeRow}
         onAddRow={addRow}
+      />
+
+      {/* Create Table Modal */}
+      <CreateTableModal
+        isOpen={isCreateTableOpen}
+        onClose={() => setIsCreateTableOpen(false)}
+        columns={columns}
+        rows={rows}
+        tableName={tableName}
+        onTableNameChange={handleTableNameChange}
+        onColumnNameChange={handleColumnNameChange}
+        newColumnName={newColumnName}
+        onNewColumnNameChange={setNewColumnName}
+        onAddColumn={addColumn}
+        onRemoveColumn={removeColumn}
+        onUpdateCell={updateCell}
+        onRemoveRow={removeRow}
+        onAddRow={addRow}
+        onSave={handleCreateTable}
       />
 
       {/* History Modal */}
