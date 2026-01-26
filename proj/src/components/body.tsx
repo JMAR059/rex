@@ -5,7 +5,7 @@ import TableEditorModal from './tableEditorModal';
 import CreateTableModal from './createTableModal';
 import HistoryModal from './historyModal';
 
-const apiUrl = "http://localhost:8000/relational_algebra";
+const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
 
 interface BodyProps {
   replaceResult: (resp: {result: string}) => void;
@@ -63,7 +63,6 @@ interface TableData {
 async function executeQuery(tables: TableData[], queries: string[]): Promise<{result: string}> {
   // Transform tables to { tableName: {column1: [values...], column2: [values...]}, ... }
   const relations: Record<string, Record<string, (string | number)[]>> = {};
-  
   tables.forEach(table => {
     const columnData: Record<string, (string | number)[]> = {};
     table.columns.forEach(col => {
@@ -430,6 +429,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   };
 
   const handleExecuteQuery = async () => {
+    console.log("Executing query:", query);
     const queries = query.split('\n').filter((q: string) => q.trim() !== '');
     const tables = getSelectedTablesData();
     const resp = await executeQuery(tables, queries);
