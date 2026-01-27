@@ -61,7 +61,15 @@ async def relational_parser(data: Relation):
             symbolized_query = symbolize(query)
             rootNode = relationalParser(line=symbolized_query, relations=knownRelations, debug=True)
             result = rootNode.resolve(knownRelations)
-            results.append(result.to_dict())
+            # Replace NaN and Inf values with None for JSON serialization
+            result_dict = result.to_dict()
+            # Manually replace NaN and Inf in the dict
+            for col in result_dict:
+                for key in result_dict[col]:
+                    val = result_dict[col][key]
+                    if pd.isna(val) or val == float('inf') or val == float('-inf'):
+                        result_dict[col][key] = None
+            results.append(result_dict)
         if (len(results) != 1):
             print("ERROR: Multiple results when only one expected")
         return {"status": 200, "results": results[0]}

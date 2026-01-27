@@ -14,9 +14,9 @@ def symbolize( line: str ) -> str:
     return result
 
 
-# Validates possible character for relation name, only allows letters and numbers
+# Validates possible character for relation name, allows letters, numbers, underscores, and spaces
 def validRelationChar( char: str ) -> bool:
-    return char.isalnum() and char not in allRelationSymbols
+    return (char.isalnum() or char in ('_', ' ')) and char not in allRelationSymbols
 
 
 # Relation Parser to convert string to relational algebra node tree representation
@@ -152,6 +152,9 @@ def relationalParser( line: str , relations: Dict[str, pd.DataFrame] = None, deb
                     index += 1
                     if index != len(line):
                         char = line[index]
+                
+                # Trim trailing spaces from relation name
+                relation = relation.rstrip()
                 
                 if relation == "":
                     raise ValueError(f"Expected relation at index {index} with line: {line}")

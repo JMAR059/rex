@@ -26,30 +26,30 @@ interface PresetTable {
 // Preset tables
 const PRESET_TABLES: PresetTable[] = [
   {
-    name: "Students",
-    columns: ["StudentID", "Name", "Age", "Major"],
-    rows: [
-      { id: 1, StudentID: "S001", Name: "Alice", Age: 20, Major: "CS" },
-      { id: 2, StudentID: "S002", Name: "Bob", Age: 21, Major: "Math" },
-      { id: 3, StudentID: "S003", Name: "Charlie", Age: 19, Major: "CS" },
-    ]
-  },
-  {
     name: "Courses",
-    columns: ["CourseID", "CourseName", "Credits"],
+    columns: ["CourseID", "Name", "Credits"],
     rows: [
-      { id: 1, CourseID: "CS101", CourseName: "Intro to CS", Credits: 3 },
-      { id: 2, CourseID: "MATH201", CourseName: "Calculus", Credits: 4 },
-      { id: 3, CourseID: "CS202", CourseName: "Data Structures", Credits: 4 },
+      { id: 1, CourseID: "CS1100", Name: "CS1", Credits: 4 },
+      { id: 2, CourseID: "MATH1100", Name: "CALC 1", Credits: 4 },
+      { id: 3, CourseID: "CS1200", Name: "DATA STRUCTURES", Credits: 4 },
     ]
   },
   {
-    name: "Employees",
-    columns: ["EmpID", "Name", "Department", "Salary"],
+    name: "CS Students",
+    columns: ["StudentID", "Name", "Age", "Enrolled"],
     rows: [
-      { id: 1, EmpID: "E001", Name: "John", Department: "Sales", Salary: 50000 },
-      { id: 2, EmpID: "E002", Name: "Jane", Department: "Engineering", Salary: 75000 },
-      { id: 3, EmpID: "E003", Name: "Mike", Department: "HR", Salary: 60000 },
+      { id: 1, StudentID: "CS001", Name: "Alice", Age: 20, Enrolled: "CS1, DS" },
+      { id: 2, StudentID: "CS002", Name: "Charlie", Age: 19, Enrolled: "CS1, Calc, DS" },
+      { id: 3, StudentID: "CS003", Name: "Eve", Age: 21, Enrolled: "DS" },
+    ]
+  },
+  {
+    name: "Math Students",
+    columns: ["StudentID", "Name", "Age", "Enrolled"],
+    rows: [
+      { id: 1, StudentID: "M001", Name: "Bob", Age: 21, Enrolled: "Calc" },
+      { id: 2, StudentID: "M002", Name: "Diana", Age: 20, Enrolled: "Calc, DS" },
+      { id: 3, StudentID: "M003", Name: "Frank", Age: 22, Enrolled: "Calc, CS1" },
     ]
   }
 ];
@@ -78,22 +78,29 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
     },
     body: JSON.stringify({ relations, queries }),
   });
+  
   const data = await response.json();
+  
+  // If the response is a 400 error, return the error detail
+  if (response.status === 400) {
+    return {"result": `Error: ${data.detail || 'Unknown error'}`};
+  }
+  
   return {"result": JSON.stringify(data.results)};
 }
 
 
 const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
-  const studentsPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Students');
-  const [columns, setColumns] = useState<string[]>(studentsPreset?.columns || ['Column1', 'Column2']);
-  const [rows, setRows] = useState<TableRow[]>(studentsPreset?.rows || [{ id: 1 }]);
+  const coursesPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Courses');
+  const [columns, setColumns] = useState<string[]>(coursesPreset?.columns || ['Column1', 'Column2']);
+  const [rows, setRows] = useState<TableRow[]>(coursesPreset?.rows || [{ id: 1 }]);
   const [newColumnName, setNewColumnName] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
   const [isCreateTableOpen, setIsCreateTableOpen] = useState<boolean>(false);
-  const [selectedPreset, setSelectedPreset] = useState<string>('Students');
-  const [tableName, setTableName] = useState<string>('Students');
-  const [selectedTables, setSelectedTables] = useState<string[]>(['Students']);
+  const [selectedPreset, setSelectedPreset] = useState<string>('Courses');
+  const [tableName, setTableName] = useState<string>('Courses');
+  const [selectedTables, setSelectedTables] = useState<string[]>(['Courses']);
   const [importedTables, setImportedTables] = useState<PresetTable[]>([]);
   const [isImportMode, setIsImportMode] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
@@ -446,6 +453,80 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     addToHistory(queryStr, resp);
   };
 
+  const handleSaveResult = () => {
+    if (!currentResult || currentResult.startsWith('Error:') || currentResult === 'Results will appear here after executing a query...' || currentResult === 'No results') {
+      alert('Cannot save: No valid result to save');
+      return;
+    }
+
+    try {
+      // Parse the formatted table text back to structured data
+      const lines = currentResult.trim().split('\n');
+      if (lines.length < 2) {
+        alert('Cannot save: Invalid result format');
+        return;
+      }
+
+      // Get column names from first line
+      const headerLine = lines[0];
+      const columns = headerLine.split(/\s{2,}/).map(col => col.trim()).filter(col => col);
+      
+      // Parse data rows and convert numeric values
+      const rows: TableRow[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const values = line.split(/\s{2,}/).map(val => val.trim());
+        const row: TableRow = { id: i };
+        columns.forEach((col, idx) => {
+          if (idx < values.length) {
+            const value = values[idx];
+            // Try to convert to number if it looks like a number
+            if (value && !isNaN(Number(value)) && value !== '') {
+              row[col] = Number(value);
+            } else {
+              row[col] = value;
+            }
+          }
+        });
+        rows.push(row);
+      }
+
+      // Generate table name from first relation in query
+      // Extract first relation name by finding the first word that's not an operator
+      let firstRelation = '';
+      const queryWords = query.trim().split(/\s+/);
+      for (const word of queryWords) {
+        // Skip operators and special characters
+        if (word && !word.match(/^[σπ⨝⨯∨∧\-\{\}]+$/)) {
+          firstRelation = word;
+          break;
+        }
+      }
+      const tableName = firstRelation ? `New ${firstRelation}` : 'NewTable';
+
+      // Create new table
+      const newTable: PresetTable = {
+        name: tableName,
+        columns: columns,
+        rows: rows
+      };
+
+      // Add to imported tables
+      setImportedTables([...importedTables, newTable]);
+      
+      // Add to selected tables
+      if (selectedTables.indexOf(tableName) === -1) {
+        setSelectedTables([...selectedTables, tableName]);
+      }
+
+      alert(`Table "${tableName}" saved successfully!`);
+    } catch (error) {
+      alert('Cannot save: Error parsing result');
+    }
+  };
+
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* Left Sidebar */}
@@ -488,18 +569,24 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         {/* Result Display Area - 1/3 of space */}
         <div className="flex-1 p-4 pt-0 flex flex-col overflow-hidden">
           <label className="font-semibold text-sm mb-2">Result:</label>
-          <pre className="w-full h-full px-3 py-2 border rounded bg-gray-50 font-mono text-sm overflow-auto">
+          <pre className="w-full h-full px-3 py-2 border rounded bg-gray-100 font-mono text-sm overflow-auto">
             {currentResult || 'Results will appear here after executing a query...'}
           </pre>
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t border-gray-300 p-3 bg-gray-50 flex justify-start">
+        <div className="border-t border-gray-300 p-3 bg-gray-100 flex justify-start gap-3">
           <button
             onClick={handleExecuteQuery}
             className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-700 font-semibold"
           >
             ▶ execute query
+          </button>
+          <button
+            onClick={handleSaveResult}
+            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 font-semibold"
+          >
+            💾 Save Result
           </button>
         </div>
       </div>

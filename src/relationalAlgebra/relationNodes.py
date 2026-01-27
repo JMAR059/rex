@@ -57,7 +57,7 @@ class setOperationNode(relationNode):
             return self.resultDF
         elif self.setOp == "∨":
             self.resultDF = union(self.LHSVariable.resolve(knownRelations), self.RHSVariable.resolve(knownRelations))
-        elif self.setOp == "∧":
+        elif self.setOp == "^":
             self.resultDF = intersection(self.LHSVariable.resolve(knownRelations), self.RHSVariable.resolve(knownRelations))
         elif self.setOp =="-":
             self.resultDF = difference(self.LHSVariable.resolve(knownRelations), self.RHSVariable.resolve(knownRelations))
