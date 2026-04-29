@@ -29,7 +29,7 @@ Note. Work on a separate branch or on a fork!
 Python 3.5 or higher required. 
 To run the server:
 - pip install -r requirements.txt
-- fastapi run
+- fastapi run in the root directory
 
 Run individual files for testing with the module command. For example:
 - To run src/relationalAlgebra/relationParsing.py: python3 -m src.relationalAlgebra.relationParsing
