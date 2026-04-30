@@ -624,25 +624,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onApplyJsonTableData={applyJsonTableData}
       />
 
-      {/* Create Table Modal */}
-      <CreateTableModal
-        isOpen={isCreateTableOpen}
-        onClose={() => setIsCreateTableOpen(false)}
-        columns={columns}
-        rows={rows}
-        tableName={tableName}
-        onTableNameChange={handleTableNameChange}
-        onColumnNameChange={handleColumnNameChange}
-        newColumnName={newColumnName}
-        onNewColumnNameChange={setNewColumnName}
-        onAddColumn={addColumn}
-        onRemoveColumn={removeColumn}
-        onUpdateCell={updateCell}
-        onRemoveRow={removeRow}
-        onAddRow={addRow}
-        onSave={handleCreateTable}
-      />
-
       {/* History Modal */}
       <HistoryModal
         isOpen={isHistoryOpen}
