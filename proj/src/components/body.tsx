@@ -198,6 +198,10 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
       setRows([{ id: 1 }]);
       setTableName('CustomTable');
       setSelectedPreset('custom');
+    } else if (presetName === 'new_table') {
+      // Update selectedPreset to new_table so dropdown shows it
+      setSelectedPreset('new_table');
+      return;
     } else {
       const preset = allTables.find((p: PresetTable) => p.name === presetName);
       if (preset) {
@@ -300,6 +304,28 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         id: typeof row.id === 'number' ? row.id : index + 1,
       }))
     );
+  };
+
+  const createNewTable = (table: PresetTable) => {
+    // Check if table name already exists
+    if (allTables.some((t: PresetTable) => t.name === table.name)) {
+      alert(`A table named "${table.name}" already exists.`);
+      return;
+    }
+
+    // Add to imported tables
+    setImportedTables([...importedTables, table]);
+    
+    // Load the new table for editing
+    setTableName(table.name);
+    setColumns(table.columns);
+    setRows(table.rows);
+    setSelectedPreset(table.name);
+    
+    // Add to selected tables if not already there
+    if (selectedTables.indexOf(table.name) === -1) {
+      setSelectedTables([...selectedTables, table.name]);
+    }
   };
 
   const saveTableChanges = () => {
@@ -577,6 +603,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onRemoveRow={removeRow}
         onAddRow={addRow}
         onApplyJsonTableData={applyJsonTableData}
+        onCreateNewTable={createNewTable}
       />
 
       {/* History Modal */}

@@ -227,7 +227,8 @@ export default function TableEditorModal({
         return;
       }
       
-      if (parsedRows.length === 0) {
+      // For new tables, allow empty rows; for existing tables, require at least one
+      if (parsedRows.length === 0 && selectedPreset !== 'new_table') {
         setJsonError('The "rows" array cannot be empty.');
         return;
       }
@@ -249,13 +250,36 @@ export default function TableEditorModal({
         return normalizedRow;
       });
 
-      onApplyJsonTableData({
-        name: parsedName,
-        columns: parsedColumns,
-        rows: normalizedRows,
-      });
-      setJsonError('');
-      setActiveTab('table');
+      // If creating a new table from JSON, check for duplicate names and create
+      if (selectedPreset === 'new_table') {
+        if (allTables.some((t) => t.name === parsedName)) {
+          setJsonError(`A table named "${parsedName}" already exists. Please choose a different name.`);
+          return;
+        }
+        
+        const newTable: PresetTable = {
+          name: parsedName,
+          columns: parsedColumns,
+          rows: normalizedRows.length > 0 ? normalizedRows : [{ id: 1 }],
+        };
+        
+        onCreateNewTable(newTable);
+        setNewTableName('');
+        setNewTableColumns('Column1, Column2');
+        setCreateTableError('');
+        setShowCreateForm(false);
+        setJsonError('');
+        setActiveTab('table');
+      } else {
+        // Apply to existing table
+        onApplyJsonTableData({
+          name: parsedName,
+          columns: parsedColumns,
+          rows: normalizedRows,
+        });
+        setJsonError('');
+        setActiveTab('table');
+      }
     } catch (error) {
       const errorMsg = (error as Error).message;
       if (errorMsg.includes('Unexpected token')) {
@@ -385,7 +409,6 @@ export default function TableEditorModal({
               <option value="new_table">+ New Table</option>
             </select>
           </div>
-
 
           {/* Create New Table Form - shown when new_table is selected */}
           {selectedPreset === 'new_table' && showCreateForm && (
