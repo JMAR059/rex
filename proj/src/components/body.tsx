@@ -150,8 +150,8 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         const processedTables = imported.map(table => ({
           ...table,
           rows: table.rows.map((row, index) => ({
+            ...row,
             id: row.id || index + 1,
-            ...row
           }))
         }));
 
@@ -275,8 +275,8 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     const newColumns = columns.filter((_, i) => i !== index);
     setColumns(newColumns);
     const newRows = rows.map(row => {
-      const { [columns[index]]: _, ...rest } = row;
-      return rest;
+      const { [columns[index]]: _removed, ...rest } = row;
+      return { ...rest, id: row.id };
     });
     setRows(newRows);
   };
@@ -293,6 +293,17 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     setRows(rows.map(row => 
       row.id === rowId ? { ...row, [column]: value } : row
     ));
+  };
+
+  const applyJsonTableData = (table: PresetTable) => {
+    setTableName(table.name);
+    setColumns(table.columns);
+    setRows(
+      table.rows.map((row, index) => ({
+        ...row,
+        id: typeof row.id === 'number' ? row.id : index + 1,
+      }))
+    );
   };
 
   const saveTableChanges = () => {
@@ -610,6 +621,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onUpdateCell={updateCell}
         onRemoveRow={removeRow}
         onAddRow={addRow}
+        onApplyJsonTableData={applyJsonTableData}
       />
 
       {/* Create Table Modal */}

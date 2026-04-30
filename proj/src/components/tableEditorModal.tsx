@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface TableRow {
   id: number;
@@ -21,8 +21,6 @@ interface TableEditorModalProps {
   rows: TableRow[];
   tableName: string;
   onTableNameChange: (value: string) => void;
-  columnDataTypes: string[];
-  onColumnDataTypeChange: (index: number, dataType: string) => void;
   onColumnNameChange: (index: number, newName: string) => void;
   newColumnName: string;
   onNewColumnNameChange: (value: string) => void;
@@ -31,6 +29,7 @@ interface TableEditorModalProps {
   onUpdateCell: (rowId: number, column: string, value: string) => void;
   onRemoveRow: (rowId: number) => void;
   onAddRow: () => void;
+  onApplyJsonTableData: (table: PresetTable) => void;
 }
 
 export default function TableEditorModal({
@@ -43,8 +42,6 @@ export default function TableEditorModal({
   rows,
   tableName,
   onTableNameChange,
-  columnDataTypes,
-  onColumnDataTypeChange,
   onColumnNameChange,
   newColumnName,
   onNewColumnNameChange,
@@ -53,13 +50,42 @@ export default function TableEditorModal({
   onUpdateCell,
   onRemoveRow,
   onAddRow,
+  onApplyJsonTableData,
 }: TableEditorModalProps) {
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
   const [editingColumnName, setEditingColumnName] = useState<string>('');
-  const [editingDataTypeIndex, setEditingDataTypeIndex] = useState<number | null>(null);
-  const [editingDataType, setEditingDataType] = useState<string>('');
   const [editingTableName, setEditingTableName] = useState<boolean>(false);
   const [tempTableName, setTempTableName] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'table' | 'json'>('table');
+  const [jsonText, setJsonText] = useState<string>('');
+  const [jsonError, setJsonError] = useState<string>('');
+
+  const buildJsonPayload = (): string => {
+    return JSON.stringify(
+      {
+        name: tableName,
+        columns,
+        rows,
+      },
+      null,
+      2
+    );
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setJsonText(buildJsonPayload());
+      setJsonError('');
+      setActiveTab('table');
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (activeTab === 'json') {
+      setJsonText(buildJsonPayload());
+      setJsonError('');
+    }
+  }, [activeTab, tableName, columns, rows]);
 
   if (!isOpen) return null;
 
@@ -75,18 +101,6 @@ export default function TableEditorModal({
     setEditingColumnIndex(null);
   };
 
-  const handleDataTypeClick = (index: number) => {
-    setEditingDataTypeIndex(index);
-    setEditingDataType(columnDataTypes[index] || 'String');
-  };
-
-  const handleDataTypeBlur = () => {
-    if (editingDataTypeIndex !== null && editingDataType.trim() !== '') {
-      onColumnDataTypeChange(editingDataTypeIndex, editingDataType);
-    }
-    setEditingDataTypeIndex(null);
-  };
-
   const handleTableNameClick = () => {
     setEditingTableName(true);
     setTempTableName(tableName);
@@ -99,9 +113,57 @@ export default function TableEditorModal({
     setEditingTableName(false);
   };
 
+  const handleApplyJson = () => {
+    try {
+      const parsed = JSON.parse(jsonText) as Partial<PresetTable>;
+      const parsedName = typeof parsed.name === 'string' ? parsed.name.trim() : '';
+      const parsedColumns = Array.isArray(parsed.columns)
+        ? parsed.columns.filter((col): col is string => typeof col === 'string' && col.trim() !== '')
+        : null;
+      const parsedRows = Array.isArray(parsed.rows) ? parsed.rows : null;
+
+      if (!parsedName) {
+        setJsonError('JSON must include a non-empty "name" string.');
+        return;
+      }
+      if (!parsedColumns || parsedColumns.length === 0) {
+        setJsonError('JSON must include a non-empty "columns" string array.');
+        return;
+      }
+      if (!parsedRows) {
+        setJsonError('JSON must include a "rows" array.');
+        return;
+      }
+
+      const normalizedRows: TableRow[] = parsedRows.map((row, index) => {
+        const rawRow = row && typeof row === 'object' ? (row as Record<string, string | number>) : {};
+        const normalizedRow: TableRow = {
+          id: typeof rawRow.id === 'number' ? rawRow.id : index + 1,
+        };
+
+        parsedColumns.forEach((col) => {
+          const value = rawRow[col];
+          normalizedRow[col] = typeof value === 'string' || typeof value === 'number' ? value : '';
+        });
+
+        return normalizedRow;
+      });
+
+      onApplyJsonTableData({
+        name: parsedName,
+        columns: parsedColumns,
+        rows: normalizedRows,
+      });
+      setJsonError('');
+      setActiveTab('table');
+    } catch (error) {
+      setJsonError(`Invalid JSON: ${(error as Error).message}`);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-6 w-full max-w-6xl max-h-[95vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Edit Table Data</h2>
           <button
@@ -113,6 +175,76 @@ export default function TableEditorModal({
         </div>
 
         <div className="flex flex-col gap-4">
+          <div className="flex gap-2 border-b border-gray-200">
+            <button
+              onClick={() => setActiveTab('table')}
+              className={`px-3 py-2 text-sm font-semibold ${
+                activeTab === 'table'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Table
+            </button>
+            <button
+              onClick={() => setActiveTab('json')}
+              className={`px-3 py-2 text-sm font-semibold ${
+                activeTab === 'json'
+                  ? 'border-b-2 border-blue-500 text-blue-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              JSON
+            </button>
+          </div>
+
+          {activeTab === 'json' ? (
+            <div className="flex flex-col gap-3">
+              <label className="font-semibold">Edit table JSON:</label>
+              <div className="text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-md px-3 py-2">
+                <p className="font-semibold mb-1">Expected JSON format</p>
+                <p>Use an object with <span className="font-mono">name</span>, <span className="font-mono">columns</span>, and <span className="font-mono">rows</span>.</p>
+                <pre className="mt-2 p-2 bg-white border border-gray-200 rounded text-xs overflow-auto font-mono">{`{
+  "name": "Courses",
+  "columns": ["CourseID", "Name", "Credits"],
+  "rows": [
+    { "id": 1, "CourseID": "CS1100", "Name": "CS1", "Credits": 4 },
+    { "id": 2, "CourseID": "MATH1100", "Name": "Calc 1", "Credits": 4 }
+  ]
+}`}</pre>
+              </div>
+              <textarea
+                value={jsonText}
+                onChange={(e) => {
+                  setJsonText(e.target.value);
+                  if (jsonError) {
+                    setJsonError('');
+                  }
+                }}
+                className="w-full min-h-[560px] px-3 py-2 border rounded-md font-mono text-sm"
+              />
+              {jsonError && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                  {jsonError}
+                </div>
+              )}
+              <div className="flex justify-between gap-2">
+                <button
+                  onClick={() => setJsonText(buildJsonPayload())}
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-700"
+                >
+                  Reset JSON
+                </button>
+                <button
+                  onClick={handleApplyJson}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+                >
+                  Apply JSON
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
           {/* Table Selector */}
           <div className="flex flex-col gap-2">
             <label className="font-semibold">Select Table to Edit:</label>
@@ -244,6 +376,8 @@ export default function TableEditorModal({
               Done
             </button>
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>
