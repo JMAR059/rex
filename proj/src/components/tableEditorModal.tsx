@@ -130,12 +130,35 @@ export default function TableEditorModal({
         setJsonError('JSON must include a non-empty "columns" string array.');
         return;
       }
+      
+      // Check for duplicate column names
+      const columnSet = new Set<string>();
+      const duplicates: string[] = [];
+      parsedColumns.forEach((col) => {
+        if (columnSet.has(col)) {
+          duplicates.push(col);
+        }
+        columnSet.add(col);
+      });
+      if (duplicates.length > 0) {
+        setJsonError(`Duplicate column names found: ${duplicates.join(', ')}`);
+        return;
+      }
+
       if (!parsedRows) {
         setJsonError('JSON must include a "rows" array.');
         return;
       }
+      
+      if (parsedRows.length === 0) {
+        setJsonError('The "rows" array cannot be empty.');
+        return;
+      }
 
       const normalizedRows: TableRow[] = parsedRows.map((row, index) => {
+        if (row === null || typeof row !== 'object' || Array.isArray(row)) {
+          throw new Error(`Row at index ${index} must be a valid object, not ${Array.isArray(row) ? 'an array' : typeof row}`);
+        }
         const rawRow = row && typeof row === 'object' ? (row as Record<string, string | number>) : {};
         const normalizedRow: TableRow = {
           id: typeof rawRow.id === 'number' ? rawRow.id : index + 1,
@@ -157,7 +180,14 @@ export default function TableEditorModal({
       setJsonError('');
       setActiveTab('table');
     } catch (error) {
-      setJsonError(`Invalid JSON: ${(error as Error).message}`);
+      const errorMsg = (error as Error).message;
+      if (errorMsg.includes('Unexpected token')) {
+        setJsonError(`JSON syntax error: Check for missing commas, quotes, or brackets. ${errorMsg}`);
+      } else if (errorMsg.includes('JSON.parse')) {
+        setJsonError(`JSON parsing failed: ${errorMsg}`);
+      } else {
+        setJsonError(`Validation error: ${errorMsg}`);
+      }
     }
   };
 
