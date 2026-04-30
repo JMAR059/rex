@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import ActionButtons from './actionButtons';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
-import CreateTableModal from './createTableModal';
 import HistoryModal from './historyModal';
 
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
@@ -97,7 +95,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const [newColumnName, setNewColumnName] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
-  const [isCreateTableOpen, setIsCreateTableOpen] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('Courses');
   const [tableName, setTableName] = useState<string>('Courses');
   const [selectedTables, setSelectedTables] = useState<string[]>(['Courses']);
@@ -201,7 +198,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
       setRows([{ id: 1 }]);
       setTableName('CustomTable');
       setSelectedPreset('custom');
-      setIsCreateTableOpen(true);
     } else {
       const preset = allTables.find((p: PresetTable) => p.name === presetName);
       if (preset) {
@@ -342,46 +338,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const handleCloseTableEditor = () => {
     saveTableChanges();
     setIsTableOpen(false);
-  };
-
-  const handleCreateTable = () => {
-    // Validate table name
-    if (!tableName || tableName.trim() === '') {
-      alert('Please enter a table name');
-      return;
-    }
-
-    // Check if table name already exists
-    let existingTable = null;
-    for (let i = 0; i < allTables.length; i++) {
-      if (allTables[i].name === tableName) {
-        existingTable = allTables[i];
-        break;
-      }
-    }
-    
-    if (existingTable && tableName !== 'CustomTable') {
-      alert('A table with this name already exists. Please choose a different name.');
-      return;
-    }
-
-    // Create the new table
-    const newTable: PresetTable = {
-      name: tableName,
-      columns: columns,
-      rows: rows
-    };
-
-    // Add to imported tables
-    setImportedTables([...importedTables, newTable]);
-    
-    // Add to selected tables so it's ready to use
-    if (selectedTables.indexOf(tableName) === -1) {
-      setSelectedTables([...selectedTables, tableName]);
-    }
-
-    // Close the modal
-    setIsCreateTableOpen(false);
   };
 
   const formatResultAsTable = (resultJson: string): string => {
@@ -558,7 +514,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
           }
         }}
         onViewHistory={() => setIsHistoryOpen(true)}
-        onCreateTable={() => loadPreset('custom')}
         onEditTable={() => setIsTableOpen(true)}
         onImportTables={() => loadPreset('import')}
         onExportTables={handleExportTables}

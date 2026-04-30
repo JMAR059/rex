@@ -21,7 +21,6 @@ interface SidebarProps {
   allTables: PresetTable[];
   onTableSelect: (tableName: string) => void;
   onViewHistory: () => void;
-  onCreateTable: () => void;
   onEditTable: () => void;
   onImportTables: () => void;
   onExportTables: () => void;
@@ -48,7 +47,6 @@ export default function Sidebar({
   allTables,
   onTableSelect,
   onViewHistory,
-  onCreateTable,
   onEditTable,
   onImportTables,
   onExportTables,
@@ -135,7 +133,6 @@ export default function Sidebar({
       {/* Action Buttons */}
       <ActionButtons
         onViewHistory={onViewHistory}
-        onCreateTable={onCreateTable}
         onEditTable={onEditTable}
         onImportTables={onImportTables}
         onExportTables={onExportTables}

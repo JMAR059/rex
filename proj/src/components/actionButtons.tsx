@@ -8,7 +8,6 @@ interface ActionButtonsProps {
 
 export default function ActionButtons({
   onViewHistory,
-  onCreateTable,
   onEditTable,
   onImportTables,
   onExportTables,
@@ -20,12 +19,6 @@ export default function ActionButtons({
         className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-700"
       >
         View History
-      </button>
-      <button
-        onClick={onCreateTable}
-        className="px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-700"
-      >
-        Create Table
       </button>
       <button
         onClick={onEditTable}
