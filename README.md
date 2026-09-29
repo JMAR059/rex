@@ -8,6 +8,7 @@ Developed in the Rensselaer Community for Open Source (RCOS) by:
 - Heman Kolla (Lead)
 - Erwin Hitgano
 - Bjourn Etienne
+
 - Antonio Albanese
 
 Discord: https://discord.gg/8bX8nZxb
