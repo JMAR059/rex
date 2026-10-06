@@ -1,7 +1,7 @@
-# IMPORTANT: -WorkingDirectory <your directory>
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 # Start Docker compose in background
-$composeProcess = Start-Process -FilePath "docker" -ArgumentList "compose", "up" -PassThru -NoNewWindow -WorkingDirectory "<your directory>"
+$composeProcess = Start-Process -FilePath "docker" -ArgumentList "compose", "-p", "rex_fork", "up" -PassThru -NoNewWindow -WorkingDirectory $projectRoot
 
 
 # Wait for services to be ready
@@ -23,6 +23,6 @@ Read-Host
 
 # Stop Docker compose
 Write-Host "Stopping Docker Compose..." -ForegroundColor Yellow
-docker compose -p rex_fork down
+docker compose --project-directory $projectRoot -p rex_fork down
 
 Write-Host "Done." -ForegroundColor Green
