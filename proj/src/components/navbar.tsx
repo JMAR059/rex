@@ -30,7 +30,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     </a>
                     
                     <h1 className="text-2xl font-semibold">
-                        REX - Relational Algebra Explorer
+                        R.E.X. - Relational Algebra Explorer
                     </h1>
                 </div>
                 <div className="flex gap-4 ml-8">

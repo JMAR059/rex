@@ -1,3 +1,3 @@
-from .v1 import router
+from . import v1
 
 router = v1.router

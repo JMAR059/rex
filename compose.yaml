@@ -1,0 +1,24 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - 5173:5173
+    volumes:
+      - ./proj:/app
+      - /app/node_modules
+    command: npm run dev
+
+  backend:
+    build:
+      context: .
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - .:/app
+      - /app/.venv
+    command: python -m fastapi run --host 0.0.0.0 --port 8000

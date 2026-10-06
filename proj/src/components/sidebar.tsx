@@ -1,4 +1,5 @@
 import ActionButtons from './actionButtons';
+import { useRef } from 'react';
 
 interface TableRow {
   id: number;
@@ -51,9 +52,22 @@ export default function Sidebar({
   onImportTables,
   onExportTables,
 }: SidebarProps) {
+    const importFileInput = useRef<HTMLInputElement>(null);
+    const handleImportTables = () => {
+      onImportTables();
+      importFileInput.current?.click();
+    };
+
     console.log(allTables);
     return (
     <div className="w-64 bg-gray-200 border-r border-gray-300 p-3 flex flex-col gap-3 overflow-y-auto">
+      <input
+        ref={importFileInput}
+        type="file"
+        accept=".json"
+        onChange={onFileImport}
+        className="hidden"
+      />
       {/* Import File Dialog */}
       {isImportMode && (
         <div className="flex flex-col gap-2 p-3 bg-blue-50 rounded border border-blue-200">
@@ -62,7 +76,7 @@ export default function Sidebar({
             type="file"
             accept=".json"
             onChange={onFileImport}
-            className="text-xs"
+            className="text-xs file:text-blue-600 file:underline file:cursor-pointer"
           />
           <button
             onClick={onCancelImport}
@@ -132,11 +146,12 @@ export default function Sidebar({
 
       {/* Action Buttons */}
       <ActionButtons
-        onViewHistory={onViewHistory}
-        onEditTable={onEditTable}
-        onImportTables={onImportTables}
-        onExportTables={onExportTables}
-      />
+          onViewHistory={onViewHistory}
+          onEditTable={onEditTable}
+          onImportTables={handleImportTables}
+          onExportTables={onExportTables} onCreateTable={function (): void {
+        throw new Error("Function not implemented.");
+      }}      />
     </div>
   );
 }
