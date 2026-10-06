@@ -3,6 +3,7 @@ import re
 import copy
 from typing import Tuple, Set
 
+import pdb
 
 class TextColor:
     BLACK = '\033[30m'
@@ -34,7 +35,7 @@ def get_elem_color(elem: str, row_counter: int, changed_rows: {int}, functional_
     else:
         return TextColor.RED if elemCapitalized in lhs else TextColor.CYAN
 
-
+#Checks to see if the original relation and decomposed relation have the same attributes and fds
 def validate(original_relation, decomposed_relations, fds):
     attributes = set()
     for relation_name, relation in decomposed_relations.items():
@@ -47,9 +48,13 @@ def validate(original_relation, decomposed_relations, fds):
         if (set(rhs) | set(lhs)) - set(original_relation) != set():
             raise ValueError('Functional dependencies contain attributes not present in the relation')
 
-
-def create_canonical(original_relation, decomposed_relations):
+# Ok so this takes in the og relation and the decomposition and returns the canonical form
+# see https://www.cs.rpi.edu/~sibel/csci4380/fall2025/lecture_notes/lecture7.html
+#ex: R(A,B,C,D,E,F) F={D->A, AD->E, AE->F, BC->A} R1(A,B,C) then it returns
+# a: None, b: None, c:None, d:1, e:1, f:1
+def create_canonical(original_relation: Tuple[str, ...], decomposed_relations: dict[str, Tuple[str, ...]]):
     canonical = []
+    pdb.set_trace()
     for relation_name, relation in decomposed_relations.items():
         counter = int(re.search(r'(\d)*$', relation_name).group())
         row = {}
@@ -58,6 +63,7 @@ def create_canonical(original_relation, decomposed_relations):
             if attribute not in relation:
                 row[attribute.lower()] = counter
         canonical.append(row)
+    pdb.set_trace()
     return canonical
 
 
@@ -143,8 +149,9 @@ def equalize(canonical, row_idx1, row_idx2, attributes, printing = False):
             if printing:
                 print(f'Row {row_idx1} and {row_idx2} both already have no subscripts in attribute {attribute_lower}')
 
-
-def chase(original_relation, canonical, fds, printing = False):
+#Given the original relation, the canonical table, and the fds, applies the fds until a loseless decomposition is found
+#TODO: Figure out how to stop this when we are given a lossy decomposition
+def chase(original_relation, canonical, fds, printing = False) -> None:
     if printing:
         print("Starting chase table:")
         print(chase_table_string(original_relation, canonical), end='')
@@ -202,9 +209,10 @@ def chase_test(canonical):
             return True
     return False
 
-
-def full_chase(original_relation, decomposed_relations, fds, printing=False):
+#Ok so this function just validates the decomposition.
+def full_chase(original_relation: Tuple[str, ...], decomposed_relations: dict[str, Tuple[str, ...]], fds: Tuple[Tuple[dict[str, str], ...], ...], printing:bool=False) -> Tuple[str, ]:
     canonical = create_canonical(original_relation, decomposed_relations)
+    #Should this be before creating the cannoincal?
     validate(original_relation, decomposed_relations, fds)
     chase(original_relation, canonical, fds, printing)
     if chase_test(canonical):

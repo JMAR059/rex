@@ -19,7 +19,7 @@ def selection(dataframe, conditionString, knownRelations={}):
 def projection(dataframe1, columnNames):
     specifiedColumns = columnNames.split(',')
     for index in range(len(specifiedColumns)):
-        specifiedColumns[index] = specifiedColumns[index].strip("")
+        specifiedColumns[index] = specifiedColumns[index].strip()
     projectResult = pd.DataFrame()
     for columnName in specifiedColumns:
         projectResult[columnName] = pd.Series(dataframe1[columnName])

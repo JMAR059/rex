@@ -7,7 +7,7 @@
 # (key: written term, value: algebraic character)
 symbols = {
     "union": "∨",
-    "intersect": "∧",
+    "intersect": "^",
     "-" : "-",
     "select_" : "σ",
     "project_" : "π",
@@ -19,7 +19,7 @@ symbols = {
 
 setOpSymbols = {
     "∨",
-    "∧",
+    "^",
     "-"
 }
 
