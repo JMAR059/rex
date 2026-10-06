@@ -11,6 +11,8 @@ Developed in the Rensselaer Community for Open Source (RCOS) by:
 - Max Gammache
 - Gabriel Sicurella
 
+- Antonio Albanese
+
 Discord: https://discord.gg/8bX8nZxb
 GitHub: https://github.com/JMAR059/rex
 
