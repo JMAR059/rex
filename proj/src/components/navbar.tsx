@@ -1,8 +1,8 @@
 import dinoASCII from '/dinoASCII.png';
 
 interface NavbarProps {
-  activeTab: 'calculator' | 'Guide';
-  setActiveTab: (tab: 'calculator' | 'Guide') => void;
+  activeTab: 'calculator' | 'wiki';
+  setActiveTab: (tab: 'calculator' | 'wiki') => void;
 }
 
 const guideUrl = "https://github.com/JMAR059/rex/guide"
@@ -13,7 +13,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   };
 
   const onGuideClick = () => {
-    setActiveTab('Guide');
+    setActiveTab('wiki');
   };
 
   return (
@@ -47,7 +47,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     <button
                         onClick={onGuideClick}
                         className={`px-4 py-2 rounded ${
-                            activeTab === 'Guide'
+                            activeTab === 'wiki'
                                 ? 'bg-white text-gray-800 font-semibold'
                                 : 'bg-gray-400 text-gray-700 hover:bg-gray-300'
                         }`}
