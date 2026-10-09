@@ -1,4 +1,4 @@
-import dinoASCII from '/dinoASCII.png';
+import dinoImg from '/dino.png';
 
 interface NavbarProps {
   activeTab: 'calculator' | 'wiki';
@@ -26,13 +26,13 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   return (
     <nav>
         <div className="bg-gray-500">
-            <div className="flex items-center m-2" >
+            <div className="flex items-center py-2">
                 <div className="flex items-center gap-4">
-                    <a href="/" onClick={onLogoClick}>
+                    <a href="/" onClick={onLogoClick} className="w-64 shrink-0 flex justify-center">
                         <img 
-                        src={dinoASCII} 
+                        src={dinoImg}
                         alt="Dino" 
-                        style={{ width: '225px', height: '125px' }} 
+                        style={{ width: '113px', height: '113px' }}
                         />
                     </a>
                     
