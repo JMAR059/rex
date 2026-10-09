@@ -16,12 +16,19 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     setActiveTab('wiki');
   };
 
+  const onLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (window.confirm('This will refresh the page clear tables and history, are you sure you want to refresh?')) {
+      window.location.reload();
+    }
+  };
+
   return (
     <nav>
         <div className="bg-gray-500">
             <div className="flex items-center m-2" >
                 <div className="flex items-center gap-4">
-                    <a href="/">
+                    <a href="/" onClick={onLogoClick}>
                         <img 
                         src={dinoASCII} 
                         alt="Dino" 
