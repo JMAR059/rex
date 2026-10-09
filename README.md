@@ -17,7 +17,7 @@ Developed in the Rensselaer Community for Open Source (RCOS) by:
 Discord: https://discord.gg/8bX8nZxb
 GitHub: https://github.com/JMAR059/rex
 
-## Other Documentation
+## How to Run REX
 
 ## For Running With Docker:
 - First, download Docker Desktop: https://docs.docker.com/get-started/
@@ -26,7 +26,7 @@ GitHub: https://github.com/JMAR059/rex
 docker compose up --build
 ``` 
 
-## For Running With Powershell:
+## For Running With PowerShell:
 - You may need to change the execution policy on your machine
 - To do this, open PowerShell as Administrator and run the following command:
 ```
@@ -37,7 +37,7 @@ Set-ExecutionPolicy RemoteSigned
 .\start.ps1
 ```
 
-## For Running In Command Line
+## For Running in Command Line
 
 ### Frontend
 
