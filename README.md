@@ -19,6 +19,26 @@ GitHub: https://github.com/JMAR059/rex
 
 ## Other Documentation
 
+## For Running With Docker:
+- First, download Docker Desktop: https://docs.docker.com/get-started/
+- Then, run the following command in the root directory of the project:
+```
+docker compose up --build
+``` 
+
+## For Running With Powershell:
+- You may need to change the execution policy on your machine
+- To do this, open PowerShell as Administrator and run the following command:
+```
+Set-ExecutionPolicy RemoteSigned
+```
+- Run the following command in the Test_Scripts directory:
+```
+.\start.ps1
+```
+
+## For Running In Command Line
+
 ### Frontend
 
 This project was created with Vite + React JS.
