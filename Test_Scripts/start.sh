@@ -22,11 +22,11 @@ fi
 #xdg-open "$backend_url" > /dev/null 2>&1 &
 
 # Wait for user input
-echo ""
-echo -e "\033[36mPress ENTER to stop Docker Compose and clean up...\033[0m"
+printf ""
+printf "\033[36mPress ENTER to stop Docker Compose and clean up...\033[0m"
 read -r
 
 # Stop Docker compose
-echo -e "\033[33mStopping Docker Compose...\033[0m"
+printf "\033[33mStopping Docker Compose...\033[0m"
 docker compose --project-directory "$projectRoot" -p rex_fork down
-echo -e "\e[32mDone.\e[0m"
+printf "\e[32mDone.\e[0m"
