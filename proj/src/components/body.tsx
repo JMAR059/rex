@@ -127,40 +127,71 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     return result;
   })();
 
-  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const validateTables = (data: unknown): PresetTable[] => {
+  // Accept: an array of tables, a single table, or { tables: [...] }
+  let arr: any[];
+  if (Array.isArray(data)) {
+    arr = data;
+  } else if (data && typeof data === 'object' && Array.isArray((data as any).tables)) {
+    arr = (data as any).tables;
+  } else if (data && typeof data === 'object') {
+    arr = [data];
+  } else {
+    throw new Error(`Expected a JSON array of tables, but got ${typeof data}`);
+  }
 
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      try {
-        const content = e.target?.result as string;
-        const imported = JSON.parse(content) as PresetTable[];
-        
-        // Validate the imported data
-        if (!Array.isArray(imported)) {
-          alert('Invalid file format: Expected an array of tables');
-          return;
-        }
-
-        // Add ids to rows if they don't have them
-        const processedTables = imported.map(table => ({
-          ...table,
-          rows: table.rows.map((row, index) => ({
-            ...row,
-            id: row.id || index + 1,
-          }))
-        }));
-
-        setImportedTables(processedTables);
-        setIsImportMode(false);
-        alert(`Successfully imported ${processedTables.length} table(s)`);
-      } catch (error) {
-        alert('Error parsing JSON file: ' + (error as Error).message);
-      }
+  return arr.map((t: any, i: number) => {
+    if (!t || typeof t.name !== 'string' || !t.name.trim())
+      throw new Error(`Table ${i + 1}: missing "name"`);
+    if (!Array.isArray(t.columns) || !t.columns.every((c: unknown) => typeof c === 'string'))
+      throw new Error(`Table "${t.name}": "columns" must be an array of strings`);
+    if (!Array.isArray(t.rows))
+      throw new Error(`Table "${t.name}": "rows" must be an array`);
+    return {
+      name: t.name.trim(),
+      columns: t.columns,
+      rows: t.rows.map((row: any, idx: number) => ({ ...row, id: idx + 1 })),
     };
-    reader.readAsText(file);
+  });
+};
+
+const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const input = event.target;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e: ProgressEvent<FileReader>) => {
+    try {
+      const tables = validateTables(JSON.parse(e.target?.result as string));
+
+      // Merge with existing imported tables instead of replacing them
+      setImportedTables(prev => {
+        const map = new Map(prev.map(t => [t.name, t]));
+        tables.forEach(t => map.set(t.name, t));
+        return Array.from(map.values());
+      });
+
+      // Select the new tables so they're sent with queries and show in the schema
+      setSelectedTables(prev => Array.from(new Set([...prev, ...tables.map(t => t.name)])));
+
+      // Keep the editor in sync if the table being edited was overwritten
+      const current = tables.find(t => t.name === selectedPreset);
+      if (current) {
+        setColumns(current.columns);
+        setRows(current.rows);
+      }
+
+      setIsImportMode(false);
+      alert(`Imported ${tables.length} table(s)`);
+    } catch (error) {
+      alert('Error importing file: ' + (error as Error).message);
+    } finally {
+      input.value = ''; // lets you re-import the same file
+    }
   };
+  reader.readAsText(file);
+};
 
   const handleExportTables = () => {
     const tablesToExport: PresetTable[] = [];
