@@ -5,11 +5,11 @@ FROM node:22-slim AS frontend-build
 
 WORKDIR /app
 
-COPY proj/package*.json ./
+COPY app/package*.json ./
 
 RUN npm ci
 
-COPY proj ./
+COPY app ./
 
 RUN npm run build
 

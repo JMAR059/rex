@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ValidationError
 import pandas as pd
 
-from src.relationalAlgebra.relationParsing import symbolize, relationalParser
+from server.relationalAlgebra.relationParsing import symbolize, relationalParser
 
 router = APIRouter()
 

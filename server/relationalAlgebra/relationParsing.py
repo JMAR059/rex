@@ -1,8 +1,8 @@
 from typing import Dict
 import pandas as pd
 
-from src.relationalAlgebra.REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols, allRelationSymbols
-from src.relationalAlgebra.relationNodes import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
+from server.relationalAlgebra.REsymbols import symbols, setOpSymbols, joinOpSymbols, singleOpSymbols, allRelationSymbols
+from server.relationalAlgebra.relationNodes import relationNode, setOperationNode, singleOpNode, joinOpNode, joinOpWithConditionNode
 
 
 # Converts any text version of operation strings into standard symbols: "intersect" --> "∧"

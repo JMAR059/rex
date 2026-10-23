@@ -1,5 +1,5 @@
 from typing import Dict
-from src.relationalAlgebra.relationNodes import relationNode
+from server.relationalAlgebra.relationNodes import relationNode
 import os
 import pandas as pd
 
