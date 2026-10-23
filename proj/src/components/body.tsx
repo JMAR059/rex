@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
 
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
+
+// Reads cookie's value by name
+function readCookie(name: string): string {
+  const entry = document.cookie.split('; ').find((cookie) =>
+      cookie.startsWith(`${name}=`));
+
+  return entry ? decodeURIComponent(entry.slice(name.length + 1)) : ''; // Returns empty string if cookie not found
+}
 
 interface BodyProps {
   replaceResult: (resp: {result: string}) => void;
@@ -19,6 +27,74 @@ interface PresetTable {
   name: string;
   columns: string[];
   rows: TableRow[];
+}
+
+// Interfaces for query history items
+interface QueryHistoryItem {
+  query: string;
+  result: string;
+  timestamp: Date;
+}
+interface StoredQueryHistoryItem {
+  query: string;
+  result: string;
+  timestamp: string;
+}
+
+// Reads value from local storage and validate its type
+function readStoredValue<T>(key: string, isValid: (value: unknown) => value is T): T | null {
+  try { // Reads from local storage
+    const storedValue = localStorage.getItem(key);
+    if (storedValue === null) return null;
+    // Parses stored JSON value
+    const parsedValue: unknown = JSON.parse(storedValue);
+    return isValid(parsedValue) ? parsedValue : null;
+  }
+  catch (error) {
+    console.error(`Unable to read saved key:{ ${key} } from local storage.`, error);
+    return null;
+  }
+}
+
+// Writes value to local storage
+function writeStoredValue(key: string, value: unknown): void {
+  try { localStorage.setItem(key, JSON.stringify(value)); }
+  catch (error) { console.error(`Unable to save key:{ ${key} } to local storage.`, error); }
+}
+
+// Validate if a value is an array of strings
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+// Validate if a value is a record (object)
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+// Validate imported preset tables
+function isPresetTableArray(value: unknown): value is PresetTable[] {
+  return Array.isArray(value) && value.every((table: unknown) =>
+    isRecord(table) && typeof table.name === 'string' && Array.isArray(table.columns) &&
+    table.columns.every((column: unknown) => typeof column === 'string') &&
+    Array.isArray(table.rows) && table.rows.every((row: unknown) =>
+      isRecord(row) && typeof row.id === 'number' &&
+      Object.values(row).every((cell) =>
+          typeof cell === 'string' || typeof cell === 'number'
+      )
+    )
+  );
+}
+
+// Validate stored query history items
+function isStoredQueryHistory(value: unknown): value is StoredQueryHistoryItem[] {
+  return Array.isArray(value) && value.every((item: unknown) =>
+    isRecord(item) &&
+    typeof item.query === 'string' &&
+    typeof item.result === 'string' &&
+    typeof item.timestamp === 'string' &&
+    Number.isFinite(Date.parse(item.timestamp))
+  );
 }
 
 // Preset tables
@@ -93,17 +169,47 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const [columns, setColumns] = useState<string[]>(coursesPreset?.columns || ['Column1', 'Column2']);
   const [rows, setRows] = useState<TableRow[]>(coursesPreset?.rows || [{ id: 1 }]);
   const [newColumnName, setNewColumnName] = useState<string>('');
-  const [query, setQuery] = useState<string>('');
+  const [query, setQuery] = useState<string>(() => readCookie('rexQuery'));
   const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('Courses');
   const [tableName, setTableName] = useState<string>('Courses');
-  const [selectedTables, setSelectedTables] = useState<string[]>(['Courses']);
-  const [importedTables, setImportedTables] = useState<PresetTable[]>([]);
+  const [importedTables, setImportedTables] = useState<PresetTable[]>(() =>
+    readStoredValue('rexImportedTables', isPresetTableArray) ?? []
+  );
+  const [selectedTables, setSelectedTables] = useState<string[]>(() =>
+    readStoredValue('rexSelectedTables', isStringArray) ?? ['Courses']
+  );
   const [isImportMode, setIsImportMode] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const [queryHistory, setQueryHistory] = useState<Array<{query: string, result: string, timestamp: Date}>>([]);
+  const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>(() => {
+    const savedHistory = readStoredValue('rexQueryHistory', isStoredQueryHistory);
+    return savedHistory?.map((item) => ({
+      ...item,
+      timestamp: new Date(item.timestamp),
+    })) ?? [];
+  });
   const [currentResult, setCurrentResult] = useState<string>('');
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Saves query to cookie whenever it changes
+    document.cookie = `rexQuery=${encodeURIComponent(query)}; path=/; max-age=31536000`; // 1 year
+  }, [query]);
+
+  useEffect(() => {
+    // Saves selected tables to local storage
+    writeStoredValue('rexSelectedTables', selectedTables);
+  }, [selectedTables]);
+
+  useEffect(() => {
+    // Saves imported tables to local storage
+    writeStoredValue('rexImportedTables', importedTables);
+  }, [importedTables]);
+
+  useEffect(() => {
+    // Saves query history to local storage
+    writeStoredValue('rexQueryHistory', queryHistory);
+  }, [queryHistory]);
 
   const allTables = (() => {
     const tableMap: { [key: string]: PresetTable } = {};
@@ -440,7 +546,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     setCurrentResult(formattedResult);
     
     // Add to local history
-    setQueryHistory([...queryHistory, { query: queryStr, result: formattedResult, timestamp: new Date() }]);
+    setQueryHistory((history) => [...history, { query: queryStr, result: formattedResult, timestamp: new Date() }]);
     
     replaceResult(resp);
     addToHistory(queryStr, resp);
@@ -492,7 +598,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
       const queryWords = query.trim().split(/\s+/);
       for (const word of queryWords) {
         // Skip operators and special characters
-        if (word && !word.match(/^[σπ⨝⨯∨∧\-\{\}]+$/)) {
+        if (word && !word.match(/^[σπ⨝⨯∨∧\-]+$/)) {
           firstRelation = word;
           break;
         }
