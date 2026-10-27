@@ -1,32 +1,32 @@
 import pandas as pd
 
-from src.chaseAlgorithm.dbs_chase import full_chase, TextColor
-from src.relationalAlgebra.relationParsing import relationalParser, symbolize
+from server.chaseAlgorithm.dbs_chase import full_chase, TextColor
+from server.relationalAlgebra.relationParsing import relationalParser, symbolize
 
 def printRex():
     print("""
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                                                   ____
        ___                                      .-~. /_"-._
-      `-._~-.                                  / /_ "~o\  :Y
-          \  \                                / : \~x.  ` ')
+      `-._~-.                                  / /_ "~o\\  :Y
+          \\  \\                                / : \\~x.  ` ')
            ]  Y                              /  |  Y< ~-.__j
           /   !                        _.--~T : l  l<  /.-~
-         /   /                 ____.--~ .   ` l /~\ \<|Y
-        /   /             .-~~"        /| .    ',-~\ \L|
-       /   /             /     .^   \ Y~Y \.^>/l_   "--'
+         /   /                 ____.--~ .   ` l /~\\ \\<|Y
+        /   /             .-~~"        /| .    ',-~\\ \\L|
+       /   /             /     .^   \\ Y~Y \\.^>/l_   "--'
       /   Y           .-"(  .  l__  j_j l_/ /~_.-~    .
-     Y    l          /    \  )    ~~~." / `/"~ / \.__/l_
-     |     \     _.-"      ~-{__     l  :  l._Z~-.___.--~
-     |      ~---~           /   ~~"---\_  ' __[>
+     Y    l          /    \\  )    ~~~." / `/"~ / \\.__/l_
+     |     \\     _.-"      ~-{__     l  :  l._Z~-.___.--~
+     |      ~---~           /   ~~"---\\_  ' __[>
      l  .                _.^   ___     _>-y~
-      \  \     .      .-~   .-~   ~>--"  /
-       \  ~---"            /     ./  _.-'
-        "-.,_____.,_  _.--~\     _.-~
+      \\  \\     .      .-~   .-~   ~>--"  /
+       \\  ~---"            /     ./  _.-'
+        "-.,_____.,_  _.--~\\     _.-~
                     ~~     (   _}               REX!
                            `. ~(
-                             )  \\
-                            /,`--'~\--'~\\
+                             )  \\\\
+                            /,`--'~\\--'~\\\\
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
 
 def printDictionary(dictionary):

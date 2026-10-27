@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.relationalAlgebra.dataframeOperations import union, difference, projection, selection, cartesianProduct, naturalJoin, thetaJoin, intersection
+from server.relationalAlgebra.dataframeOperations import union, difference, projection, selection, cartesianProduct, naturalJoin, thetaJoin, intersection
 
 
 class relationNode:
