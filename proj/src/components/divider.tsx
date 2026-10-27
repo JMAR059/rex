@@ -1,5 +1,5 @@
 interface DividerProps {
-  onMouseDown: (e: React.MouseEvent<HTMLDivElement>, index: number) => void;
+  onMouseDown: (index: number, e: React.MouseEvent<HTMLDivElement>) => void;
   index: number;
 }
 
