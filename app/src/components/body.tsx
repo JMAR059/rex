@@ -323,6 +323,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     if (!newName.trim()) return;
     
     const oldName = columns[index];
+    if(newName === oldName) return;
     const newColumns = [...columns];
     newColumns[index] = newName;
     setColumns(newColumns);
