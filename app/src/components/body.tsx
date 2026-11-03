@@ -5,6 +5,12 @@ import HistoryModal from './historyModal';
 
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
 
+const retroBtn =
+  "min-h-[52px] px-6 py-2 rounded-none border-[3px] border-[#3A2814] " +
+  "font-mono text-xl font-bold uppercase tracking-wider " +
+  "shadow-[5px_5px_0_#3A2814] transition-[transform,box-shadow] duration-75 " +
+  "hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_#3A2814] " +
+  "active:translate-x-1 active:translate-y-1 active:shadow-none";
 // Reads cookie's value by name
 function readCookie(name: string): string {
   const entry = document.cookie.split('; ').find((cookie) =>
@@ -652,40 +658,50 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         onExportTables={handleExportTables}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
         {/* Query Input Area - 2/3 of space */}
-        <div className="flex-2 p-4 flex flex-col overflow-hidden" style={{flex: '2'}}>
-          <label className="font-semibold text-sm mb-2">Query:</label>
+        <div className="px-9 pt-7 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
+          <label
+            htmlFor="query"
+            className="self-start bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider"
+          >
+            Query:
+          </label>
           <textarea
+            id="query"
             value={query}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
             placeholder="your query goes here ..."
-            className="w-full h-full px-3 py-2 border rounded font-mono text-sm resize-none"
+            className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FFFDB1] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
           />
         </div>
 
         {/* Result Display Area - 1/3 of space */}
-        <div className="flex-1 p-4 pt-0 flex flex-col overflow-hidden">
-          <label className="font-semibold text-sm mb-2">Result:</label>
-          <pre className="w-full h-full px-3 py-2 border rounded bg-gray-100 font-mono text-sm overflow-auto">
+        <div className="px-9 pb-6 flex flex-col overflow-hidden flex-1">
+          <div className="self-start bg-[#666347] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
+            Result:
+          </div>
+          <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-[#F7E8AA] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-base overflow-auto shadow-[6px_6px_0_#666347]">
             {currentResult || 'Results will appear here after executing a query...'}
           </pre>
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t border-gray-300 p-3 bg-gray-100 flex justify-start gap-3">
+        <div className="border-t-[5px] border-[#3A2814] px-9 py-5 bg-[#F2A921] flex flex-wrap justify-start gap-5">
           <button
+            type="button"
             onClick={handleExecuteQuery}
-            className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-700 font-semibold"
+            className={`${retroBtn} bg-[#FF3100] text-[#FFFDB1]`}
           >
-            ▶ execute query
+            ▶ Execute Query
           </button>
           <button
+            type="button"
             onClick={handleSaveResult}
-            className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 font-semibold"
+            className={`${retroBtn} bg-[#70CAA2] text-[#3A2814]`}
           >
-            💾 Save Result
+            Save Result
           </button>
         </div>
       </div>

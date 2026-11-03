@@ -6,38 +6,36 @@ interface ActionButtonsProps {
   onExportTables: () => void;
 }
 
+//retro look
+const base =
+  "min-h-[48px] px-3 py-2 rounded-none border-[3px] border-[#3A2814] " +
+  "font-mono text-[15px] font-bold uppercase tracking-wider text-[#3A2814] " +
+  "shadow-[4px_4px_0_#3A2814] transition-[transform,box-shadow] duration-75 " +
+  "hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#3A2814] " +
+  "active:translate-x-1 active:translate-y-1 active:shadow-none";
+
 export default function ActionButtons({
   onViewHistory,
+  onCreateTable,
   onEditTable,
   onImportTables,
   onExportTables,
 }: ActionButtonsProps) {
+  const buttons = [
+    { label: "View History",  onClick: onViewHistory,  color: "bg-[#EA851A]" },
+    { label: "Create Table",  onClick: onCreateTable,  color: "bg-[#70CAA2]" },
+    { label: "Edit Table",    onClick: onEditTable,    color: "bg-[#F2A921]" },
+    { label: "Import Tables", onClick: onImportTables, color: "bg-[#FFFDB1]" },
+    { label: "Export Tables", onClick: onExportTables, color: "bg-[#7A4A23] !text-[#FFFDB1]" },
+  ];
+
   return (
-    <div className="flex flex-col gap-2 mt-auto">
-      <button
-        onClick={onViewHistory}
-        className="px-3 py-2 bg-orange-500 text-white rounded text-sm hover:bg-orange-700"
-      >
-        View History
-      </button>
-      <button
-        onClick={onEditTable}
-        className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-700"
-      >
-        Edit Table
-      </button>
-      <button
-        onClick={onImportTables}
-        className="px-3 py-2 bg-indigo-500 text-white rounded text-sm hover:bg-indigo-700"
-      >
-        Import Tables
-      </button>
-      <button
-        onClick={onExportTables}
-        className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-700"
-      >
-        Export Tables
-      </button>
+    <div className="flex flex-col gap-[14px] mt-auto">
+      {buttons.map(({ label, onClick, color }) => (
+        <button key={label} type="button" onClick={onClick} className={`${base} ${color}`}>
+          {label}
+        </button>
+      ))}
     </div>
   );
 }
