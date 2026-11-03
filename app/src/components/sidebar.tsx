@@ -44,15 +44,7 @@ const btn =
 const label = "font-['Space_Mono',monospace] font-bold text-[13px] uppercase tracking-wider";
 
 // Restyles every <button> rendered inside <ActionButtons /> without editing that component.
-const actionButtonStyles =
-  '[&>*]:gap-3.5 ' +
-  '[&_button]:w-full [&_button]:min-h-12 [&_button]:px-5 [&_button]:py-2 [&_button]:rounded-none ' +
-  '[&_button]:border-[3px] [&_button]:border-[#3A2A1A] [&_button]:bg-[#FDFBB5] [&_button]:text-[#3A2A1A] ' +
-  "[&_button]:font-['Space_Mono',monospace] [&_button]:font-bold [&_button]:text-[15px] " +
-  '[&_button]:uppercase [&_button]:tracking-wider [&_button]:shadow-[4px_4px_0_#774D2E] [&_button]:cursor-pointer ' +
-  '[&_button]:transition-[transform,box-shadow] [&_button]:duration-75 ' +
-  '[&_button]:hover:bg-[#FDFBB5] [&_button]:hover:-translate-x-px [&_button]:hover:-translate-y-px [&_button]:hover:shadow-[5px_5px_0_#774D2E] ' +
-  '[&_button]:active:translate-x-1 [&_button]:active:translate-y-1 [&_button]:active:shadow-none';
+const actionButtonStyles = '';
 
 const getColumnType = (columnName: string, table: PresetTable): string => {
   if (table.rows.length === 0) return 'unknown';
@@ -87,10 +79,11 @@ export default function Sidebar({
 
   console.log(allTables);
   return (
-    <div className="w-72 shrink-0 bg-[#F4E8B0] border-r-[5px] border-[#3A2A1A] text-[#3A2A1A] font-['Space_Mono',monospace] p-5 flex flex-col gap-5 overflow-y-auto">
+    <div className="w-72 shrink-0 bg-[#C4A76B] border-r-[5px] border-[#3A2A1A] text-[#3A2A1A] font-['Space_Mono',monospace] flex flex-col min-h-0">
       {/* Loads Space Mono + VT323 so no other file needs to change */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');`}</style>
 
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 flex flex-col gap-5">
       <input
         ref={importFileInput}
         type="file"
@@ -120,7 +113,7 @@ export default function Sidebar({
         <span className={label}>Tables</span>
         <button
           onClick={onToggleDropdown}
-          className={`${btn} w-full min-h-12 px-3 py-2 text-sm text-left normal-case tracking-normal flex justify-between items-center`}
+          className={`${btn} !bg-white w-full min-h-12 px-3 py-2 text-sm text-left normal-case tracking-normal flex justify-between items-center`}
         >
           <span>
             Select Tables ({selectedTables.length > 0 ? selectedTables.join(', ') : 'None'})
@@ -158,8 +151,8 @@ export default function Sidebar({
             if (!table) return null;
             return (
               <div key={tableName} className="flex flex-col gap-2">
-                <div className="font-['VT323',monospace] text-3xl leading-none">{tableName}</div>
-                <div className="flex flex-col gap-2 bg-[#FDFBB5] border-[3px] border-[#3A2A1A] shadow-[4px_4px_0_#774D2E] px-3.5 py-3 text-sm">
+                <div className="font-['VT323',monospace] text-2xl leading-none">{tableName}</div>
+                <div className="flex flex-col gap-2 bg-white border-[3px] border-[#3A2A1A] px-3.5 py-3 text-sm">
                   {table.columns.map((col) => (
                     <div key={col} className="flex justify-between gap-3">
                       <span>{col}</span>
@@ -175,10 +168,8 @@ export default function Sidebar({
 
       </div>
 
-      <div className="flex-1 min-h-6" />
-
       {/* Action Buttons (existing component, restyled via the wrapper) */}
-      <div className={actionButtonStyles}>
+      <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[3px] border-dashed border-[#774D2E]`}>
         <ActionButtons
           onViewHistory={onViewHistory}
           onEditTable={onEditTable}

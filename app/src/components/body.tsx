@@ -688,7 +688,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t-[5px] border-[#3A2814] px-9 py-5 bg-[#F2A921] flex flex-wrap justify-start gap-5">
+        <div className="border-t-[5px] border-[#3A2814] px-9 py-5 bg-[#C7A86B] flex flex-wrap justify-start gap-5">
           <button
             type="button"
             onClick={handleExecuteQuery}
