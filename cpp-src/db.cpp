@@ -88,6 +88,7 @@ void Table::print() {
         std::cout << col.name;
     }
     std::cout << "|" << std::endl;
+    std::cout << border << std::endl;
     if (columns.size() == 0) return;
     // Print the data
     size_t size = columns[0].records.size();
@@ -103,12 +104,12 @@ void Table::print() {
 
 // Column
 Column::Column(std::string title)
-    : name(title)
+    : max_align(title.size()), name(title)
 {}
 
 // Used for printing the db all pretty
 void Column::update_max_align() {
-    max_align = 0;
+    max_align = name.size();
     for (auto &r : records) {
         max_align = std::max(
             max_align,

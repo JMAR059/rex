@@ -81,7 +81,7 @@ void Token::print() const {
    }
 
 static inline bool iskw(const std::string &ident) {
-    return ident == "select" || ident == "project";
+    return ident == "select" || ident == "project" || ident == "product";
 }
 
 std::vector<Token> lex(const std::string &input, int &fail_index) {
@@ -111,6 +111,7 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
             // Check if it's a keyword
             if (nexttok.data == "select") nexttok.tt = TokenType::Selection;
             if (nexttok.data == "project") nexttok.tt = TokenType::Projection;
+            if (nexttok.data == "product") nexttok.tt = TokenType::Product;
             ret.push_back(nexttok);
         } else if (isnum(next) || next == ".") {
             // This intentionally doesn't handle negatives!
@@ -240,8 +241,8 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
         SINGLE_CHAR_LEX("|", TokenType::Or)
         SINGLE_CHAR_LEX("σ", TokenType::Selection)
         SINGLE_CHAR_LEX("π", TokenType::Projection)
-        // TODO: Keywords for all of these
         SINGLE_CHAR_LEX("Χ", TokenType::Product)
+        // TODO: Keywords for all of these
         SINGLE_CHAR_LEX("⋈", TokenType::Join)
         SINGLE_CHAR_LEX("ρ", TokenType::Rename)
         SINGLE_CHAR_LEX("∪", TokenType::Union)

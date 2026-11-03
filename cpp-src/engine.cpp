@@ -133,6 +133,78 @@ bool Engine::run_project(ProjectionTableNode *node) {
     return true;
 }
 
+bool Engine::run_product(ProductTableNode *node) {
+    // Left
+    ERR(run_node(node->lhs.get()));
+    Table *lhs = anon;
+    if (lhs == NULL) {
+        return error("Got NULL lhs table for product! This should never happen!");
+    }
+    // Right
+    ERR(run_node(node->rhs.get()));
+    Table *rhs = anon;
+    if (rhs == NULL) {
+        return error("Got NULL rhs table for product! This should never happen!");
+    }
+
+    // Add the columns
+    std::vector<std::string> names = {};
+    for (auto &col : lhs->columns) { names.push_back(col.name); };
+    size_t names_s = names.size();
+    for (auto &col : rhs->columns) {
+        bool added = false;
+        for (size_t i = 0; i < names_s; i++) {
+            // Rename
+            if (names[i] == col.name) {
+                // New column
+                if (rhs->name != "") {
+                    names.push_back(rhs->name + "." + col.name);
+                } else {
+                    names.push_back(col.name + "2");
+                }
+                // Old column
+                if (lhs->name != "") {
+                    names[i] = lhs->name + "." + col.name;
+                } else {
+                    names[i] = col.name + "1";
+                }
+                added = true;
+                break;
+            }
+        }
+        if (!added) names.push_back(col.name);
+    }
+    Table *tb = new Table("");
+    for (auto &name : names) {
+        tb->addCol(name);
+    }
+
+    Record invalid = Record(false);
+    size_t lhs_size = lhs->columns[0].records.size();
+    size_t rhs_size = rhs->columns[0].records.size();
+    for (size_t i = 0; i < lhs_size; i++) {
+        std::vector<Record> row = {};
+        for (auto &col : lhs->columns) {
+            row.push_back(col.records[i]);
+        }
+        size_t ors = row.size();
+        for (size_t ii = 0; ii < rhs_size; ii++) {
+            for (auto &col : rhs->columns) {
+                row.push_back(col.records[ii]);
+            }
+            tb->addRow(row);
+            // TODO: Eval with this->tb_index;
+            row.resize(ors, invalid);
+        }
+    }
+
+    // Return
+    free_anon();
+    free_anon(lhs);
+    anon = tb;
+    return true;
+}
+
 bool Engine::run_select(SelectTableNode *node) {
     // Get the table
     ERR(run_node(node->table.get()));
@@ -186,6 +258,8 @@ bool Engine::run_node(ASTNode *node, bool tl) {
         ERR(run_select((SelectTableNode *) node));
     } else if (node->type == ASTNodeType::ProjectTable) {
         ERR(run_project((ProjectionTableNode *) node));
+    } else if (node->type == ASTNodeType::ProductTable) {
+        ERR(run_product((ProductTableNode *) node));
     } else if (node->type == ASTNodeType::LiteralExpr) {
         ERR(run_lit((BaseLitExprNode *) node));
     } else {

@@ -43,6 +43,8 @@ enum class ASTNodeType {
     SelectTable,
     // Project(tbl: Table, attrs: ("A", Expr)[]): Table
     ProjectTable,
+    // Product(lhs: Table, rhs: Table): Table
+    ProductTable,
 
     // Joint exprs
     // Binop(lhs: Expr, op: BinopType, rhs: Expr): Expr
@@ -124,6 +126,26 @@ public:
             if (n != attributes.size() - 1) std::cout << ", ";
         }
         std::cout << "])";
+    }
+};
+
+class ProductTableNode : public ASTNode {
+public:
+    Node lhs;
+    Node rhs;
+
+    ProductTableNode(Node lhs, Node rhs) :
+        ASTNode(ASTNodeType::ProductTable),
+        lhs(MOVE(lhs)),
+        rhs(MOVE(rhs))
+    {}
+
+    void print() override {
+        std::cout << "ProductTableNode(";
+        lhs->print();
+        std::cout << ", ";
+        rhs->print();
+        std::cout << ")";
     }
 };
 
@@ -216,7 +238,10 @@ public:
     // TODO: Table Assignment Expression 'Rn := <table_expr>'
     //Node parse_table_assign_expr(Tokens tokens);
 
-    // Table Expression (selection, projection, product, etc...)
+    // Table Expressions
+    // Lower (selection, projection, product, etc...)
+    Node parse_lower_table_expr(Tokens tokens);
+    // Higher (product)
     Node parse_table_expr(Tokens tokens);
 
     // Top Level Expression '(...)'

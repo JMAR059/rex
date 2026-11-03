@@ -13,10 +13,11 @@ class Engine {
 public:
     std::unordered_map<std::string, Table*> tables = {};
     Table *anon = nullptr;
-    void free_anon() {
-        if (anon && anon->name == "") {
-            delete(anon);
-            anon = nullptr;
+    void free_anon(Table *tb = nullptr) {
+        if (tb == nullptr) tb = anon;
+        if (tb && tb->name == "") {
+            delete(tb);
+            tb = nullptr;
         }
     }
     // Used for row by row evals
@@ -30,6 +31,7 @@ public:
 
     bool run_select(SelectTableNode *node);
     bool run_project(ProjectionTableNode *node);
+    bool run_product(ProductTableNode *node);
     bool run_lit(BaseLitExprNode *node);
     bool run_node(ASTNode *node, bool tl = false);
 

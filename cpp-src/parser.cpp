@@ -186,7 +186,7 @@ Node Parser::parse_tl_expr(Tokens tokens) {
     return this->parse_binop_expr(tokens);
 }
 
-Node Parser::parse_table_expr(Tokens tokens) {
+Node Parser::parse_lower_table_expr(Tokens tokens) {
     const Token &at = this->peek(tokens);
     if (at.tt == TokenType::Selection) {
         // Parse selection
@@ -198,7 +198,7 @@ Node Parser::parse_table_expr(Tokens tokens) {
         Node expr = this->parse_tl_expr(tokens);
         ERR(expr);
         // Table
-        Node table = this->parse_table_expr(tokens);
+        Node table = this->parse_lower_table_expr(tokens);
         ERR(table);
         // Selection
         return NODE<SelectTableNode>(MOVE(table), MOVE(expr));
@@ -252,21 +252,47 @@ Node Parser::parse_table_expr(Tokens tokens) {
             }
         }
         // Table
-        Node table = this->parse_table_expr(tokens);
+        Node table = this->parse_lower_table_expr(tokens);
         ERR(table);
         // Selection
         return NODE<ProjectionTableNode>(MOVE(table), MOVE(attrs));
     } else if (at.tt == TokenType::Literal) {
         return NODE<BaseLitExprNode>(this->eat(tokens).data);
+    } else if (at.tt == TokenType::LParan) {
+        this->eat(tokens);
+        Node ret = this->parse_table_expr(tokens);
+        ERR(ret);
+        if (this->peek(tokens).tt != TokenType::RParan) {
+            error("Expected ')'", this->peek(tokens));
+        } else this->eat(tokens);
+        return ret;
     }
     error("Expected table", this->peek(tokens));
     return nullptr;
+}
+
+Node Parser::parse_table_expr(Tokens tokens) {
+    Node ret = this->parse_lower_table_expr(tokens);
+    ERR(ret);
+    // Attempt
+    const Token &at = this->peek(tokens);
+    if (at.tt == TokenType::Product) {
+        this->eat(tokens);
+        // Parse rhs
+        Node rhs = this->parse_table_expr(tokens);
+        ERR(rhs);
+        return NODE<ProductTableNode>(MOVE(ret), MOVE(rhs));
+    }
+    return ret;
 }
 
 Node Parser::parse(Tokens tokens) {
     // Top level parse
     errors.clear();
     Node ret = this->parse_table_expr(tokens);
+    if (this->peek(tokens).tt != TokenType::End) {
+        error("Expected end of line", this->peek(tokens));
+    }
     if (errors.size() != 0) return nullptr;
     return ret;
 }
