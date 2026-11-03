@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import SideBar from './sidebar';
+import HistoryBody from './history';
 import QueryBody from './body';
 import Divider from './divider';
 import ResultBody from './result';
@@ -87,7 +87,7 @@ const Panels = () => {
             boxSizing: 'border-box',
           }}
         >
-          <SideBar lastQuery={lastQuery} result={result} replaceResult={replaceResult}/>
+          <HistoryBody lastQuery={lastQuery} result={result} replaceResult={replaceResult} />
         </div>
 
         <Divider onMouseDown={startResize} index={0} />

@@ -1,5 +1,5 @@
 import pandas as pd
-from src.relationalAlgebra.booleanParsing import booleanParser
+from server.relationalAlgebra.booleanParsing import booleanParser
 
 
 # Most use boolean parser (MORE DOCUMENTATION)

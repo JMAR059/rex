@@ -1,5 +1,5 @@
-from src.relationalAlgebra.booleanNodes import booleanStatement, compoundStatement
-from src.relationalAlgebra.REsymbols import booleanSymbols, booleanSymbolMap
+from server.relationalAlgebra.booleanNodes import booleanStatement, compoundStatement
+from server.relationalAlgebra.REsymbols import booleanSymbols, booleanSymbolMap
 
 
 # Converts all comparator strings to character representation such as: "<=" --> "≤"

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.relationalAlgebra.REsymbols import booleanSymbolMap
+from server.relationalAlgebra.REsymbols import booleanSymbolMap
 
 
 # Add quotes to hard code string in eval operation.
