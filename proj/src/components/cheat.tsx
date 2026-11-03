@@ -1,7 +1,5 @@
-
 interface NavbarProps {
 }
-
 
 const CheatSheet: React.FC<NavbarProps> = ({ 
 }) => {
