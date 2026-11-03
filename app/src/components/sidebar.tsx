@@ -173,6 +173,8 @@ export default function Sidebar({
         </div>
       )}
 
+      </div>
+
       <div className="flex-1 min-h-6" />
 
       {/* Action Buttons (existing component, restyled via the wrapper) */}
