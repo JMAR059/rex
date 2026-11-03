@@ -27,6 +27,33 @@ interface SidebarProps {
   onExportTables: () => void;
 }
 
+/*
+  Light brown retro theme (Tailwind arbitrary values)
+    ink    #3A2A1A   dark brown: text + borders
+    brown  #774D2E   hard shadows, hover fills
+    sand   #F4E8B0   sidebar background (light brown / khaki)
+    paper  #FDFBB5   fields + buttons (pale yellow)
+*/
+const btn =
+  "font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-[#3A2A1A] bg-[#FDFBB5] " +
+  'border-[3px] border-[#3A2A1A] rounded-none shadow-[4px_4px_0_#774D2E] cursor-pointer ' +
+  'hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#774D2E] ' +
+  'active:translate-x-1 active:translate-y-1 active:shadow-none transition-[transform,box-shadow] duration-75 ' +
+  'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[3px] focus-visible:outline-[#3A2A1A]';
+
+const label = "font-['Space_Mono',monospace] font-bold text-[13px] uppercase tracking-wider";
+
+// Restyles every <button> rendered inside <ActionButtons /> without editing that component.
+const actionButtonStyles =
+  '[&>*]:gap-3.5 ' +
+  '[&_button]:w-full [&_button]:min-h-12 [&_button]:px-5 [&_button]:py-2 [&_button]:rounded-none ' +
+  '[&_button]:border-[3px] [&_button]:border-[#3A2A1A] [&_button]:bg-[#FDFBB5] [&_button]:text-[#3A2A1A] ' +
+  "[&_button]:font-['Space_Mono',monospace] [&_button]:font-bold [&_button]:text-[15px] " +
+  '[&_button]:uppercase [&_button]:tracking-wider [&_button]:shadow-[4px_4px_0_#774D2E] [&_button]:cursor-pointer ' +
+  '[&_button]:transition-[transform,box-shadow] [&_button]:duration-75 ' +
+  '[&_button]:hover:bg-[#FDFBB5] [&_button]:hover:-translate-x-px [&_button]:hover:-translate-y-px [&_button]:hover:shadow-[5px_5px_0_#774D2E] ' +
+  '[&_button]:active:translate-x-1 [&_button]:active:translate-y-1 [&_button]:active:shadow-none';
+
 const getColumnType = (columnName: string, table: PresetTable): string => {
   if (table.rows.length === 0) return 'unknown';
   const firstValue = table.rows[0][columnName];
@@ -52,15 +79,18 @@ export default function Sidebar({
   onImportTables,
   onExportTables,
 }: SidebarProps) {
-    const importFileInput = useRef<HTMLInputElement>(null);
-    const handleImportTables = () => {
-      onImportTables();
-      importFileInput.current?.click();
-    };
+  const importFileInput = useRef<HTMLInputElement>(null);
+  const handleImportTables = () => {
+    onImportTables();
+    importFileInput.current?.click();
+  };
 
-    console.log(allTables);
-    return (
-    <div className="w-64 bg-gray-200 border-r border-gray-300 p-3 flex flex-col gap-3 overflow-y-auto">
+  console.log(allTables);
+  return (
+    <div className="w-72 shrink-0 bg-[#F4E8B0] border-r-[5px] border-[#3A2A1A] text-[#3A2A1A] font-['Space_Mono',monospace] p-5 flex flex-col gap-5 overflow-y-auto">
+      {/* Loads Space Mono + VT323 so no other file needs to change */}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');`}</style>
+
       <input
         ref={importFileInput}
         type="file"
@@ -68,20 +98,18 @@ export default function Sidebar({
         onChange={onFileImport}
         className="hidden"
       />
+
       {/* Import File Dialog */}
       {isImportMode && (
-        <div className="flex flex-col gap-2 p-3 bg-blue-50 rounded border border-blue-200">
-          <label className="font-semibold text-sm">Import JSON:</label>
+        <div className="flex flex-col gap-3 p-3 bg-[#FDFBB5] border-[3px] border-[#3A2A1A] shadow-[4px_4px_0_#774D2E]">
+          <label className={label}>Import JSON:</label>
           <input
             type="file"
             accept=".json"
             onChange={onFileImport}
-            className="text-xs file:text-blue-600 file:underline file:cursor-pointer"
+            className="text-xs file:mr-2 file:px-2 file:py-1 file:border-2 file:border-[#3A2A1A] file:bg-[#774D2E] file:text-[#FDFBB5] file:font-bold file:cursor-pointer"
           />
-          <button
-            onClick={onCancelImport}
-            className="px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-700"
-          >
+          <button onClick={onCancelImport} className={`${btn} min-h-10 px-3 py-1 text-xs`}>
             Cancel
           </button>
         </div>
@@ -89,29 +117,30 @@ export default function Sidebar({
 
       {/* Table List */}
       <div className="flex flex-col gap-2">
+        <span className={label}>Tables</span>
         <button
           onClick={onToggleDropdown}
-          className="w-full px-3 py-2 bg-white border border-gray-300 rounded text-sm text-left flex justify-between items-center hover:bg-gray-50"
+          className={`${btn} w-full min-h-12 px-3 py-2 text-sm text-left normal-case tracking-normal flex justify-between items-center`}
         >
           <span>
             Select Tables ({selectedTables.length > 0 ? selectedTables.join(', ') : 'None'})
           </span>
-          <span className="text-gray-500">{isTableDropdownOpen ? '▲' : '▼'}</span>
+          <span>{isTableDropdownOpen ? '▲' : '▼'}</span>
         </button>
-        
+
         {isTableDropdownOpen && (
-          <div className="border border-gray-300 rounded bg-white max-h-60 overflow-y-auto">
+          <div className="border-[3px] border-[#3A2A1A] bg-[#FDFBB5] shadow-[4px_4px_0_#774D2E] max-h-60 overflow-y-auto">
             {allTables.sort((a: PresetTable, b: PresetTable) => a.name.localeCompare(b.name)).map((preset) => (
               <div
                 key={preset.name}
                 onClick={() => onTableSelect(preset.name)}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 text-sm"
+                className="px-3 py-2 hover:bg-[#774D2E] hover:text-[#FDFBB5] cursor-pointer flex items-center gap-2 text-sm border-b-2 border-dashed border-[#774D2E]/40 last:border-b-0"
               >
                 <input
                   type="checkbox"
                   checked={selectedTables.indexOf(preset.name) !== -1}
                   readOnly
-                  className="cursor-pointer"
+                  className="cursor-pointer accent-[#774D2E]"
                 />
                 <span>{preset.name}</span>
               </div>
@@ -122,19 +151,19 @@ export default function Sidebar({
 
       {/* Selected Tables Schema Display */}
       {selectedTables.length > 0 && (
-        <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-gray-300">
-          <label className="font-semibold text-sm">Schema:</label>
+        <div className="flex flex-col gap-3 pt-5 border-t-[3px] border-dashed border-[#774D2E]">
+          <span className={label}>Schema:</span>
           {selectedTables.sort().map((tableName) => {
             const table = allTables.find((t: PresetTable) => t.name === tableName);
             if (!table) return null;
             return (
-              <div key={tableName} className="mb-2">
-                <div className="font-semibold text-sm mb-1">{tableName}</div>
-                <div className="ml-3 text-xs">
+              <div key={tableName} className="flex flex-col gap-2">
+                <div className="font-['VT323',monospace] text-3xl leading-none">{tableName}</div>
+                <div className="flex flex-col gap-2 bg-[#FDFBB5] border-[3px] border-[#3A2A1A] shadow-[4px_4px_0_#774D2E] px-3.5 py-3 text-sm">
                   {table.columns.map((col) => (
-                    <div key={col} className="flex justify-between py-0.5">
-                      <span className="text-gray-700">{col}</span>
-                      <span className="text-gray-500">{getColumnType(col, table)}</span>
+                    <div key={col} className="flex justify-between gap-3">
+                      <span>{col}</span>
+                      <span className="italic text-[#774D2E]">{getColumnType(col, table)}</span>
                     </div>
                   ))}
                 </div>
@@ -144,14 +173,20 @@ export default function Sidebar({
         </div>
       )}
 
-      {/* Action Buttons */}
-      <ActionButtons
+      <div className="flex-1 min-h-6" />
+
+      {/* Action Buttons (existing component, restyled via the wrapper) */}
+      <div className={actionButtonStyles}>
+        <ActionButtons
           onViewHistory={onViewHistory}
           onEditTable={onEditTable}
           onImportTables={handleImportTables}
-          onExportTables={onExportTables} onCreateTable={function (): void {
-        throw new Error("Function not implemented.");
-      }}      />
+          onExportTables={onExportTables}
+          onCreateTable={function (): void {
+            throw new Error('Function not implemented.');
+          }}
+        />
+      </div>
     </div>
   );
 }
