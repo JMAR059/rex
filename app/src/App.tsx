@@ -19,7 +19,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className={`flex flex-col ${activeTab === 'calculator' ? 'h-screen' : 'min-h-screen'}`}>
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab}></Navbar>
       {activeTab === 'calculator' ? (
         <QueryBody replaceResult={replaceResult} addToHistory={addToHistory}></QueryBody>
