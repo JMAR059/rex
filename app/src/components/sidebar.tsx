@@ -60,8 +60,9 @@ export default function Sidebar({
 
     console.log(allTables);
     return (
-    <div className="w-64 bg-gray-200 border-r border-gray-300 p-3 flex flex-col gap-3 overflow-y-auto">
-      <input
+    <div className="w-64 bg-gray-200 border-r border-gray-300     flex flex-col min-h-0 shrink-0">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-3">
+          <input
         ref={importFileInput}
         type="file"
         accept=".json"
@@ -144,7 +145,10 @@ export default function Sidebar({
         </div>
       )}
 
+      </div>
+
       {/* Action Buttons */}
+      <div className="p-3 border-t border-gray-300 shrink-0">
       <ActionButtons
           onViewHistory={onViewHistory}
           onEditTable={onEditTable}
@@ -152,6 +156,7 @@ export default function Sidebar({
           onExportTables={onExportTables} onCreateTable={function (): void {
         throw new Error("Function not implemented.");
       }}      />
+      </div>
     </div>
   );
 }
