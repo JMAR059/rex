@@ -2,7 +2,7 @@ import { MarkGithubIcon } from "@primer/octicons-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#7A4A23] text-white py-3 px-8 mt-auto">
+    <footer className="bg-[#7A4A23] text-white py-3 px-8 mt-auto border-t-[5px] border-[#3A2814]">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="text-sm">
           <h4 className="font-medium">R.E.X. - Relational Algebra Explorer &copy; 2026</h4>
