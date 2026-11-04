@@ -50,22 +50,60 @@ void Table::addRow(std::vector<Record> rowvals) {
 }
 
 // Imports a table from a CSV file
+static std::string getSingleCell(const std::string &line, size_t &at, char delim) {
+    std::string cell = "";
+    if (at >= line.size()) return cell;
+    while (line[at] != delim) {
+        if (line[at] == '"') {
+            at++;
+            if (at >= line.size()) return cell;
+            while (line[at] != '"') {
+                cell += line[at++];
+                if (at >= line.size()) return cell;
+            }
+            at++;
+        } else {
+            cell += line[at++];
+        }
+        if (at >= line.size()) return cell;
+    }
+    at++;
+    return cell;
+}
+
+// TODO: Error checking?
 void Table::addFromCSV(std::istream &stream) {
     // Headers
-    std::string cell, line;
+    std::string line;
+    char delim = ',';
     getline(stream, line);
     std::stringstream ss(line);
-    while (std::getline(ss, cell, ',')) {
-        addCol(cell);
+    // Test for delim
+    if (line.find(",") == std::string::npos) {
+        if (line.find(";") != std::string::npos) {
+            delim = ';';
+        } else if (line.find("\t") != std::string::npos) {
+            delim = '\t';
+        } else {
+            std::cout << "Error: cannot determine csv delim" << std::endl;
+            return;
+        }
+    }
+    size_t at = 0;
+    while (at < line.size()) {
+        addCol(getSingleCell(line, at, delim));
     }
 
     // Values
     while (std::getline(stream, line)) {
         std::stringstream ss(line);
-        int i = 0;
-        while (std::getline(ss, cell, ',')) {
-            columns[i].records.push_back(Record(cell));
-            i++;
+        size_t at = 0, i = 0;
+        while (at < line.size()) {
+            if (i >= columns.size()) {
+                std::cout << "Error: too many lines in csv" << std::endl;
+                return;
+            }
+            columns[i++].records.push_back(Record(getSingleCell(line, at, delim)));
         }
     }
 }
@@ -96,8 +134,16 @@ void Table::print() {
         for (auto &col : columns) {
             std::cout << "| " << std::left << std::setw(col.max_align + 1);
             std::cout << col.records[i].getStringValue();
-       }
-       std::cout << "|" << std::endl;
+        }
+        std::cout << "|" << std::endl;
+        if (i > 15) {
+            for (auto &col : columns) {
+                std::cout << "| " << std::left << std::setw(col.max_align + 1);
+                std::cout << "...";
+            }
+            std::cout << "|" << std::endl;
+            break;
+        }
     }
     std::cout << border << std::endl;
 }

@@ -6,6 +6,7 @@ This is the C++ backend
 
 - Selection: `select_{Name="Kate"} Test`
 - Projection: `project_{Name+" "+Last Name->Full Name,2026-Year->Year} Test`
+- Product: `(R1) join (R2)`
 - Combinations: `project_{Name+" "+Last Name->Full Name,2026-Year->Year} select_{Name="Kate"} Test`
 
 ## Build modes
