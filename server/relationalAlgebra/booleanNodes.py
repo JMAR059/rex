@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import re
 
 from server.relationalAlgebra.REsymbols import booleanSymbolMap
 
@@ -100,7 +101,10 @@ class booleanStatement:
         # print(type(LHSVariable),type(RHSVariable))
         # print(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
         # print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))
-        return eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}")
+        # print(LHSVariable)
+        cleanedLHS = re.sub(r'[()+-_.~`=\'\"]','',LHSVariable) # uses regex via re library to sanitize characters ()+-_.~`="' from the LHS string
+
+        return eval(f"{cleanedLHS} {self.booleanOp} {RHSVariable}")
 
 
 class compoundStatement(booleanStatement):
