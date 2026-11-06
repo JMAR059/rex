@@ -673,7 +673,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
             value={query}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
             placeholder="your query goes here ..."
-            className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FFFDB1] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
+            className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
           />
         </div>
 
@@ -682,7 +682,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
           <div className="self-start bg-[#666347] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
             Result:
           </div>
-          <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-[#F7E8AA] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-base overflow-auto shadow-[6px_6px_0_#666347]">
+          <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-base overflow-auto shadow-[6px_6px_0_#666347]">
             {currentResult || 'Results will appear here after executing a query...'}
           </pre>
         </div>

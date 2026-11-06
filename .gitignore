@@ -6,3 +6,5 @@ __pycache__/
 cppdb
 
 venv
+node_modules
+venv
