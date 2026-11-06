@@ -103,8 +103,8 @@ class booleanStatement:
         # print(eval(f"{LHSVariable} {self.booleanOp} {RHSVariable}"))
         # print(LHSVariable)
         cleanedLHS = re.sub(r'[()+-_.~`=\'\"]','',LHSVariable) # uses regex via re library to sanitize characters ()+-_.~`="' from the LHS string
-
-        return eval(f"{cleanedLHS} {self.booleanOp} {RHSVariable}")
+        cleanedRHS = re.sub(r'[()+-_.~`=\'\"]','',RHSVariable)
+        return eval(f"{cleanedLHS} {self.booleanOp} {cleanedRHS}")
 
 
 class compoundStatement(booleanStatement):
