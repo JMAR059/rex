@@ -2,5 +2,9 @@
 *.pyc
 *.pyo
 __pycache__/
+**/*.o
+cppdb
+
+venv
 node_modules
 venv
