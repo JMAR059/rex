@@ -44,15 +44,7 @@ const btn =
 const label = "font-['Space_Mono',monospace] font-bold text-[13px] uppercase tracking-wider";
 
 // Restyles every <button> rendered inside <ActionButtons /> without editing that component.
-const actionButtonStyles =
-  '[&>*]:gap-3.5 ' +
-  '[&_button]:w-full [&_button]:min-h-12 [&_button]:px-5 [&_button]:py-2 [&_button]:rounded-none ' +
-  '[&_button]:border-[3px] [&_button]:border-[#3A2A1A] [&_button]:bg-[#FDFBB5] [&_button]:text-[#3A2A1A] ' +
-  "[&_button]:font-['Space_Mono',monospace] [&_button]:font-bold [&_button]:text-[15px] " +
-  '[&_button]:uppercase [&_button]:tracking-wider [&_button]:shadow-[4px_4px_0_#774D2E] [&_button]:cursor-pointer ' +
-  '[&_button]:transition-[transform,box-shadow] [&_button]:duration-75 ' +
-  '[&_button]:hover:bg-[#FDFBB5] [&_button]:hover:-translate-x-px [&_button]:hover:-translate-y-px [&_button]:hover:shadow-[5px_5px_0_#774D2E] ' +
-  '[&_button]:active:translate-x-1 [&_button]:active:translate-y-1 [&_button]:active:shadow-none';
+const actionButtonStyles = '';
 
 const getColumnType = (columnName: string, table: PresetTable): string => {
   if (table.rows.length === 0) return 'unknown';
