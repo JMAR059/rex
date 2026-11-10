@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
@@ -11,6 +11,21 @@ const retroBtn =
   "shadow-[5px_5px_0_#3A2814] transition-[transform,box-shadow] duration-75 " +
   "hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_#3A2814] " +
   "active:translate-x-1 active:translate-y-1 active:shadow-none";
+const symbolKeys: { symbol: string; label: string }[] = [
+  { symbol: 'σ', label: 'select' },
+  { symbol: 'π', label: 'project' },
+  { symbol: 'ρ', label: 'rename' },
+  { symbol: 'δ', label: 'duplicate elimination' },
+  { symbol: '⨯', label: 'cartesian product' },
+  { symbol: '-', label: 'difference' },
+  { symbol: '∪', label: 'union' },
+  { symbol: '∩', label: 'intersection' },
+  { symbol: '⨝', label: 'natural join' },
+  { symbol: '≤', label: 'less or equal' },
+  { symbol: '≥', label: 'greater or equal' },
+  { symbol: '≠', label: 'not equal' },
+];
+
 // Reads cookie's value by name
 function readCookie(name: string): string {
   const entry = document.cookie.split('; ').find((cookie) =>
@@ -176,6 +191,18 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   const [rows, setRows] = useState<TableRow[]>(coursesPreset?.rows || [{ id: 1 }]);
   const [newColumnName, setNewColumnName] = useState<string>('');
   const [query, setQuery] = useState<string>(() => readCookie('rexQuery'));
+  const queryRef = useRef<HTMLTextAreaElement>(null);
+
+  const insertSymbol = (symbol: string) => {
+    const el = queryRef.current;
+    const start = el?.selectionStart ?? query.length;
+    const end = el?.selectionEnd ?? query.length;
+    setQuery(query.slice(0, start) + symbol + query.slice(end));
+    requestAnimationFrame(() => {
+      el?.focus();
+      el?.setSelectionRange(start + symbol.length, start + symbol.length);
+    });
+  };
   const [isTableOpen, setIsTableOpen] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('Courses');
   const [tableName, setTableName] = useState<string>('Courses');
@@ -662,19 +689,51 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
       <div className="flex-1 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
         {/* Query Input Area - 2/3 of space */}
         <div className="px-9 pt-7 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
-          <label
-            htmlFor="query"
-            className="self-start bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider"
-          >
-            Query:
-          </label>
-          <textarea
-            id="query"
-            value={query}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
-            placeholder="your query goes here ..."
-            className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
-          />
+          <div className="flex items-end gap-3">
+            <label
+              htmlFor="query"
+              className="self-start bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider"
+            >
+              Query:
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                queryRef.current?.focus();
+              }}
+              className="mb-1 border-[2px] border-[#3A2814] bg-[#FFFDB1] px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_#3A2814] hover:bg-[#EA851A] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            >
+              Clear Query
+            </button>
+          </div>
+          <div className="flex flex-1 min-h-0 gap-6">
+            <textarea
+              id="query"
+              ref={queryRef}
+              value={query}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
+              placeholder="your query goes here ..."
+              className="flex-[2] min-w-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
+            />
+            <div className="flex-1 min-w-0 flex flex-col">
+              <div className="flex-1 min-h-0 overflow-auto p-4 bg-[#C7A86B] border-[3px] border-[#3A2814] shadow-[6px_6px_0_#7A4A23] grid grid-cols-3 auto-rows-min gap-3">
+                {symbolKeys.map(({ symbol, label }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    title={label}
+                    aria-label={label}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => insertSymbol(symbol)}
+                    className="h-12 bg-[#FFFDB1] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-2xl font-bold shadow-[3px_3px_0_#3A2814] cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:bg-[#EA851A]"
+                  >
+                    {symbol}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Result Display Area - 1/3 of space */}
