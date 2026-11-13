@@ -1,6 +1,10 @@
 #include <emscripten/bind.h>
 #include <string>
 #include <sstream>
+#include "db.h"
+#include "engine.h"
+#include "lexer.h"
+#include "parser.h"
 
 /* 
 TODO:
@@ -15,12 +19,13 @@ TODO:
     ["abc", 123, "a\, b"] \n [] 
 
 */
-// emcc bridge.cpp src/**/*.cpp --bind -O3 -o module.js
+// em++ bridge.cpp ../cpp-src/*.cpp --bind -sMODULARIZE=1 -I../cpp-src -O3 -o module.js
 
 
 using namespace emscripten;
 
 EMSCRIPTEN_BINDINGS(backend_bridge){
-
-
+    class_<Table>("Table")
+        .constructor<std::string>()  
+        .function("addCol", &Table::addCol);
 }
