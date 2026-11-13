@@ -690,7 +690,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
             setSelectedTables(selectedTables.filter((t: string) => t !== tableName));
           }
         }}
-        onViewHistory={() => setIsHistoryOpen(true)}
         onEditTable={() => setIsTableOpen(true)}
         onImportTables={() => loadPreset('import')}
         onExportTables={handleExportTables}
