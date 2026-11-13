@@ -1,5 +1,5 @@
 import ActionButtons from './actionButtons';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface TableRow {
   id: number;
@@ -44,15 +44,7 @@ const btn =
 const label = "font-['Space_Mono',monospace] font-bold text-[13px] uppercase tracking-wider";
 
 // Restyles every <button> rendered inside <ActionButtons /> without editing that component.
-const actionButtonStyles =
-  '[&>*]:gap-3.5 ' +
-  '[&_button]:w-full [&_button]:min-h-12 [&_button]:px-5 [&_button]:py-2 [&_button]:rounded-none ' +
-  '[&_button]:border-[3px] [&_button]:border-[#3A2A1A] [&_button]:bg-[#FDFBB5] [&_button]:text-[#3A2A1A] ' +
-  "[&_button]:font-['Space_Mono',monospace] [&_button]:font-bold [&_button]:text-[15px] " +
-  '[&_button]:uppercase [&_button]:tracking-wider [&_button]:shadow-[4px_4px_0_#774D2E] [&_button]:cursor-pointer ' +
-  '[&_button]:transition-[transform,box-shadow] [&_button]:duration-75 ' +
-  '[&_button]:hover:bg-[#FDFBB5] [&_button]:hover:-translate-x-px [&_button]:hover:-translate-y-px [&_button]:hover:shadow-[5px_5px_0_#774D2E] ' +
-  '[&_button]:active:translate-x-1 [&_button]:active:translate-y-1 [&_button]:active:shadow-none';
+const actionButtonStyles = '';
 
 const getColumnType = (columnName: string, table: PresetTable): string => {
   if (table.rows.length === 0) return 'unknown';
@@ -80,6 +72,7 @@ export default function Sidebar({
   onExportTables,
 }: SidebarProps) {
   const importFileInput = useRef<HTMLInputElement>(null);
+  const [importFileName, setImportFileName] = useState('');
   const handleImportTables = () => {
     onImportTables();
     importFileInput.current?.click();
@@ -107,9 +100,22 @@ export default function Sidebar({
           <input
             type="file"
             accept=".json"
-            onChange={onFileImport}
-            className="text-xs file:mr-2 file:px-2 file:py-1 file:border-2 file:border-[#3A2A1A] file:bg-[#774D2E] file:text-[#FDFBB5] file:font-bold file:cursor-pointer"
+            onChange={(e) => {
+              setImportFileName(e.target.files?.[0]?.name ?? '');
+              onFileImport(e);
+            }}
+            className="sr-only"
+            id="sidebar-import-file"
           />
+          <div className="flex items-center gap-2 text-xs">
+            <label
+              htmlFor="sidebar-import-file"
+              className="shrink-0 px-2 py-1 border-2 border-[#3A2A1A] bg-[#774D2E] text-[#FDFBB5] font-bold cursor-pointer"
+            >
+              Choose File
+            </label>
+            <span className="truncate">{importFileName || 'None chosen'}</span>
+          </div>
           <button onClick={onCancelImport} className={`${btn} min-h-10 px-3 py-1 text-xs`}>
             Cancel
           </button>
