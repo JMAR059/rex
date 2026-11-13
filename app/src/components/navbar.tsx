@@ -3,11 +3,13 @@ import dinoImg from '/dino.png';
 interface NavbarProps {
   activeTab: 'calculator' | 'wiki';
   setActiveTab: (tab: 'calculator' | 'wiki') => void;
+  showSymbols: boolean;
+  onToggleSymbols: () => void;
 }
 
 const guideUrl = "https://github.com/JMAR059/rex/guide"
 
-const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, showSymbols, onToggleSymbols }) => {
   const onCalculatorClick = () => {
     setActiveTab('calculator');
   };
@@ -42,7 +44,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     <div className="flex gap-4 font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-sm text-[#3A2814]">
                         <button
                             onClick={onCalculatorClick}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer ${
+                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
                                 activeTab === 'calculator' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
                             }`}
                         >
@@ -50,11 +52,21 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                         </button>
                         <button
                             onClick={onGuideClick}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer ${
+                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
                                 activeTab === 'wiki' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
                             }`}
                         >
                             Guide
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onToggleSymbols}
+                            aria-pressed={showSymbols}
+                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                                showSymbols ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
+                            }`}
+                        >
+                            Symbols
                         </button>
                     </div>
                 </div>
