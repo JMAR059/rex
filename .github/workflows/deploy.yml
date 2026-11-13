@@ -17,19 +17,29 @@ jobs:
     # uses means github references existing logic (not in our repo)
       - name: Checkout repository
         uses: actions/checkout@v4
+    
+    # This brings emcc into the build process
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
 
+    # This brings node into the build process
       - name: Install nodejs
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: app/package-lock.json
 
-    # Here we use the s3_build script 
+    # Now that we have node and emcc,
+    # we run our build script logic
       - name: Build step
         run: |
           cd scripts
           bash s3_build.sh
 
+    # Loading our aws environment variables
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -37,7 +47,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.S3_ACCESS_KEY_SECRET }}
           aws-region: ${{ secrets.S3_REGION }}
 
-    # This command gets run in the terminal
+    # deploy is a command ran in the terminal (serving /app/dist directory)
       - name: Deploy to bucket
         run: |
           aws s3 sync app/dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
