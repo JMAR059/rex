@@ -118,6 +118,11 @@ function isStoredQueryHistory(value: unknown): value is StoredQueryHistoryItem[]
   );
 }
 
+type Theme = 'retro' | 'classic';
+function isTheme(value: unknown): value is Theme {
+  return value === 'retro' || value === 'classic';
+}
+
 // Preset tables
 const PRESET_TABLES: PresetTable[] = [
   {
@@ -223,6 +228,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
   });
   const [currentResult, setCurrentResult] = useState<string>('');
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
+  const [theme, setTheme] = useState<Theme>(() => readStoredValue('rexTheme', isTheme) ?? 'retro');
 
   useEffect(() => {
     // Saves query to cookie whenever it changes
@@ -243,6 +249,11 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
     // Saves query history to local storage
     writeStoredValue('rexQueryHistory', queryHistory);
   }, [queryHistory]);
+
+  useEffect(() => {
+    writeStoredValue('rexTheme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
 
   const allTables = (() => {
     const tableMap: { [key: string]: PresetTable } = {};
@@ -761,12 +772,12 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
           >
             Save Result
           </button>
-          <button
-              type="button"
-              onClick={() => setIsHistoryOpen(true)}
-              className={`${retroBtn} bg-[#7A4A23] text-[#FFFDB1]`}
+          <button 
+            type="button"
+            onClick={() => setTheme(theme === 'retro' ? 'classic' : 'retro')}
+            className={`${retroBtn} bg-[#f0a629] text-[#3A2814]`}
           >
-            History
+            {theme === 'retro' ? 'Classic Style' : 'Retro Style'}
           </button>
         </div>
       </div>
