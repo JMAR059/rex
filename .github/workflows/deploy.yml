@@ -1,0 +1,43 @@
+name: Deploy to Amazon S3
+
+# Describes how the workflow is triggered
+on:
+  push:
+    branches:
+      - prod
+  workflow_dispatch:
+
+# Describes steps in the workflow
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    # uses means github references existing logic (not in our repo)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+    # Here we use the s3_build script 
+      - name: Build step
+        run: |
+          cd scripts
+          bash s3_build.sh
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.S3_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.S3_REGION }}
+
+    # This command gets run in the terminal
+      - name: Deploy to bucket
+        run: |
+          aws s3 sync app/dist s3://${{ secrets.AWS_S3_BUCKET }} --delete
