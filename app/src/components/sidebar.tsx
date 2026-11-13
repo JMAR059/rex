@@ -21,7 +21,6 @@ interface SidebarProps {
   selectedTables: string[];
   allTables: PresetTable[];
   onTableSelect: (tableName: string) => void;
-  onViewHistory: () => void;
   onEditTable: () => void;
   onImportTables: () => void;
   onExportTables: () => void;
@@ -66,7 +65,6 @@ export default function Sidebar({
   selectedTables,
   allTables,
   onTableSelect,
-  onViewHistory,
   onEditTable,
   onImportTables,
   onExportTables,
@@ -184,8 +182,8 @@ export default function Sidebar({
 
       {/* Action Buttons (existing component, restyled via the wrapper) */}
       <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[3px] border-dashed border-[#774D2E]`}>
+        <div className="mb-3 text-md font-bold text-[#3A2A1A]">Table actions</div>
         <ActionButtons
-          onViewHistory={onViewHistory}
           onEditTable={onEditTable}
           onImportTables={handleImportTables}
           onExportTables={onExportTables}

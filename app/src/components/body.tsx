@@ -679,7 +679,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
             setSelectedTables(selectedTables.filter((t: string) => t !== tableName));
           }
         }}
-        onViewHistory={() => setIsHistoryOpen(true)}
         onEditTable={() => setIsTableOpen(true)}
         onImportTables={() => loadPreset('import')}
         onExportTables={handleExportTables}
@@ -761,6 +760,13 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
             className={`${retroBtn} bg-[#70CAA2] text-[#3A2814]`}
           >
             Save Result
+          </button>
+          <button
+              type="button"
+              onClick={() => setIsHistoryOpen(true)}
+              className={`${retroBtn} bg-[#7A4A23] text-[#FFFDB1]`}
+          >
+            History
           </button>
         </div>
       </div>
