@@ -37,6 +37,7 @@ function readCookie(name: string): string {
 interface BodyProps {
   replaceResult: (resp: {result: string}) => void;
   addToHistory: (query: string, resp:{result: string}) => void;
+  showSymbols: boolean;
 }
 
 interface TableRow {
@@ -190,7 +191,7 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
 }
 
 
-const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
+const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols }) => {
   const coursesPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Courses');
   const [columns, setColumns] = useState<string[]>(coursesPreset?.columns || ['Column1', 'Column2']);
   const [rows, setRows] = useState<TableRow[]>(coursesPreset?.rows || [{ id: 1 }]);
@@ -726,23 +727,28 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
               placeholder="your query goes here ..."
               className="flex-[2] min-w-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
             />
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="flex-1 min-h-0 overflow-auto p-4 bg-[#C7A86B] border-[3px] border-[#3A2814] shadow-[6px_6px_0_#7A4A23] grid grid-cols-3 auto-rows-min gap-3">
-                {symbolKeys.map(({ symbol, label }) => (
-                  <button
-                    key={label}
-                    type="button"
-                    title={label}
-                    aria-label={label}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => insertSymbol(symbol)}
-                    className="h-12 bg-[#FFFDB1] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-2xl font-bold shadow-[3px_3px_0_#3A2814] cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:bg-[#EA851A]"
-                  >
-                    {symbol}
-                  </button>
-                ))}
-              </div>
-            </div>
+              {showSymbols && (
+                <div className="relative w-56 max-w-[50%] flex-none min-w-0 flex flex-col">
+                  <div className="absolute bottom-full left-0 bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
+                    Symbols:
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-auto p-4 bg-[#C7A86B] border-[3px] border-[#3A2814] shadow-[6px_6px_0_#7A4A23] grid grid-cols-[repeat(3,minmax(0,5rem))] justify-center auto-rows-min gap-3">
+                    {symbolKeys.map(({ symbol, label }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        title={label}
+                        aria-label={label}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => insertSymbol(symbol)}
+                        className="h-12 bg-[#FFFDB1] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-2xl font-bold shadow-[3px_3px_0_#3A2814] cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:bg-[#EA851A]"
+                      >
+                        {symbol}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 
