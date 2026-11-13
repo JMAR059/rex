@@ -772,7 +772,14 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory }) => {
           >
             Save Result
           </button>
-          <button 
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(true)}
+            className={`${retroBtn} bg-[#7A4A23] text-[#FFFDB1]`}
+          >
+            History
+          </button>
+          <button
             type="button"
             onClick={() => setTheme(theme === 'retro' ? 'classic' : 'retro')}
             className={`${retroBtn} bg-[#f0a629] text-[#3A2814]`}
