@@ -1,23 +1,15 @@
 import dinoImg from '/dino.png';
+import * as React from "react";
 
 interface NavbarProps {
-  activeTab: 'calculator' | 'wiki';
-  setActiveTab: (tab: 'calculator' | 'wiki') => void;
+  showGuide: boolean;
+  onCloseGuide: () => void;
+  onToggleGuide: () => void;
   showSymbols: boolean;
   onToggleSymbols: () => void;
 }
 
-const guideUrl = "https://github.com/JMAR059/rex/guide"
-
-const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, showSymbols, onToggleSymbols }) => {
-  const onCalculatorClick = () => {
-    setActiveTab('calculator');
-  };
-
-  const onGuideClick = () => {
-    setActiveTab('wiki');
-  };
-
+const Navbar: React.FC<NavbarProps> = ({ showGuide, onToggleGuide, showSymbols, onToggleSymbols }) => {
   const onLogoClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     if (window.confirm('This will refresh the page clear tables and history, are you sure you want to refresh?')) {
@@ -43,17 +35,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, showSymbols, o
                     </h1>
                     <div className="flex gap-4 font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-sm text-[#3A2814]">
                         <button
-                            onClick={onCalculatorClick}
+                            type="button"
+                            onClick={onToggleGuide}
+                            aria-pressed={showGuide}
+                            aria-controls="guide-panel"
                             className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                                activeTab === 'calculator' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
-                            }`}
-                        >
-                            Calculator
-                        </button>
-                        <button
-                            onClick={onGuideClick}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                                activeTab === 'wiki' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
+                                showGuide ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
                             }`}
                         >
                             Guide

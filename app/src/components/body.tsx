@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
+import Wiki from './wiki';
 
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
 
@@ -38,6 +39,7 @@ interface BodyProps {
   replaceResult: (resp: {result: string}) => void;
   addToHistory: (query: string, resp:{result: string}) => void;
   showSymbols: boolean;
+  showGuide: boolean;
 }
 
 interface TableRow {
@@ -191,7 +193,7 @@ async function executeQuery(tables: TableData[], queries: string[]): Promise<{re
 }
 
 
-const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols }) => {
+const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, showGuide }) => {
   const coursesPreset = PRESET_TABLES.find((p: PresetTable) => p.name === 'Courses');
   const [columns, setColumns] = useState<string[]>(coursesPreset?.columns || ['Column1', 'Column2']);
   const [rows, setRows] = useState<TableRow[]>(coursesPreset?.rows || [{ id: 1 }]);
@@ -697,7 +699,9 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols })
       />
 
             {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
+        <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
+        <div className="flex flex-1 min-w-0 min-h-0 flex-col">
         {/* Query Input Area - 2/3 of space */}
         <div className="px-9 pt-7 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
           <div className="flex items-end gap-3">
@@ -760,6 +764,13 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols })
           <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-base overflow-auto shadow-[6px_6px_0_#666347]">
             {currentResult || 'Results will appear here after executing a query...'}
           </pre>
+        </div>
+        </div>
+        {showGuide && (
+          <div className="min-h-0 h-2/5 px-9 pb-6 lg:h-auto lg:w-[28rem] lg:max-w-[45%] lg:flex-none lg:pl-0 lg:pt-7">
+            <Wiki />
+          </div>
+        )}
         </div>
 
         {/* Bottom Action Bar */}
