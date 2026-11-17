@@ -3,7 +3,6 @@ interface QueryHistoryItem {
   result: string;
   timestamp: Date;
 }
-
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
