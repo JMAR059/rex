@@ -55,8 +55,8 @@ public:
     void addCol(std::string name);
     void addRow(std::vector<Record> rowvals);
 
-    void addFromCSV(std::istream *stream);
-    void addFromCSVString(const std::string &str);
+    std::string addFromCSV(std::istream *stream);
+    std::string addFromCSVString(const std::string &str);
     void print();
 
     Table(const std::string &name) : name(name) {}

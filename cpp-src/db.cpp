@@ -72,7 +72,7 @@ static std::string getSingleCell(const std::string &line, size_t &at, char delim
 }
 
 // TODO: Error checking?
-void Table::addFromCSV(std::istream *stream) {
+std::string Table::addFromCSV(std::istream *stream) {
     // Headers
     std::string line;
     char delim = ',';
@@ -85,8 +85,7 @@ void Table::addFromCSV(std::istream *stream) {
         } else if (line.find("\t") != std::string::npos) {
             delim = '\t';
         } else {
-            std::cout << "Error: cannot determine csv delim" << std::endl;
-            return;
+            return "Error parsing CSV: cannot determine csv delim";
         }
     }
     size_t at = 0;
@@ -99,18 +98,16 @@ void Table::addFromCSV(std::istream *stream) {
         std::stringstream ss(line);
         size_t at = 0, i = 0;
         while (at < line.size()) {
-            if (i >= columns.size()) {
-                std::cout << "Error: too many lines in csv" << std::endl;
-                return;
-            }
+            if (i >= columns.size()) return "Error parsing CSV: too many lines in csv";
             columns[i++].records.push_back(Record(getSingleCell(line, at, delim)));
         }
     }
+    return "";
 }
 
-void Table::addFromCSVString(const std::string &str) {
+std::string Table::addFromCSVString(const std::string &str) {
     std::istringstream s = std::istringstream(str);
-    this->addFromCSV(&s);
+    return this->addFromCSV(&s);
 }
 
 void Table::print() {

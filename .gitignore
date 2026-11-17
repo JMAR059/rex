@@ -8,3 +8,5 @@ cppdb
 venv
 node_modules
 venv
+
+app/src/wasm/rex.wasm

@@ -271,7 +271,7 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
     for (int64_t ri = 0; ri < rhs->columns.size(); ri++) {
         bool skip = false;
         for (const auto &skipped : same_names) {
-            skip |= skipped.first == ri;
+            skip |= (int64_t)skipped.first == ri;
         }
         if (!skip) {
             cols.push_back(-(ri + 1));
@@ -312,8 +312,6 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
                     next_row.push_back(rr);
                 }
             }
-            for (const auto& QQ : next_row) std::cout << QQ.getStringValue() << " : ";
-            std::cout << use << std::endl;
             if (use) break;
             // Try again
             next_row.resize(os, invalid);

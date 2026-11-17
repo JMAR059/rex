@@ -77,10 +77,6 @@ void Token::print() const {
        ret.push_back(nexttok); \
    }
 
-static inline bool iskw(const std::string &ident) {
-    return ident == "select" || ident == "project" || ident == "product";
-}
-
 std::vector<Token> lex(const std::string &input, int &fail_index) {
     Stream stream{input};
     std::vector<Token> ret{};
@@ -164,6 +160,10 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
                 }
                 stream.eat();
                 next = stream.peek();
+                if (next == "") {
+                    std::cout << "Error: Failed to lex, unexpected EOL while parsing string" << std::endl;
+                    return {};
+                }
             }
 
             // Finish

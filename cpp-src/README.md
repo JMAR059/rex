@@ -5,9 +5,10 @@ This is the C++ backend
 ## Examples
 
 - Selection: `select_{Name="Kate"} Test`
-- Projection: `project_{Name+" "+Last Name->Full Name,2026-Year->Year} Test`
-- Product: `(R1) join (R2)`
-- Combinations: `project_{Name+" "+Last Name->Full Name,2026-Year->Year} select_{Name="Kate"} Test`
+- Projection: `project_{Name+" "+LastName->FullName,2026-Year->Year} Test`
+- Product: `R1 product R2`
+- Join: `R1 join R2`
+- Combinations: `project_{Name+" "+LastName->FullName,2026-Year->Year} select_{Name="Kate"} Test`
 
 ## Build modes
 
