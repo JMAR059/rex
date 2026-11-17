@@ -42,17 +42,17 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     <div className="flex gap-4 font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-sm text-[#3A2814]">
                         <button
                             onClick={onCalculatorClick}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer ${
-                                activeTab === 'calculator' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
-                            }`}
+                            className="px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer 
+                                bg-[#C4A76B] hover:bg-[#FFFDB1]"
+                            
                         >
                             Calculator
                         </button>
                         <button
                             onClick={onGuideClick}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer ${
-                                activeTab === 'wiki' ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
-                            }`}
+                            className="px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer 
+                                bg-[#C4A76B] hover:bg-[#FFFDB1]"
+                            
                         >
                             Guide
                         </button>
