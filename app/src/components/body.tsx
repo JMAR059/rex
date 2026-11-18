@@ -391,14 +391,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
     setTableName(newName);
   };
 
-  const toggleTableSelection = (tableName: string) => {
-    setSelectedTables(prev => 
-      prev.indexOf(tableName) !== -1
-        ? prev.filter((t: string) => t !== tableName)
-        : [...prev, tableName]
-    );
-  };
-
   const getSelectedTablesData = (): TableData[] => {
     const tablesData: TableData[] = [];
     
@@ -479,6 +471,28 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
     // Add to selected tables if not already there
     if (selectedTables.indexOf(table.name) === -1) {
       setSelectedTables([...selectedTables, table.name]);
+    }
+  };
+
+  const deleteTable = (tableName: string) => {
+    const tableToDelete = importedTables.find((table) => table.name === tableName);
+    if (!tableToDelete || !window.confirm(`Delete the custom table "${tableName}"?`)) {
+      return;
+    }
+
+    setImportedTables((tables) => tables.filter((table) => table.name !== tableName));
+
+    const preset = PRESET_TABLES.find((table) => table.name === tableName);
+    if (!preset) {
+      setSelectedTables((tables) => tables.filter((name) => name !== tableName));
+    }
+
+    if (selectedPreset === tableName) {
+      const fallback = preset ?? PRESET_TABLES[0];
+      setTableName(fallback.name);
+      setColumns(fallback.columns);
+      setRows(fallback.rows);
+      setSelectedPreset(fallback.name);
     }
   };
 
@@ -685,6 +699,8 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
         onToggleDropdown={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
         selectedTables={selectedTables}
         allTables={allTables}
+        deletableTables={importedTables.map((table) => table.name)}
+        onDeleteTable={deleteTable}
         onTableSelect={(tableName: string) => {
           const index = selectedTables.indexOf(tableName);
           if (index === -1) {
@@ -692,6 +708,10 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
           } else {
             setSelectedTables(selectedTables.filter((t: string) => t !== tableName));
           }
+        }}
+        onCreateTable={() => {
+          loadPreset('new_table');
+          setIsTableOpen(true);
         }}
         onEditTable={() => setIsTableOpen(true)}
         onImportTables={() => loadPreset('import')}

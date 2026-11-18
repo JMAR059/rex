@@ -20,7 +20,10 @@ interface SidebarProps {
   onToggleDropdown: () => void;
   selectedTables: string[];
   allTables: PresetTable[];
+  deletableTables: string[];
   onTableSelect: (tableName: string) => void;
+  onDeleteTable: (tableName: string) => void;
+  onCreateTable: () => void;
   onEditTable: () => void;
   onImportTables: () => void;
   onExportTables: () => void;
@@ -64,7 +67,10 @@ export default function Sidebar({
   onToggleDropdown,
   selectedTables,
   allTables,
+  deletableTables,
   onTableSelect,
+  onDeleteTable,
+  onCreateTable,
   onEditTable,
   onImportTables,
   onExportTables,
@@ -147,7 +153,21 @@ export default function Sidebar({
                   readOnly
                   className="cursor-pointer accent-[#774D2E]"
                 />
-                <span>{preset.name}</span>
+                <span className="min-w-0 flex-1 truncate">{preset.name}</span>
+                {deletableTables.includes(preset.name) && (
+                  <button
+                    type="button"
+                    aria-label={`Delete custom table ${preset.name}`}
+                    title="Delete custom table"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteTable(preset.name);
+                    }}
+                    className="shrink-0 border-2 border-[#3A2A1A] bg-[#FF3100] px-2 py-1 text-[10px] font-bold uppercase text-[#FDFBB5] hover:bg-[#7A4A23] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A2A1A]"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -184,12 +204,10 @@ export default function Sidebar({
       <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[3px] border-dashed border-[#774D2E]`}>
         <div className="mb-3 text-md font-bold text-[#3A2A1A]">Table actions</div>
         <ActionButtons
+          onCreateTable={onCreateTable}
           onEditTable={onEditTable}
           onImportTables={handleImportTables}
           onExportTables={onExportTables}
-          onCreateTable={function (): void {
-            throw new Error('Function not implemented.');
-          }}
         />
       </div>
     </div>
