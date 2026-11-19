@@ -48,6 +48,9 @@ static inline constexpr bool isnum(const std::string &c) {
 static inline constexpr bool isalphanum(const std::string &c) {
     return isalpha(c) || isnum(c);
 }
+static inline constexpr bool islitchar(const std::string &c) {
+    return isalpha(c) || isnum(c) || (c.size() == 1 && c[0] == ' ');
+}
 static inline constexpr bool iswhitespace(const std::string &c) {
     return c.size() == 1 && (c[0] == ' ' || c[0] == '\n' || c[0] == '\t');
 }
@@ -77,6 +80,10 @@ void Token::print() const {
        ret.push_back(nexttok); \
    }
 
+static inline bool iskw(const std::string &ident) {
+    return ident == "select" || ident == "project" || ident == "product";
+}
+
 std::vector<Token> lex(const std::string &input, int &fail_index) {
     Stream stream{input};
     std::vector<Token> ret{};
@@ -87,17 +94,24 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
         if (isalpha(next)) {
             // Literal/keyword
             Token nexttok(stream, TokenType::Literal);
+            bool space = false;
             do {
                 nexttok.data += stream.eat();
+                space = next == " ";
                 next = stream.peek();
-            } while (isalphanum(next));
+                if (next == " " && iskw(nexttok.data)) break;
+            } while (!space ? islitchar(next) : isalpha(next));
             nexttok.finish(stream);
+
+            // Remove trailing whitespace
+            while (nexttok.data[nexttok.data.size() - 1] == ' ') {
+                nexttok.data.resize(nexttok.data.size() - 1);
+            }
 
             // Check if it's a keyword
             if (nexttok.data == "select") nexttok.tt = TokenType::Selection;
             if (nexttok.data == "project") nexttok.tt = TokenType::Projection;
             if (nexttok.data == "product") nexttok.tt = TokenType::Product;
-            if (nexttok.data == "join") nexttok.tt = TokenType::Join;
             ret.push_back(nexttok);
         } else if (isnum(next) || next == ".") {
             // This intentionally doesn't handle negatives!
@@ -160,10 +174,6 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
                 }
                 stream.eat();
                 next = stream.peek();
-                if (next == "") {
-                    std::cout << "Error: Failed to lex, unexpected EOL while parsing string" << std::endl;
-                    return {};
-                }
             }
 
             // Finish
@@ -232,8 +242,8 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
         SINGLE_CHAR_LEX("σ", TokenType::Selection)
         SINGLE_CHAR_LEX("π", TokenType::Projection)
         SINGLE_CHAR_LEX("Χ", TokenType::Product)
-        SINGLE_CHAR_LEX("⋈", TokenType::Join)
         // TODO: Keywords for all of these
+        SINGLE_CHAR_LEX("⋈", TokenType::Join)
         SINGLE_CHAR_LEX("ρ", TokenType::Rename)
         SINGLE_CHAR_LEX("∪", TokenType::Union)
         SINGLE_CHAR_LEX("∩", TokenType::Intersect)
