@@ -39,12 +39,16 @@ enum class ASTNodeType {
     Invalid,
 
     // Table Ops
-    // Select(tbl: Table, cond: Bool): Table
+    // Select(tbl: Table, cond: () -> Bool): Table
     SelectTable,
     // Project(tbl: Table, attrs: ("A", Expr)[]): Table
     ProjectTable,
     // Product(lhs: Table, rhs: Table): Table
     ProductTable,
+    // NatJoin(lhs: Table, rhs: Table): Table
+    NatJoinTable,
+    // ThetaJoin(lhs: Table, cond: () -> Bool, rhs: Table): Table
+    ThetaJoinTable,
 
     // Joint exprs
     // Binop(lhs: Expr, op: BinopType, rhs: Expr): Expr
@@ -71,6 +75,7 @@ public:
     ASTNode(ASTNodeType type) : type(type) {}
 
     virtual void print() = 0;
+    virtual ~ASTNode() {};
 };
 
 // TODO: Should we do the "make invalid states unrepresentable" thing and
@@ -92,6 +97,50 @@ public:
         table->print();
         std::cout << ", ";
         criterion->print();
+        std::cout << ")";
+    }
+};
+
+class ThetaJoinTableNode : public ASTNode {
+public:
+    Node lhs;
+    Node criterion;
+    Node rhs;
+
+    ThetaJoinTableNode(Node lhs, Node criterion, Node rhs) :
+        ASTNode(ASTNodeType::ThetaJoinTable),
+        lhs(MOVE(lhs)),
+        criterion(MOVE(criterion)),
+        rhs(MOVE(rhs))
+    {}
+
+    void print() override {
+        std::cout << "ThetaJoinTableNode(";
+        lhs->print();
+        std::cout << " join_{";
+        criterion->print();
+        std::cout << "} ";
+        rhs->print();
+        std::cout << ")";
+    }
+};
+
+class NatJoinTableNode : public ASTNode {
+public:
+    Node lhs;
+    Node rhs;
+
+    NatJoinTableNode(Node lhs, Node rhs) :
+        ASTNode(ASTNodeType::NatJoinTable),
+        lhs(MOVE(lhs)),
+        rhs(MOVE(rhs))
+    {}
+
+    void print() override {
+        std::cout << "NatJoinTableNode(";
+        lhs->print();
+        std::cout << ", ";
+        rhs->print();
         std::cout << ")";
     }
 };

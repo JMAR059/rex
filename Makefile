@@ -1,4 +1,4 @@
-CFLAGS = -std=c++20 -Wall -Wextra -pedantic
+CFLAGS = -std=c++20 -g -Wall -Wextra -pedantic
 CPP = g++
 LD_FLAGS =
 LD = $(CPP)

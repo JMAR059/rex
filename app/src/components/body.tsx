@@ -2,6 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
+import createModule from "../wasm/rex.js";
+import wasmUrl from "../wasm/rex.wasm?url";
+
+const wasm = await createModule({
+  locateFile: (p: string) => (p.endsWith(".wasm") ? wasmUrl : p),
+});
+const bridge_run_query = wasm.cwrap("bridge_run_query", "number", ["string"]);
+const bridge_addTable = wasm.cwrap("bridge_addTable", "number", ["string", "string"]);
 import Wiki from './wiki';
 
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
@@ -164,32 +172,8 @@ interface TableData {
 }
 
 async function executeQuery(tables: TableData[], queries: string[]): Promise<{result: string}> {
-  // Transform tables to { tableName: {column1: [values...], column2: [values...]}, ... }
-  const relations: Record<string, Record<string, (string | number)[]>> = {};
-  tables.forEach(table => {
-    const columnData: Record<string, (string | number)[]> = {};
-    table.columns.forEach(col => {
-      columnData[col] = table.rows.map(row => row[col] || '');
-    });
-    relations[table.name] = columnData;
-  });
-  
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ relations, queries }),
-  });
-  
-  const data = await response.json();
-  
-  // If the response is a 400 error, return the error detail
-  if (response.status === 400) {
-    return {"result": `Error: ${data.detail || 'Unknown error'}`};
-  }
-  
-  return {"result": JSON.stringify(data.results)};
+  const ret = bridge_run_query(queries[0]);
+  return {"result": JSON.stringify(ret)};
 }
 
 
