@@ -1,5 +1,4 @@
 interface ActionButtonsProps {
-  onViewHistory: () => void;
   onCreateTable: () => void;
   onEditTable: () => void;
   onImportTables: () => void;
@@ -15,22 +14,20 @@ const base =
   "active:translate-x-1 active:translate-y-1 active:shadow-none";
 
 export default function ActionButtons({
-  onViewHistory,
   onCreateTable,
   onEditTable,
   onImportTables,
   onExportTables,
-}: ActionButtonsProps) {
+}: ActionButtonsProps) { // Holds the table buttons
   const buttons = [
-    { label: "View History",  onClick: onViewHistory,  color: "bg-[#EA851A]" },
-    { label: "Create Table",  onClick: onCreateTable,  color: "bg-[#70CAA2]" },
-    { label: "Edit Table",    onClick: onEditTable,    color: "bg-[#F2A921]" },
-    { label: "Import Tables", onClick: onImportTables, color: "bg-[#FFFDB1]" },
-    { label: "Export Tables", onClick: onExportTables, color: "bg-[#7A4A23] !text-[#FFFDB1]" },
+    { label: "Create",  onClick: onCreateTable,   color: "bg-[#EA851A]" },
+    { label: "Edit",    onClick: onEditTable,     color: "bg-[#F2A921]" },
+    { label: "Import",  onClick: onImportTables,  color: "bg-[#FFFDB1]" },
+    { label: "Export",  onClick: onExportTables,  color: "bg-[#7A4A23] !text-[#FFFDB1]" },
   ];
 
   return (
-    <div className="flex flex-col gap-[14px] mt-auto">
+    <div className="grid grid-cols-2 gap-[14px] mt-auto">
       {buttons.map(({ label, onClick, color }) => (
         <button key={label} type="button" onClick={onClick} className={`${base} ${color}`}>
           {label}

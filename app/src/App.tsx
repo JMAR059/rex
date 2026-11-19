@@ -2,11 +2,11 @@ import './App.css'
 import { useState } from 'react';
 import Navbar from './components/navbar';
 import QueryBody from './components/body';
-import Wiki from './components/wiki';
 import Footer from './components/footer';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'wiki'>('calculator');
+  const [showGuide, setShowGuide] = useState(false);
+  const [showSymbols, setShowSymbols] = useState(true);
 
   // Simple handlers for result display (can be enhanced later)
   const replaceResult = (resp: {result: string}) => {
@@ -19,13 +19,20 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`flex flex-col ${activeTab === 'calculator' ? 'h-screen' : 'min-h-screen'}`}>
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab}></Navbar>
-      {activeTab === 'calculator' ? (
-        <QueryBody replaceResult={replaceResult} addToHistory={addToHistory}></QueryBody>
-      ) : (
-        <Wiki />
-      )}
+    <div className="flex flex-col h-screen">
+      <Navbar
+        showGuide={showGuide}
+        onCloseGuide={() => setShowGuide(false)}
+        onToggleGuide={() => setShowGuide((visible) => !visible)}
+        showSymbols={showSymbols}
+        onToggleSymbols={() => setShowSymbols((visible) => !visible)}
+      />
+      <QueryBody
+        replaceResult={replaceResult}
+        addToHistory={addToHistory}
+        showSymbols={showSymbols}
+        showGuide={showGuide}
+      />
       <Footer></Footer>
     </div>
   );
