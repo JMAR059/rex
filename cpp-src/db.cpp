@@ -72,11 +72,11 @@ static std::string getSingleCell(const std::string &line, size_t &at, char delim
 }
 
 // TODO: Error checking?
-std::string Table::addFromCSV(std::istream *stream) {
+void Table::addFromCSV(std::istream &stream) {
     // Headers
     std::string line;
     char delim = ',';
-    std::getline(*stream, line);
+    getline(stream, line);
     std::stringstream ss(line);
     // Test for delim
     if (line.find(",") == std::string::npos) {
@@ -85,7 +85,8 @@ std::string Table::addFromCSV(std::istream *stream) {
         } else if (line.find("\t") != std::string::npos) {
             delim = '\t';
         } else {
-            return "Error parsing CSV: cannot determine csv delim";
+            std::cout << "Error: cannot determine csv delim" << std::endl;
+            return;
         }
     }
     size_t at = 0;
@@ -94,20 +95,17 @@ std::string Table::addFromCSV(std::istream *stream) {
     }
 
     // Values
-    while (std::getline(*stream, line)) {
+    while (std::getline(stream, line)) {
         std::stringstream ss(line);
         size_t at = 0, i = 0;
         while (at < line.size()) {
-            if (i >= columns.size()) return "Error parsing CSV: too many lines in csv";
+            if (i >= columns.size()) {
+                std::cout << "Error: too many lines in csv" << std::endl;
+                return;
+            }
             columns[i++].records.push_back(Record(getSingleCell(line, at, delim)));
         }
     }
-    return "";
-}
-
-std::string Table::addFromCSVString(const std::string &str) {
-    std::istringstream s = std::istringstream(str);
-    return this->addFromCSV(&s);
 }
 
 void Table::print() {
@@ -188,7 +186,7 @@ Record::Record(bool val) : sdata(""), bval(val), type('b') {
 // TODO: Where do we handle type errors?
 // Do we even handle type errors or do
 // some gross JS-like type coercion?
-double Record::getDoubleValue() const {
+double Record::getDoubleValue() {
     if (type == 'f') return fdata;
     return 0;
 }
@@ -198,7 +196,7 @@ void Record::setDoubleValue(double val) {
     fdata = val;
 }
 
-std::string Record::getStringValue() const {
+std::string Record::getStringValue() {
     if (type == 's') return sdata;
     if (type == 'b') return bval ? "true" : "false";
     // Convert the double to a string
@@ -210,7 +208,7 @@ void Record::setStringValue(std::string val) {
     sdata = val;
 }
 
-bool Record::getBooleanValue() const {
+bool Record::getBooleanValue() {
     if (type == 's') return sdata == "";
     if (type == 'f') return fdata != 0.0;
     return bval;
