@@ -1,11 +1,5 @@
 import ActionButtons from './actionButtons';
-<<<<<<< HEAD
 import { useRef, useState } from 'react';
-=======
-import { sidebarStyles } from './sidebarStyles';
-import { useThemeMode } from '../theme/useThemeMode';
-import { useRef } from 'react';
->>>>>>> c55b43e (Move theme toggle to top right and remove duplicate theme state)
 
 interface TableRow {
   id: number;
@@ -94,7 +88,6 @@ export default function Sidebar({
       {/* Loads Space Mono + VT323 so no other file needs to change */}
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');`}</style>
 
-<<<<<<< HEAD
             <div className="flex-1 min-h-0 overflow-y-auto p-5 flex flex-col gap-5">
       <input
         ref={importFileInput}
@@ -126,30 +119,6 @@ export default function Sidebar({
               Choose File
             </label>
             <span className="truncate">{importFileName || 'None chosen'}</span>
-=======
-      <div className={s.scrollArea}>
-        <input
-          ref={importFileInput}
-          type="file"
-          accept=".json"
-          onChange={onFileImport}
-          className="hidden"
-        />
-
-        {/* Import File Dialog */}
-        {isImportMode && (
-          <div className={s.importBox}>
-            <label className={s.label}>Import JSON:</label>
-            <input
-              type="file"
-              accept=".json"
-              onChange={onFileImport}
-              className={s.importFileInput}
-            />
-            <button onClick={onCancelImport} className={s.button}>
-              Cancel
-            </button>
->>>>>>> c55b43e (Move theme toggle to top right and remove duplicate theme state)
           </div>
           <button onClick={onCancelImport} className={`${btn} min-h-10 px-3 py-1 text-xs`}>
             Cancel
@@ -232,13 +201,8 @@ export default function Sidebar({
       </div>
 
       {/* Action Buttons (existing component, restyled via the wrapper) */}
-<<<<<<< HEAD
       <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[3px] border-dashed border-[#774D2E]`}>
         <div className="mb-3 text-md font-bold text-[#3A2A1A]">Table actions</div>
-=======
-      <div className={s.actionsWrapper}>
-        <div className={`mb-3 ${s.label}`}>Table actions</div>
->>>>>>> c55b43e (Move theme toggle to top right and remove duplicate theme state)
         <ActionButtons
           onCreateTable={onCreateTable}
           onEditTable={onEditTable}
