@@ -289,12 +289,10 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
     size_t lhs_size = lhs->columns[0].records.size();
     size_t rhs_size = rhs->columns[0].records.size();
     Record invalid = Record(false);
-    for (size_t i = 0; i < lhs_size; i++) {
+    for (size_t l = 0; l < lhs_size; l++) {
         // Init the row with the lhs rows
         std::vector<Record> next_row = {};
-        for (const auto &c : lhs->columns) {
-            next_row.push_back(c.records[i]);
-        }
+        for (const auto &c : lhs->columns) next_row.push_back(c.records[l]);
 
         // Check for a usable rhs
         size_t os = next_row.size();
@@ -304,7 +302,7 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
                 const auto &c = rhs->columns[rindex];
                 const Record &rr = c.records[row];
                 if (same_names.contains(rindex)) {
-                    if (lhs->columns[same_names[rindex]].records[i] != rr) {
+                    if (lhs->columns[same_names[rindex]].records[l] != rr) {
                         use = false;
                         break;
                     }
@@ -312,12 +310,14 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
                     next_row.push_back(rr);
                 }
             }
-            if (use) break;
+            if (use) {
+                for (const auto &c : next_row) std::cout << c.getStringValue() << " ";
+                std::cout << std::endl;
+                tb->addRow(next_row);
+            }
             // Try again
             next_row.resize(os, invalid);
         }
-        if (next_row.size() != cols.size()) continue;
-        tb->addRow(next_row);
     }
 
     // Return
