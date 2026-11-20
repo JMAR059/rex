@@ -713,15 +713,11 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
         onExportTables={handleExportTables}
       />
 
-            {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
-        {/* Query Input Area - 2/3 of space (extra top padding leaves room for the theme toggle) */}
-        <div className="px-9 pt-16 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
         <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <div className="flex flex-1 min-w-0 min-h-0 flex-col">
         {/* Query Input Area - 2/3 of space */}
-        <div className="px-9 pt-7 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
+        <div className="px-9 pt-16 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
           <div className="flex items-end gap-3">
             <label
               htmlFor="query"
@@ -785,7 +781,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
         </div>
         </div>
         {showGuide && (
-          <div className="min-h-0 h-2/5 px-9 pb-6 lg:h-auto lg:w-[28rem] lg:max-w-[45%] lg:flex-none lg:pl-0 lg:pt-7">
+          <div className="min-h-0 h-2/5 px-9 pb-6 lg:h-auto lg:w-[28rem] lg:max-w-[45%] lg:flex-none lg:pl-0 lg:pt-16">
             <Wiki />
           </div>
         )}
