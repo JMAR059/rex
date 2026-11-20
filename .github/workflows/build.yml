@@ -1,0 +1,40 @@
+name: Integration Process
+
+# Describes how the workflow is triggered
+on:
+  push:
+    branches:
+      - main
+      - prod
+  workflow_dispatch:
+
+# Describes steps in the workflow
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    # uses means github references existing logic (not in our repo)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+    
+    # This brings emcc into the build process
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+    # This brings node into the build process
+      - name: Install nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+    # Now that we have node and emcc,
+    # we try building our frontend
+      - name: Build app
+        run: |
+          bash scripts/s3_build.sh
