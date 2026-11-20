@@ -3,6 +3,10 @@ Download vite https://vite.dev/guide/
 
 Run npm run dev
 
+The Theme selector offers Retro, Minimal Light, and Minimal Dark. The selection
+is saved across visits; the previous Classic preference selects Minimal Light.
+Theme colors, fonts, borders, radii, and shadows are defined in `src/index.css`.
+
 
 # React + Vite
 

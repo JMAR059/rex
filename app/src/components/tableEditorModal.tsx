@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 
 const buttonBase =
-  "font-['Space_Mono',monospace] font-bold uppercase tracking-wider border-[3px] border-[#3A2814] " +
-  'rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow,background-color] duration-75 ' +
-  'hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#3A2814] ' +
+  "font-body font-bold uppercase tracking-wider border-[length:var(--border-w)] border-ink " +
+  'rounded-theme shadow-hard cursor-pointer transition-[transform,box-shadow,background-color] duration-75 ' +
+  'hover:-translate-x-px hover:-translate-y-px hover:shadow-[calc(var(--shadow-offset)*1.25)_calc(var(--shadow-offset)*1.25)_0_var(--color-ink)] ' +
   'active:translate-x-1 active:translate-y-1 active:shadow-none ' +
-  'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[3px] focus-visible:outline-[#3A2814]';
-const paperButton = `${buttonBase} bg-[#FFFDB1] text-[#3A2814] hover:bg-[#EA851A]`;
-const darkButton = `${buttonBase} bg-[#7A4A23] text-[#FFFDB1] hover:bg-[#666347]`;
+  'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[3px] focus-visible:outline-ink';
+const paperButton = `${buttonBase} bg-paper text-ink hover:bg-button-accent hover:text-accent-fg`;
+const darkButton = `${buttonBase} bg-header text-header-fg hover:bg-olive hover:text-olive-fg`;
 const fieldClass =
-  'w-full bg-[#FFFDB1] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none px-3 py-2 ' +
-  'placeholder:text-[#774D2E] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[2px] focus-visible:outline-[#3A2814]';
+  'w-full bg-paper text-ink border-[length:var(--border-w)] border-ink rounded-theme px-3 py-2 ' +
+  'placeholder:text-muted focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[2px] focus-visible:outline-ink';
 
 interface TableRow {
   id: number;
@@ -287,10 +287,10 @@ export default function TableEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-[#3A2814]/90 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
-      <div className="bg-[#C4A76B] text-[#3A2814] font-['Space_Mono',monospace] border-[5px] border-[#3A2814] shadow-[8px_8px_0_#3A2814] p-5 sm:p-7 w-full max-w-6xl max-h-[95vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-5 bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-[#3A2814] px-4 py-2">
-          <h2 className="font-['VT323',monospace] text-4xl uppercase tracking-wider">Edit Table Data</h2>
+    <div className="fixed inset-0 bg-overlay/90 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+      <div className="bg-panel text-ink font-body border-[length:var(--border-heavy)] border-ink rounded-theme shadow-[calc(var(--shadow-offset)*2)_calc(var(--shadow-offset)*2)_0_var(--color-ink)] p-5 sm:p-7 w-full max-w-6xl max-h-[95vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-5 bg-header text-header-fg border-[length:var(--border-w)] border-ink px-4 py-2">
+          <h2 className="font-display text-4xl uppercase tracking-wider">Edit Table Data</h2>
           <button
             onClick={onClose}
             aria-label="Close table editor"
@@ -301,13 +301,13 @@ export default function TableEditorModal({
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="flex gap-2 border-b-[3px] border-[#3A2814]">
+          <div className="flex gap-2 border-b-[length:var(--border-w)] border-ink">
             <button
               onClick={() => setActiveTab('table')}
               className={`px-3 py-2 text-sm font-semibold ${
                 activeTab === 'table'
-                  ? 'border-b-[5px] border-[#EA851A] text-[#3A2814]'
-                  : 'text-[#774D2E] hover:text-[#3A2814]'
+                  ? 'border-b-[length:var(--border-heavy)] border-accent text-ink'
+                  : 'text-muted hover:text-ink'
               }`}
             >
               Table
@@ -316,8 +316,8 @@ export default function TableEditorModal({
               onClick={() => setActiveTab('json')}
               className={`px-3 py-2 text-sm font-semibold ${
                 activeTab === 'json'
-                  ? 'border-b-[5px] border-[#EA851A] text-[#3A2814]'
-                  : 'text-[#774D2E] hover:text-[#3A2814]'
+                  ? 'border-b-[length:var(--border-heavy)] border-accent text-ink'
+                  : 'text-muted hover:text-ink'
               }`}
             >
               JSON
@@ -327,10 +327,10 @@ export default function TableEditorModal({
           {activeTab === 'json' ? (
             <div className="flex flex-col gap-3">
               <label className="font-bold uppercase tracking-wider">Edit table JSON:</label>
-              <div className="text-sm bg-[#FBF4D4] border-[3px] border-[#3A2814] px-3 py-2">
+              <div className="text-sm bg-surface border-[length:var(--border-w)] border-ink px-3 py-2">
                 <p className="font-bold mb-1 uppercase tracking-wider">Expected JSON format</p>
-                <p>Use an object with <span className="font-mono">name</span>, <span className="font-mono">columns</span>, and <span className="font-mono">rows</span>.</p>
-                <pre className="mt-2 p-2 bg-[#FFFDB1] border-[2px] border-[#3A2814] text-xs overflow-auto font-mono">{`{
+                <p>Use an object with <span className="font-body">name</span>, <span className="font-body">columns</span>, and <span className="font-body">rows</span>.</p>
+                <pre className="mt-2 p-2 bg-paper border-[length:var(--border-thin)] border-ink text-xs overflow-auto font-mono">{`{
   "name": "Courses",
   "columns": ["CourseID", "Name", "Credits"],
   "rows": [
@@ -347,10 +347,10 @@ export default function TableEditorModal({
                     setJsonError('');
                   }
                 }}
-                className={`${fieldClass} min-h-[420px] font-mono text-sm`}
+                className={`${fieldClass} min-h-[420px] font-body text-sm`}
               />
               {jsonError && (
-                <div role="alert" className="text-sm font-bold bg-[#FF3100] text-[#FFFDB1] border-[3px] border-[#3A2814] px-3 py-2">
+                <div role="alert" className="text-sm font-bold bg-danger text-danger-fg border-[length:var(--border-w)] border-ink px-3 py-2">
                   {jsonError}
                 </div>
               )}
@@ -408,7 +408,7 @@ export default function TableEditorModal({
 
           {/* Create New Table Form - shown when new_table is selected */}
           {selectedPreset === 'new_table' && showCreateForm && (
-            <div className="border-y-[3px] border-[#3A2814] py-4 flex flex-col gap-3">
+            <div className="border-y-[3px] border-ink py-4 flex flex-col gap-3">
               <div>
                 <label className="font-bold text-sm uppercase tracking-wider">New Table Name:</label>
                 <input
@@ -436,14 +436,14 @@ export default function TableEditorModal({
                 />
               </div>
               {createTableError && (
-                <div role="alert" className="text-sm font-bold bg-[#FF3100] text-[#FFFDB1] border-[3px] border-[#3A2814] px-3 py-2">
+                <div role="alert" className="text-sm font-bold bg-danger text-danger-fg border-[length:var(--border-w)] border-ink px-3 py-2">
                   {createTableError}
                 </div>
               )}
               <div className="flex gap-2">
                 <button
                   onClick={handleCreateNewTable}
-                  className={`flex-1 px-3 py-2 bg-[#70CAA2] text-[#3A2814] ${buttonBase}`}
+                  className={`flex-1 px-3 py-2 bg-button-success text-button-success-fg ${buttonBase}`}
                 >
                   Create
                 </button>
@@ -477,7 +477,7 @@ export default function TableEditorModal({
             ) : (
               <div
                 onClick={handleTableNameClick}
-                className={`${fieldClass} cursor-pointer hover:bg-[#FBF4D4]`}
+                className={`${fieldClass} cursor-pointer hover:bg-surface`}
               >
                 {tableName}
               </div>
@@ -494,18 +494,18 @@ export default function TableEditorModal({
             />
             <button
               onClick={onAddColumn}
-              className={`shrink-0 whitespace-nowrap px-4 py-2 bg-[#70CAA2] text-[#3A2814] ${buttonBase}`}
+              className={`shrink-0 whitespace-nowrap px-4 py-2 bg-button-success text-button-success-fg ${buttonBase}`}
             >
               Add Column
             </button>
           </div>
 
-          <div className="overflow-x-auto max-h-[45vh] border-[3px] border-[#3A2814]">
+          <div className="overflow-x-auto max-h-[45vh] border-[length:var(--border-w)] border-ink">
             <table className="min-w-full border-collapse">
               <thead>
                 <tr>
                   {columns.map((col, index) => (
-                    <th key={`name-${index}`} className="border-b-[3px] border-r-[2px] border-[#3A2814] p-2 bg-[#666347] text-[#FFFDB1]">
+                    <th key={`name-${index}`} className="border-b-[length:var(--border-w)] border-r-[length:var(--border-thin)] border-ink p-2 bg-olive text-olive-fg">
                       {editingColumnIndex === index ? (
                         <input
                           type="text"
@@ -519,7 +519,7 @@ export default function TableEditorModal({
                       ) : (
                         <div
                           onClick={() => handleColumnNameClick(index)}
-                          className="cursor-pointer hover:bg-[#7A4A23] px-2 py-1"
+                          className="cursor-pointer hover:bg-header hover:text-header-fg px-2 py-1"
                         >
                           {col}
                         </div>
@@ -527,20 +527,20 @@ export default function TableEditorModal({
                       <button
                         onClick={() => onRemoveColumn(index)}
                         aria-label={`Remove column ${col}`}
-                        className={`ml-2 whitespace-nowrap bg-[#FF3100] text-[#FFFDB1] px-2 py-1 text-xs ${buttonBase}`}
+                        className={`ml-2 whitespace-nowrap bg-button-danger text-button-danger-fg px-2 py-1 text-xs ${buttonBase}`}
                       >
                         Remove
                       </button>
                     </th>
                   ))}
-                  <th className="border-b-[3px] border-[#3A2814] p-2 bg-[#666347] text-[#FFFDB1]">Actions</th>
+                  <th className="border-b-[length:var(--border-w)] border-ink p-2 bg-olive text-olive-fg">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id}>
                     {columns.map((col) => (
-                      <td key={`${row.id}-${col}`} className={`border-b-2 border-r-2 border-[#3A2814] p-2 ${row.id % 2 === 0 ? 'bg-[#F4E8B0]' : 'bg-[#FBF4D4]'}`}>
+                      <td key={`${row.id}-${col}`} className={`border-b-[length:var(--border-thin)] border-r-[length:var(--border-thin)] border-ink p-2 ${row.id % 2 === 0 ? 'bg-sand' : 'bg-surface'}`}>
                         <input
                           type="text"
                           value={row[col] || ''}
@@ -549,11 +549,11 @@ export default function TableEditorModal({
                         />
                       </td>
                     ))}
-                    <td className="border-b-2 border-[#3A2814] p-2 bg-[#FBF4D4]">
+                    <td className="border-b-[length:var(--border-thin)] border-ink p-2 bg-surface">
                       <button
                         onClick={() => onRemoveRow(row.id)}
                         aria-label={`Remove row ${row.id}`}
-                        className={`whitespace-nowrap bg-[#FF3100] text-[#FFFDB1] px-2 py-1 text-xs ${buttonBase}`}
+                        className={`whitespace-nowrap bg-button-danger text-button-danger-fg px-2 py-1 text-xs ${buttonBase}`}
                       >
                         Remove
                       </button>

@@ -1,18 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');
 @import "tailwindcss";
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scrollbar-color: #7A4A23 #FBF4D4;
+  scrollbar-color: var(--color-header) var(--color-surface);
   scrollbar-behavior: smooth;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: inherit;
 }
 
+@custom-variant minimal (&:where([data-theme=minimal], [data-theme=minimal] *, [data-theme=minimal-dark], [data-theme=minimal-dark] *));
+
+@theme {
+  --color-bg:        #F7E8AA;
+  --color-panel:     #C4A76B;
+  --color-surface:   #FBF4D4;
+  --color-paper:     #FFFDB1;
+  --color-ink:       #3A2814;
+  --color-header:    #7A4A23;
+  --color-header-fg: #FFFDB1;
+  --color-accent:    #EA851A;
+  --color-danger:    #FF3100;
+  --color-success:   #70CAA2;
+  --color-button-accent: #EA851A;
+  --color-button-danger: #FF3100;
+  --color-button-success: #70CAA2;
+  --color-button-danger-fg: #FFFDB1;
+  --color-button-success-fg: #3A2814;
+  --color-overlay: #3A2814;
+  --color-sidebar-ink: #3A2A1A;
+  --color-muted:      #774D2E;
+  --color-olive:      #666347;
+  --color-panel-alt:  #C7A86B;
+  --color-sand:       #F4E8B0;
+  --color-paper-alt:  #FDFBB5;
+  --color-field:      #FFFFFF;
+  --color-edit:       #F2A921;
+  --color-switch:     #F0A629;
+  --color-danger-fg:  #FFFDB1;
+  --color-accent-fg:  #3A2814;
+  --color-olive-fg:   #FFFDB1;
+  --color-placeholder: #666347;
+  --color-footer-fg:  #FFFFFF;
+  --color-footer-link: #93C5FD;
+  --color-footer-divider: #9CA3AF;
+
+  --font-body:    'Space Mono', monospace;
+  --font-display: 'VT323', monospace;
+  --radius-theme: 0px;
+}
+
+@theme inline {
+  --shadow-hard: var(--shadow-offset) var(--shadow-offset) 0 var(--color-ink);
+}
+
+:root {
+  --border-w: 3px;
+  --border-thin: 2px;
+  --border-heavy: 5px;
+  --shadow-offset: 4px;
+}
+
+[data-theme="minimal"],
+[data-theme="minimal-dark"] {
+  --color-bg:        #F3F4F6;
+  --color-panel:     #E5E7EB;
+  --color-surface:   #FFFFFF;
+  --color-paper:     #FFFFFF;
+  --color-ink:       #212529;
+  --color-header:    #E5E7EB;
+  --color-header-fg: #212529;
+  --color-accent:    #2563EB;
+  --color-danger:    #DC2626;
+  --color-success:   #16A34A;
+  --color-button-accent: #81A5F0;
+  --color-button-danger: #E88282;
+  --color-button-success: #79C898;
+  --color-button-danger-fg: var(--color-ink);
+  --color-button-success-fg: var(--color-ink);
+  --color-sidebar-ink: var(--color-ink);
+  --color-muted:       var(--color-ink);
+  --color-olive:       var(--color-panel);
+  --color-panel-alt:   var(--color-panel);
+  --color-sand:        var(--color-bg);
+  --color-paper-alt:   var(--color-paper);
+  --color-field:       var(--color-surface);
+  --color-edit:        var(--color-button-accent);
+  --color-switch:      var(--color-button-accent);
+  --color-danger-fg:   #FFFFFF;
+  --color-accent-fg:   var(--color-ink);
+  --color-olive-fg:    var(--color-header-fg);
+  --color-placeholder: var(--color-ink);
+  --color-footer-fg:   var(--color-header-fg);
+  --color-footer-link:  var(--color-accent);
+  --color-footer-divider: var(--color-ink);
+
+  --font-body:    ui-sans-serif, system-ui, sans-serif;
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+  --radius-theme: 6px;
+  --border-w: 1px;
+  --border-thin: 1px;
+  --border-heavy: 1px;
+  --shadow-offset: 0px;
+}
+
+[data-theme="minimal-dark"] {
+  color-scheme: dark;
+  --color-bg: #111827;
+  --color-panel: #1F2937;
+  --color-surface: #273449;
+  --color-paper: #374151;
+  --color-ink: #F3F4F6;
+  --color-header: #1F2937;
+  --color-header-fg: #F3F4F6;
+  --color-accent: #93C5FD;
+  --color-button-danger-fg: #111827;
+  --color-button-success-fg: #111827;
+  --color-accent-fg: #111827;
+  --color-placeholder: #C4CBD5;
+  --color-overlay: #000000;
+}

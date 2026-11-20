@@ -7,10 +7,10 @@ import Wiki from './wiki';
 const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
 
 const retroBtn =
-  "min-h-[52px] px-6 py-2 rounded-none border-[3px] border-[#3A2814] " +
-  "font-mono text-xl font-bold uppercase tracking-wider " +
-  "shadow-[5px_5px_0_#3A2814] transition-[transform,box-shadow] duration-75 " +
-  "hover:-translate-x-px hover:-translate-y-px hover:shadow-[6px_6px_0_#3A2814] " +
+  "min-h-[52px] px-6 py-2 rounded-theme border-[length:var(--border-w)] border-ink " +
+  "font-body text-xl font-bold uppercase tracking-wider " +
+  "shadow-[calc(var(--shadow-offset)*1.25)_calc(var(--shadow-offset)*1.25)_0_var(--color-ink)] transition-[transform,box-shadow] duration-75 " +
+  "hover:-translate-x-px hover:-translate-y-px hover:shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-ink)] " +
   "active:translate-x-1 active:translate-y-1 active:shadow-none";
 const symbolKeys: { symbol: string; label: string }[] = [
   { symbol: 'σ', label: 'select' },
@@ -121,9 +121,9 @@ function isStoredQueryHistory(value: unknown): value is StoredQueryHistoryItem[]
   );
 }
 
-type Theme = 'retro' | 'classic';
+type Theme = 'retro' | 'classic' | 'dark';
 function isTheme(value: unknown): value is Theme {
-  return value === 'retro' || value === 'classic';
+  return value === 'retro' || value === 'classic' || value === 'dark';
 }
 
 // Preset tables
@@ -255,7 +255,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
 
   useEffect(() => {
     writeStoredValue('rexTheme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme === 'classic' ? 'minimal' : theme === 'dark' ? 'minimal-dark' : 'retro');
   }, [theme]);
 
   const allTables = (() => {
@@ -719,7 +719,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
       />
 
             {/* Main Content Area */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-bg text-ink font-body">
         <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <div className="flex flex-1 min-w-0 min-h-0 flex-col">
         {/* Query Input Area - 2/3 of space */}
@@ -727,7 +727,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
           <div className="flex items-end gap-3">
             <label
               htmlFor="query"
-              className="self-start bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider"
+              className="self-start bg-header text-header-fg border-[length:var(--border-w)] border-b-0 border-ink px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider"
             >
               Query:
             </label>
@@ -737,7 +737,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
                 setQuery('');
                 queryRef.current?.focus();
               }}
-              className="mb-1 border-[2px] border-[#3A2814] bg-[#FFFDB1] px-3 py-1 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0_#3A2814] hover:bg-[#EA851A] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+              className="mb-1 border-[length:var(--border-thin)] border-ink bg-paper px-3 py-1 font-body text-xs font-bold uppercase tracking-wider shadow-[calc(var(--shadow-offset)*0.5)_calc(var(--shadow-offset)*0.5)_0_var(--color-ink)] hover:bg-button-accent hover:text-accent-fg active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
             >
               Clear Query
             </button>
@@ -749,14 +749,14 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
               value={query}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuery(e.target.value)}
               placeholder="your query goes here ..."
-              className="flex-[2] min-w-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] placeholder:text-[#666347] border-[3px] border-[#3A2814] rounded-none font-mono text-base resize-none shadow-[6px_6px_0_#7A4A23] focus:outline-none focus:shadow-[6px_6px_0_#EA851A]"
+              className="flex-[2] min-w-0 px-4 py-3 bg-surface text-ink placeholder:text-placeholder border-[length:var(--border-w)] border-ink rounded-theme font-body text-base resize-none shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-header)] focus:outline-none focus:shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-accent)] minimal:focus-visible:outline minimal:focus-visible:outline-2 minimal:focus-visible:outline-accent"
             />
               {showSymbols && (
                 <div className="relative w-56 max-w-[50%] flex-none min-w-0 flex flex-col">
-                  <div className="absolute bottom-full left-0 bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
+                  <div className="absolute bottom-full left-0 bg-header text-header-fg border-[length:var(--border-w)] border-b-0 border-ink px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
                     Symbols:
                   </div>
-                  <div className="flex-1 min-h-0 overflow-auto p-4 bg-[#C7A86B] border-[3px] border-[#3A2814] shadow-[6px_6px_0_#7A4A23] grid grid-cols-[repeat(3,minmax(0,5rem))] justify-center auto-rows-min gap-3">
+                  <div className="flex-1 min-h-0 overflow-auto p-4 bg-panel-alt border-[length:var(--border-w)] border-ink shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-header)] grid grid-cols-[repeat(3,minmax(0,5rem))] justify-center auto-rows-min gap-3">
                     {symbolKeys.map(({ symbol, label }) => (
                       <button
                         key={label}
@@ -765,7 +765,7 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
                         aria-label={label}
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => insertSymbol(symbol)}
-                        className="h-12 bg-[#FFFDB1] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-2xl font-bold shadow-[3px_3px_0_#3A2814] cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:bg-[#EA851A]"
+                        className="h-12 bg-paper text-ink border-[length:var(--border-w)] border-ink rounded-theme font-body text-2xl font-bold shadow-[calc(var(--shadow-offset)*0.75)_calc(var(--shadow-offset)*0.75)_0_var(--color-ink)] cursor-pointer active:translate-x-0.5 active:translate-y-0.5 active:shadow-none hover:bg-button-accent hover:text-accent-fg"
                       >
                         {symbol}
                       </button>
@@ -778,10 +778,10 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
 
         {/* Result Display Area - 1/3 of space */}
         <div className="px-9 pb-6 flex flex-col overflow-hidden flex-1">
-          <div className="self-start bg-[#666347] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
+          <div className="self-start bg-olive text-olive-fg border-[length:var(--border-w)] border-b-0 border-ink px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
             Result:
           </div>
-          <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-[#FBF4D4] text-[#3A2814] border-[3px] border-[#3A2814] rounded-none font-mono text-base overflow-auto shadow-[6px_6px_0_#666347]">
+          <pre className="w-full flex-1 min-h-0 px-4 py-3 bg-surface text-ink border-[length:var(--border-w)] border-ink rounded-theme font-mono text-base overflow-auto shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-olive)]">
             {currentResult || 'Results will appear here after executing a query...'}
           </pre>
         </div>
@@ -794,35 +794,40 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="border-t-[5px] border-[#3A2814] px-9 py-5 bg-[#C7A86B] flex flex-wrap justify-start gap-5">
+        <div className="border-t-[length:var(--border-heavy)] border-ink px-9 py-5 bg-panel-alt flex flex-wrap justify-start gap-5">
           <button
             type="button"
             onClick={handleExecuteQuery}
-            className={`${retroBtn} bg-[#FF3100] text-[#FFFDB1]`}
+            className={`${retroBtn} bg-button-danger text-button-danger-fg`}
           >
             ▶ Execute Query
           </button>
           <button
             type="button"
             onClick={handleSaveResult}
-            className={`${retroBtn} bg-[#70CAA2] text-[#3A2814]`}
+            className={`${retroBtn} bg-button-success text-button-success-fg`}
           >
             Save Result
           </button>
           <button
             type="button"
             onClick={() => setIsHistoryOpen(true)}
-            className={`${retroBtn} bg-[#7A4A23] text-[#FFFDB1]`}
+            className={`${retroBtn} bg-header text-header-fg`}
           >
             History
           </button>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === 'retro' ? 'classic' : 'retro')}
-            className={`${retroBtn} bg-[#f0a629] text-[#3A2814]`}
+          <select
+            aria-label="Theme"
+            value={theme}
+            onChange={(event) => {
+              if (isTheme(event.target.value)) setTheme(event.target.value);
+            }}
+            className={`${retroBtn} bg-paper text-ink cursor-pointer`}
           >
-            {theme === 'retro' ? 'Classic Style' : 'Retro Style'}
-          </button>
+            <option value="retro">Retro Theme</option>
+            <option value="classic">Minimal Light Theme</option>
+            <option value="dark">Minimal Dark Theme</option>
+          </select>
         </div>
       </div>
 
