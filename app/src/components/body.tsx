@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Sidebar from './sidebar';
+import ThemeToggle from './ThemeToggle';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
 import Wiki from './wiki';
@@ -121,11 +122,6 @@ function isStoredQueryHistory(value: unknown): value is StoredQueryHistoryItem[]
   );
 }
 
-type Theme = 'retro' | 'classic';
-function isTheme(value: unknown): value is Theme {
-  return value === 'retro' || value === 'classic';
-}
-
 // Preset tables
 const PRESET_TABLES: PresetTable[] = [
   {
@@ -231,7 +227,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
   });
   const [currentResult, setCurrentResult] = useState<string>('');
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState<boolean>(false);
-  const [theme, setTheme] = useState<Theme>(() => readStoredValue('rexTheme', isTheme) ?? 'retro');
 
   useEffect(() => {
     // Saves query to cookie whenever it changes
@@ -252,11 +247,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
     // Saves query history to local storage
     writeStoredValue('rexQueryHistory', queryHistory);
   }, [queryHistory]);
-
-  useEffect(() => {
-    writeStoredValue('rexTheme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
 
   const allTables = (() => {
     const tableMap: { [key: string]: PresetTable } = {};
@@ -690,6 +680,11 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
 
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden">
+      {/* Theme toggle pinned to the top right of the screen */}
+      <div className="fixed top-3 right-4 z-40 w-40">
+        <ThemeToggle />
+      </div>
+
       {/* Left Sidebar */}
       <Sidebar
         isImportMode={isImportMode}
@@ -719,6 +714,9 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
       />
 
             {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
+        {/* Query Input Area - 2/3 of space (extra top padding leaves room for the theme toggle) */}
+        <div className="px-9 pt-16 pb-4 flex flex-col overflow-hidden" style={{ flex: '2' }}>
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#F7E8AA] text-[#3A2814] font-mono">
         <div className="flex flex-1 min-h-0 flex-col lg:flex-row">
         <div className="flex flex-1 min-w-0 min-h-0 flex-col">
@@ -815,13 +813,6 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
             className={`${retroBtn} bg-[#7A4A23] text-[#FFFDB1]`}
           >
             History
-          </button>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === 'retro' ? 'classic' : 'retro')}
-            className={`${retroBtn} bg-[#f0a629] text-[#3A2814]`}
-          >
-            {theme === 'retro' ? 'Classic Style' : 'Retro Style'}
           </button>
         </div>
       </div>
