@@ -19,10 +19,9 @@ const Navbar: React.FC<NavbarProps> = ({ showGuide, onToggleGuide, showSymbols, 
 
   return (
     <nav>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');`}</style>
-        <div className="bg-[#7A4A23] border-b-[5px] border-[#3A2814]">
+        <div className="bg-header border-b-[length:var(--border-heavy)] border-ink">
             <div className="flex items-stretch">
-                <a href="/" onClick={onLogoClick} className="w-72 shrink-0 flex items-center justify-center py-2 bg-[#666347] border-r-[5px] border-[#3A2814]">
+                <a href="/" onClick={onLogoClick} className="w-72 shrink-0 flex items-center justify-center py-2 bg-olive border-r-[length:var(--border-heavy)] border-ink">
                     <img
                     src={dinoImg}
                     alt="Dino"
@@ -30,17 +29,17 @@ const Navbar: React.FC<NavbarProps> = ({ showGuide, onToggleGuide, showSymbols, 
                     />
                 </a>
                 <div className="flex items-center gap-8 px-9">
-                    <h1 className="font-['VT323',monospace] text-5xl uppercase tracking-widest text-[#FFFDB1] [text-shadow:3px_3px_0_#3A2814]">
+                    <h1 className="font-display text-5xl uppercase tracking-widest text-header-fg [text-shadow:3px_3px_0_var(--color-ink)] minimal:[text-shadow:none]">
                         R.E.X. - Relational Algebra Explorer
                     </h1>
-                    <div className="flex gap-4 font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-sm text-[#3A2814]">
+                    <div className="flex gap-4 font-body font-bold uppercase tracking-wider text-sm text-ink">
                         <button
                             type="button"
                             onClick={onToggleGuide}
                             aria-pressed={showGuide}
                             aria-controls="guide-panel"
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                                showGuide ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
+                            className={`px-5 py-2.5 border-[length:var(--border-w)] border-ink rounded-theme shadow-hard cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                                showGuide ? 'bg-paper' : 'bg-panel hover:bg-paper'
                             }`}
                         >
                             Guide
@@ -49,8 +48,8 @@ const Navbar: React.FC<NavbarProps> = ({ showGuide, onToggleGuide, showSymbols, 
                             type="button"
                             onClick={onToggleSymbols}
                             aria-pressed={showSymbols}
-                            className={`px-5 py-2.5 border-[3px] border-[#3A2814] rounded-none shadow-[4px_4px_0_#3A2814] cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
-                                showSymbols ? 'bg-[#FFFDB1]' : 'bg-[#C4A76B] hover:bg-[#FFFDB1]'
+                            className={`px-5 py-2.5 border-[length:var(--border-w)] border-ink rounded-theme shadow-hard cursor-pointer transition-[transform,box-shadow] duration-75 active:translate-x-1 active:translate-y-1 active:shadow-none ${
+                                showSymbols ? 'bg-paper' : 'bg-panel hover:bg-paper'
                             }`}
                         >
                             Symbols

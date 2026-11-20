@@ -20,18 +20,18 @@ const Wiki: React.FC = () => {
 
   return (
     <aside id="guide-panel" aria-label="Guide" className="flex h-full min-h-0 min-w-0 flex-col">
-      <div className="self-start bg-[#7A4A23] text-[#FFFDB1] border-[3px] border-b-0 border-[#3A2814] px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
+      <div className="self-start bg-header text-header-fg border-[length:var(--border-w)] border-b-0 border-ink px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wider">
         Guide:
       </div>
-      <div className="flex flex-1 min-h-0 min-w-0 flex-col border-[3px] border-[#3A2814] bg-[#FBF4D4] shadow-[6px_6px_0_#7A4A23]">
-        <nav aria-label="Guide pages" className="flex min-w-0 gap-2 overflow-x-auto border-b-[3px] border-[#3A2814] bg-[#C7A86B] p-3 [&>button]:shrink-0 [&>button]:whitespace-nowrap">
+      <div className="flex flex-1 min-h-0 min-w-0 flex-col border-[length:var(--border-w)] border-ink bg-surface shadow-[calc(var(--shadow-offset)*1.5)_calc(var(--shadow-offset)*1.5)_0_var(--color-header)]">
+        <nav aria-label="Guide pages" className="flex min-w-0 gap-2 overflow-x-auto border-b-[length:var(--border-w)] border-ink bg-panel-alt p-3 [&>button]:shrink-0 [&>button]:whitespace-nowrap">
           {pages.map(({ id, label }) => (
             <button
               key={id}
               type="button"
               onClick={() => setPage(id)}
               aria-current={page === id ? 'page' : undefined}
-              className={`border-2 border-[#3A2814] px-2 py-1 text-xs font-bold uppercase shadow-[2px_2px_0_#3A2814] transition-[transform,box-shadow] duration-75 hover:bg-[#EA851A] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${page === id ? 'bg-[#FFFDB1]' : 'bg-[#F7E8AA]'}`}
+              className={`border-[length:var(--border-thin)] border-ink px-2 py-1 text-xs font-bold uppercase shadow-[calc(var(--shadow-offset)*0.5)_calc(var(--shadow-offset)*0.5)_0_var(--color-ink)] transition-[transform,box-shadow] duration-75 hover:bg-button-accent hover:text-accent-fg active:translate-x-0.5 active:translate-y-0.5 active:shadow-none ${page === id ? 'bg-paper' : 'bg-bg'}`}
             >
               {label}
             </button>
@@ -42,7 +42,7 @@ const Wiki: React.FC = () => {
           {page === 'operations' ? (
             <section aria-labelledby="guide-operations">
               <h2 id="guide-operations" className="mb-4 text-2xl font-bold uppercase">Supported Operations</h2>
-              <hr className="mb-4 w-full border-0 border-t-2 border-dashed border-[#3A2814]" />
+              <hr className="mb-4 w-full border-0 border-t-[length:var(--border-thin)] border-dashed border-ink" />
               <dl className="space-y-4 text-sm">
                 {operations.map(({ name, syntax }) => (
                   <div key={name} className="flex items-baseline gap-2 whitespace-nowrap">
@@ -55,16 +55,16 @@ const Wiki: React.FC = () => {
           ) : (
             <section aria-labelledby="guide-examples">
               <h2 id="guide-examples" className="mb-4 text-2xl font-bold uppercase">Sample Queries</h2>
-              <hr className="mb-4 w-full border-0 border-t-2 border-dashed border-[#3A2814]" />
+              <hr className="mb-4 w-full border-0 border-t-[length:var(--border-thin)] border-dashed border-ink" />
               <h3 className="mb-2 font-bold">Query: Courses</h3>
-              <pre className="mb-5 overflow-x-auto border-2 border-[#3A2814] bg-[#F7E8AA] p-3 text-sm">
+              <pre className="mb-5 overflow-x-auto border-[length:var(--border-thin)] border-ink bg-bg p-3 font-mono text-sm">
 {`CourseID  Name             Credits
 CS1100    CS1              4
 MATH1100  CALC 1           4
 CS1200    DATA STRUCTURES  4`}
               </pre>
               <h3 className="mb-2 font-bold">Query: Courses X CS_Students</h3>
-              <pre className="overflow-x-auto border-2 border-[#3A2814] bg-[#F7E8AA] p-3 text-sm">
+              <pre className="overflow-x-auto border-[length:var(--border-thin)] border-ink bg-bg p-3 font-mono text-sm">
 {`CourseID  Courses.Name     Credits  StudentID  CS_Students.Name  Age  Enrolled
 CS1100    CS1              4        CS001      Alice             20   CS1, DS
 CS1100    CS1              4        CS002      Charlie           19   CS1, Calc, DS

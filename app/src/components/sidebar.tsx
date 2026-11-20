@@ -29,21 +29,14 @@ interface SidebarProps {
   onExportTables: () => void;
 }
 
-/*
-  Light brown retro theme (Tailwind arbitrary values)
-    ink    #3A2A1A   dark brown: text + borders
-    brown  #774D2E   hard shadows, hover fills
-    sand   #F4E8B0   sidebar background (light brown / khaki)
-    paper  #FDFBB5   fields + buttons (pale yellow)
-*/
 const btn =
-  "font-['Space_Mono',monospace] font-bold uppercase tracking-wider text-[#3A2A1A] bg-[#FDFBB5] " +
-  'border-[3px] border-[#3A2A1A] rounded-none shadow-[4px_4px_0_#774D2E] cursor-pointer ' +
-  'hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_#774D2E] ' +
+  "font-body font-bold uppercase tracking-wider text-sidebar-ink bg-paper-alt " +
+  'border-[length:var(--border-w)] border-sidebar-ink rounded-theme shadow-[var(--shadow-offset)_var(--shadow-offset)_0_var(--color-muted)] cursor-pointer ' +
+  'hover:-translate-x-px hover:-translate-y-px hover:shadow-[calc(var(--shadow-offset)*1.25)_calc(var(--shadow-offset)*1.25)_0_var(--color-muted)] ' +
   'active:translate-x-1 active:translate-y-1 active:shadow-none transition-[transform,box-shadow] duration-75 ' +
-  'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[3px] focus-visible:outline-[#3A2A1A]';
+  'focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-dashed focus-visible:outline-offset-[3px] focus-visible:outline-sidebar-ink';
 
-const label = "font-['Space_Mono',monospace] font-bold text-[13px] uppercase tracking-wider";
+const label = "font-body font-bold text-[13px] uppercase tracking-wider";
 
 // Restyles every <button> rendered inside <ActionButtons /> without editing that component.
 const actionButtonStyles = '';
@@ -84,9 +77,7 @@ export default function Sidebar({
 
   console.log(allTables);
   return (
-    <div className="w-72 shrink-0 bg-[#C4A76B] border-r-[5px] border-[#3A2A1A] text-[#3A2A1A] font-['Space_Mono',monospace] flex flex-col min-h-0">
-      {/* Loads Space Mono + VT323 so no other file needs to change */}
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap');`}</style>
+    <div className="w-72 shrink-0 bg-panel border-r-[length:var(--border-heavy)] border-sidebar-ink text-sidebar-ink font-body flex flex-col min-h-0">
 
             <div className="flex-1 min-h-0 overflow-y-auto p-5 flex flex-col gap-5">
       <input
@@ -99,7 +90,7 @@ export default function Sidebar({
 
       {/* Import File Dialog */}
       {isImportMode && (
-        <div className="flex flex-col gap-3 p-3 bg-[#FDFBB5] border-[3px] border-[#3A2A1A] shadow-[4px_4px_0_#774D2E]">
+        <div className="flex flex-col gap-3 p-3 bg-paper-alt border-[length:var(--border-w)] border-sidebar-ink shadow-[var(--shadow-offset)_var(--shadow-offset)_0_var(--color-muted)]">
           <label className={label}>Import JSON:</label>
           <input
             type="file"
@@ -114,7 +105,7 @@ export default function Sidebar({
           <div className="flex items-center gap-2 text-xs">
             <label
               htmlFor="sidebar-import-file"
-              className="shrink-0 px-2 py-1 border-2 border-[#3A2A1A] bg-[#774D2E] text-[#FDFBB5] font-bold cursor-pointer"
+              className="shrink-0 px-2 py-1 border-[length:var(--border-thin)] border-sidebar-ink bg-muted text-paper-alt font-bold cursor-pointer"
             >
               Choose File
             </label>
@@ -131,7 +122,7 @@ export default function Sidebar({
         <span className={label}>Tables</span>
         <button
           onClick={onToggleDropdown}
-          className={`${btn} !bg-white w-full min-h-12 px-3 py-2 text-sm text-left normal-case tracking-normal flex justify-between items-center`}
+          className={`${btn} !bg-field w-full min-h-12 px-3 py-2 text-sm text-left normal-case tracking-normal flex justify-between items-center`}
         >
           <span>
             Select Tables ({selectedTables.length > 0 ? selectedTables.join(', ') : 'None'})
@@ -140,18 +131,18 @@ export default function Sidebar({
         </button>
 
         {isTableDropdownOpen && (
-          <div className="border-[3px] border-[#3A2A1A] bg-[#FDFBB5] shadow-[4px_4px_0_#774D2E] max-h-60 overflow-y-auto">
+          <div className="border-[length:var(--border-w)] border-sidebar-ink bg-paper-alt shadow-[var(--shadow-offset)_var(--shadow-offset)_0_var(--color-muted)] max-h-60 overflow-y-auto">
             {allTables.sort((a: PresetTable, b: PresetTable) => a.name.localeCompare(b.name)).map((preset) => (
               <div
                 key={preset.name}
                 onClick={() => onTableSelect(preset.name)}
-                className="px-3 py-2 hover:bg-[#774D2E] hover:text-[#FDFBB5] cursor-pointer flex items-center gap-2 text-sm border-b-2 border-dashed border-[#774D2E]/40 last:border-b-0"
+                className="px-3 py-2 hover:bg-muted hover:text-paper-alt cursor-pointer flex items-center gap-2 text-sm border-b-[length:var(--border-thin)] border-dashed border-muted/40 last:border-b-0"
               >
                 <input
                   type="checkbox"
                   checked={selectedTables.indexOf(preset.name) !== -1}
                   readOnly
-                  className="cursor-pointer accent-[#774D2E]"
+                  className="cursor-pointer accent-muted"
                 />
                 <span className="min-w-0 flex-1 truncate">{preset.name}</span>
                 {deletableTables.includes(preset.name) && (
@@ -163,7 +154,7 @@ export default function Sidebar({
                       event.stopPropagation();
                       onDeleteTable(preset.name);
                     }}
-                    className="shrink-0 border-2 border-[#3A2A1A] bg-[#FF3100] px-2 py-1 text-[10px] font-bold uppercase text-[#FDFBB5] hover:bg-[#7A4A23] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A2A1A]"
+                    className="shrink-0 border-[length:var(--border-thin)] border-sidebar-ink bg-button-danger px-2 py-1 text-[10px] font-bold uppercase text-button-danger-fg hover:bg-header hover:text-header-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ink"
                   >
                     Delete
                   </button>
@@ -176,19 +167,19 @@ export default function Sidebar({
 
       {/* Selected Tables Schema Display */}
       {selectedTables.length > 0 && (
-        <div className="flex flex-col gap-3 pt-5 border-t-[3px] border-dashed border-[#774D2E]">
+        <div className="flex flex-col gap-3 pt-5 border-t-[length:var(--border-w)] border-dashed border-muted">
           <span className={label}>Schema:</span>
           {selectedTables.sort().map((tableName) => {
             const table = allTables.find((t: PresetTable) => t.name === tableName);
             if (!table) return null;
             return (
               <div key={tableName} className="flex flex-col gap-2">
-                <div className="font-['VT323',monospace] text-2xl leading-none">{tableName}</div>
-                <div className="flex flex-col gap-2 bg-white border-[3px] border-[#3A2A1A] px-3.5 py-3 text-sm">
+                <div className="font-display text-2xl leading-none">{tableName}</div>
+                <div className="flex flex-col gap-2 bg-field border-[length:var(--border-w)] border-sidebar-ink rounded-theme px-3.5 py-3 text-sm">
                   {table.columns.map((col) => (
                     <div key={col} className="flex justify-between gap-3">
                       <span>{col}</span>
-                      <span className="italic text-[#774D2E]">{getColumnType(col, table)}</span>
+                      <span className="italic text-muted">{getColumnType(col, table)}</span>
                     </div>
                   ))}
                 </div>
@@ -201,8 +192,8 @@ export default function Sidebar({
       </div>
 
       {/* Action Buttons (existing component, restyled via the wrapper) */}
-      <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[3px] border-dashed border-[#774D2E]`}>
-        <div className="mb-3 text-md font-bold text-[#3A2A1A]">Table actions</div>
+      <div className={`${actionButtonStyles} shrink-0 p-5 pt-3 border-t-[length:var(--border-w)] border-dashed border-muted`}>
+        <div className="mb-3 text-md font-bold text-sidebar-ink">Table actions</div>
         <ActionButtons
           onCreateTable={onCreateTable}
           onEditTable={onEditTable}
