@@ -185,17 +185,9 @@ Record::Record(double data) : sdata(""), fdata(data), type('f') {
 Record::Record(bool val) : sdata(""), bval(val), type('b') {
 }
 
-// TODO: Where do we handle type errors?
-// Do we even handle type errors or do
-// some gross JS-like type coercion?
 double Record::getDoubleValue() const {
     if (type == 'f') return fdata;
     return 0;
-}
-
-void Record::setDoubleValue(double val) {
-    type = 'f';
-    fdata = val;
 }
 
 std::string Record::getStringValue() const {
@@ -205,18 +197,18 @@ std::string Record::getStringValue() const {
     return std::format("{}", fdata);
 }
 
-void Record::setStringValue(std::string val) {
-    type = 's';
-    sdata = val;
-}
-
 bool Record::getBooleanValue() const {
-    if (type == 's') return sdata == "";
+    if (type == 's') return sdata != "";
     if (type == 'f') return fdata != 0.0;
     return bval;
 }
 
-void Record::setBooleanValue(bool val) {
-    type = 'b';
-    bval = val;
+bool Record::operator==(const Record &other) const {
+    if (type == 'f' && other.type == 'f')
+        return getDoubleValue() == other.getDoubleValue();
+    if (type == 'b' && other.type == 'b')
+        return getBooleanValue() == other.getBooleanValue();
+    if (type == 's' || other.type == 's')
+        return getStringValue() == other.getStringValue();
+    return false;
 }

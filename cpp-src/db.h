@@ -18,22 +18,15 @@ public:
     Record(double data);
     Record(bool val);
 
-    double getDoubleValue() const;
-    void setDoubleValue(double val);
     std::string getStringValue() const;
-    void setStringValue(std::string val);
+    double getDoubleValue() const;
     bool getBooleanValue() const;
-    void setBooleanValue(bool val);
 
-    bool operator==(const Record &other) const {
-        if (type == 'f' && other.type == 'f')
-            return getDoubleValue() == other.getDoubleValue();
-        if (type == 'b' && other.type == 'b')
-            return getBooleanValue() == other.getBooleanValue();
-        if (type == 's' || other.type == 's')
-            return getStringValue() == other.getStringValue();
-        return false;
-    }
+    void setStringValue(std::string val) { *this = Record(val); }
+    void setDoubleValue(double      val) { *this = Record(val); }
+    void setBooleanValue(bool       val) { *this = Record(val); }
+
+    bool operator==(const Record &other) const;
 };
 
 class Column {

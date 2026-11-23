@@ -214,6 +214,16 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
             }
             nexttok.finish(stream);
             ret.push_back(nexttok);
+        } else if (next == "=") {
+            Token nexttok(stream, TokenType::Equal);
+            nexttok.data = next;
+            stream.eat();
+            if (stream.peek() == "=") {
+                nexttok.data += "=";
+                stream.eat();
+            }
+            nexttok.finish(stream);
+            ret.push_back(nexttok);
         }
         SINGLE_CHAR_LEX(",", TokenType::Comma)
         SINGLE_CHAR_LEX("(", TokenType::LParan)
@@ -223,7 +233,6 @@ std::vector<Token> lex(const std::string &input, int &fail_index) {
         SINGLE_CHAR_LEX("{", TokenType::LBrace)
         SINGLE_CHAR_LEX("}", TokenType::RBrace)
         SINGLE_CHAR_LEX("_", TokenType::Underscore)
-        SINGLE_CHAR_LEX("=", TokenType::Equal)
         SINGLE_CHAR_LEX("+", TokenType::Plus)
         SINGLE_CHAR_LEX("*", TokenType::Times)
         SINGLE_CHAR_LEX("/", TokenType::Div)

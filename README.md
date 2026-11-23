@@ -52,5 +52,10 @@ To contribute to the frontend:
 Note. Work on a separate branch or on a fork!
 
 ### Backend
-Python 3.5 or higher required. Run individual files for testing with the module command. For example:
-- To run src/relationalAlgebra/relationParsing.py: python3 -m src.relationalAlgebra.relationParsing
+
+The backend was compiled with Emscripten's emcc 6.0.13 using C++20.
+
+The build script provided is `./build_web.sh` for the WASM build.
+
+It can be worked on locally with the Makefile.
+

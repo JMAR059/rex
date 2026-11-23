@@ -82,7 +82,6 @@ export default function Sidebar({
     importFileInput.current?.click();
   };
 
-  console.log(allTables);
   return (
     <div className="w-72 shrink-0 bg-[#C4A76B] border-r-[5px] border-[#3A2A1A] text-[#3A2A1A] font-['Space_Mono',monospace] flex flex-col min-h-0">
       {/* Loads Space Mono + VT323 so no other file needs to change */}

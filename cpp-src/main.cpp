@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "db.h"
 #include "lexer.h"
 #include "parser.h"
@@ -107,6 +109,11 @@ int main(int argc, char *argv[]) {
 
 Engine *GLOBAL_engine = NULL;
 
+static std::ostringstream &get_local_stream() {
+    static std::ostringstream local;
+    return local;
+}
+
 /*
     Adds a table, replaces a table of the name is the same
     - name: The name of the table
@@ -135,6 +142,8 @@ extern "C" bool bridge_addTable(char *name, char *contents) {
       - false: failure, the error message is printed
 */
 extern "C" bool bridge_run_query(char *query) {
+    get_local_stream().str("");
+
     // Lex
     int fail_index = 0;
     std::vector<Token> tokens = lex(query, fail_index);
@@ -148,7 +157,6 @@ extern "C" bool bridge_run_query(char *query) {
     Parser parser;
     Node ast = parser.parse(tokens);
     if (ast == nullptr) {
-        std::cout << "Failed to parse!" << std::endl;
         for (ParseError &perr : parser.errors) {
             size_t size = perr.token.start;
             size_t len = std::max(
@@ -164,29 +172,40 @@ extern "C" bool bridge_run_query(char *query) {
             if (perr.token.tt == TokenType::End) {
                 std::cout << " (at end of query)";
             }
-            std::cout << std::endl << std::endl;
+            std::cout << std::endl;
         }
         return false;
     }
-    std::cout << std::endl;
 
     // Run
     if (!GLOBAL_engine->run_node(ast.get(), true)) {
-        std::cout << "Failed to run!" << std::endl;
         for (EngineError &err : GLOBAL_engine->errors) {
             std::cout << "Runtime Error: " << err.msg << std::endl;
         }
         return false;
     }
-    std::cout << std::endl;
+
     return true;
 }
 
+/* Return the printed result */
+extern "C" const char *bridge_get_result() {
+    static std::string str = "";
+    str = get_local_stream().str();
+    std::cerr << "Got: " << str << std::endl;
+    return str.c_str();
+}
 
 // Init the engine
 int main() {
+    // Remap
+    // cerr -> cout (console.log)
+    // cout -> local buf (for 'Result' box)
+    std::cerr.rdbuf(std::cout.rdbuf());
+    std::cout.rdbuf(get_local_stream().rdbuf());
+
+    // Start the engine
     GLOBAL_engine = new Engine();
     std::cerr << "Rex engine init!" << std::endl;
-    bridge_addTable("Test", "Name,LastName,Year\nFreddie,Mercury,1946\nBob,Ross,1942\nKate,Tremorden,2007\nKate,Stanley,1862\nEvil Time Traveling Baby,,2030");
 }
 #endif

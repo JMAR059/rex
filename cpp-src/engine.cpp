@@ -258,17 +258,17 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
     // Get matching col names
     std::vector<int64_t> cols = {};
     std::unordered_map<uint64_t, uint64_t> same_names = {};
-    for (int64_t li = 0; li < lhs->columns.size(); li++) {
+    for (int64_t li = 0; li < (int64_t) lhs->columns.size(); li++) {
         const std::string &lname = lhs->columns[li].name;
         cols.push_back(li);
-        for (int64_t ri = 0; ri < rhs->columns.size(); ri++) {
+        for (int64_t ri = 0; ri < (int64_t) rhs->columns.size(); ri++) {
             if (rhs->columns[ri].name == lname) {
                 same_names[ri] = li;
                 break;
             }
         }
     }
-    for (int64_t ri = 0; ri < rhs->columns.size(); ri++) {
+    for (int64_t ri = 0; ri < (int64_t) rhs->columns.size(); ri++) {
         bool skip = false;
         for (const auto &skipped : same_names) {
             skip |= (int64_t)skipped.first == ri;
@@ -328,6 +328,8 @@ bool Engine::run_nat_join(NatJoinTableNode *node) {
 }
 
 bool Engine::run_theta_join(ThetaJoinTableNode *node) {
+    error("ThetaJoin isn't supported yet, sorry!");
+    (void) node;
     return false;
 }
 
