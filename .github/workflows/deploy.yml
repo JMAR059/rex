@@ -36,7 +36,7 @@ jobs:
     # we run our build script logic
       - name: Build step
         run: |
-          bash scripts/build.sh
+          bash scripts/s3_build.sh
 
     # Loading our aws environment variables
       - name: Configure AWS credentials

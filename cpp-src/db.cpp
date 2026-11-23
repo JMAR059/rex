@@ -72,11 +72,11 @@ static std::string getSingleCell(const std::string &line, size_t &at, char delim
 }
 
 // TODO: Error checking?
-void Table::addFromCSV(std::istream &stream) {
+std::string Table::addFromCSV(std::istream *stream) {
     // Headers
     std::string line;
     char delim = ',';
-    getline(stream, line);
+    std::getline(*stream, line);
     std::stringstream ss(line);
     // Test for delim
     if (line.find(",") == std::string::npos) {
@@ -85,8 +85,7 @@ void Table::addFromCSV(std::istream &stream) {
         } else if (line.find("\t") != std::string::npos) {
             delim = '\t';
         } else {
-            std::cout << "Error: cannot determine csv delim" << std::endl;
-            return;
+            return "Error parsing CSV: cannot determine csv delim";
         }
     }
     size_t at = 0;
@@ -95,17 +94,20 @@ void Table::addFromCSV(std::istream &stream) {
     }
 
     // Values
-    while (std::getline(stream, line)) {
+    while (std::getline(*stream, line)) {
         std::stringstream ss(line);
         size_t at = 0, i = 0;
         while (at < line.size()) {
-            if (i >= columns.size()) {
-                std::cout << "Error: too many lines in csv" << std::endl;
-                return;
-            }
+            if (i >= columns.size()) return "Error parsing CSV: too many lines in csv";
             columns[i++].records.push_back(Record(getSingleCell(line, at, delim)));
         }
     }
+    return "";
+}
+
+std::string Table::addFromCSVString(const std::string &str) {
+    std::istringstream s = std::istringstream(str);
+    return this->addFromCSV(&s);
 }
 
 void Table::print() {
@@ -183,38 +185,30 @@ Record::Record(double data) : sdata(""), fdata(data), type('f') {
 Record::Record(bool val) : sdata(""), bval(val), type('b') {
 }
 
-// TODO: Where do we handle type errors?
-// Do we even handle type errors or do
-// some gross JS-like type coercion?
-double Record::getDoubleValue() {
+double Record::getDoubleValue() const {
     if (type == 'f') return fdata;
     return 0;
 }
 
-void Record::setDoubleValue(double val) {
-    type = 'f';
-    fdata = val;
-}
-
-std::string Record::getStringValue() {
+std::string Record::getStringValue() const {
     if (type == 's') return sdata;
     if (type == 'b') return bval ? "true" : "false";
     // Convert the double to a string
     return std::format("{}", fdata);
 }
 
-void Record::setStringValue(std::string val) {
-    type = 's';
-    sdata = val;
-}
-
-bool Record::getBooleanValue() {
-    if (type == 's') return sdata == "";
+bool Record::getBooleanValue() const {
+    if (type == 's') return sdata != "";
     if (type == 'f') return fdata != 0.0;
     return bval;
 }
 
-void Record::setBooleanValue(bool val) {
-    type = 'b';
-    bval = val;
+bool Record::operator==(const Record &other) const {
+    if (type == 'f' && other.type == 'f')
+        return getDoubleValue() == other.getDoubleValue();
+    if (type == 'b' && other.type == 'b')
+        return getBooleanValue() == other.getBooleanValue();
+    if (type == 's' || other.type == 's')
+        return getStringValue() == other.getStringValue();
+    return false;
 }

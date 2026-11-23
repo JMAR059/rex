@@ -2,9 +2,17 @@ import { useEffect, useRef, useState } from 'react';
 import Sidebar from './sidebar';
 import TableEditorModal from './tableEditorModal';
 import HistoryModal from './historyModal';
-import Wiki from './wiki';
+import createModule from "../wasm/rex.js";
+import wasmUrl from "../wasm/rex.wasm?url";
 
-const apiUrl = import.meta.env.VITE_API_URL + "/relational_algebra";
+const wasm = await createModule({
+  locateFile: (p: string) => (p.endsWith(".wasm") ? wasmUrl : p),
+});
+const bridge_run_query = wasm.cwrap("bridge_run_query", "number", ["string"]);
+//const bridge_clearTables = wasm.cwrap("bridge_clearTables", null, []);
+const bridge_addTable = wasm.cwrap("bridge_addTable", "number", ["string", "string"]);
+const bridge_get_result = wasm.cwrap("bridge_get_result", "string", []);
+import Wiki from './wiki';
 
 const retroBtn =
   "min-h-[52px] px-6 py-2 rounded-none border-[3px] border-[#3A2814] " +
@@ -163,33 +171,24 @@ interface TableData {
   rows: TableRow[];
 }
 
-async function executeQuery(tables: TableData[], queries: string[]): Promise<{result: string}> {
-  // Transform tables to { tableName: {column1: [values...], column2: [values...]}, ... }
-  const relations: Record<string, Record<string, (string | number)[]>> = {};
-  tables.forEach(table => {
-    const columnData: Record<string, (string | number)[]> = {};
-    table.columns.forEach(col => {
-      columnData[col] = table.rows.map(row => row[col] || '');
-    });
-    relations[table.name] = columnData;
-  });
-  
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ relations, queries }),
-  });
-  
-  const data = await response.json();
-  
-  // If the response is a 400 error, return the error detail
-  if (response.status === 400) {
-    return {"result": `Error: ${data.detail || 'Unknown error'}`};
+function tableToCSV(table: TableData): string {
+    const ret = table.columns.map(s => s.replaceAll(',','\\,')).join(',')+'\n'
+        + table.rows.map(
+            r => table.columns.map(c => r[c].toString().replaceAll(',', '\\,')).join(',')
+        ).join('\n');
+    return ret;
+}
+
+async function executeQuery(tables: TableData[], queries: string[]): Promise<{result: string, error: boolean}> {
+  //bridge_clearTables();
+  for (const i in tables) {
+    bridge_addTable(tables[i].name, tableToCSV(tables[i]));
   }
-  
-  return {"result": JSON.stringify(data.results)};
+  const ret = bridge_run_query(queries[0]);
+  if (ret == 0) {
+    return {"result": bridge_get_result(), "error": true};
+  }
+  return {"result": bridge_get_result(), "error": false};
 }
 
 
@@ -534,82 +533,20 @@ const Body: React.FC<BodyProps> = ({ replaceResult, addToHistory, showSymbols, s
     setIsTableOpen(false);
   };
 
-  const formatResultAsTable = (resultJson: string): string => {
-    try {
-      const data = JSON.parse(resultJson);
-      
-      // Check if data is empty
-      if (!data || typeof data !== 'object') {
-        return 'No results';
-      }
-
-      const columns = Object.keys(data);
-      if (columns.length === 0) {
-        return 'No results';
-      }
-
-      // Get number of rows (assumes all columns have same length)
-      const firstColumn = data[columns[0]];
-      const rowCount = Object.keys(firstColumn).length;
-
-      if (rowCount === 0) {
-        return 'No results';
-      }
-
-      // Helper function to pad strings (alternative to padEnd)
-      const padString = (str: string, length: number): string => {
-        while (str.length < length) {
-          str += ' ';
-        }
-        return str;
-      };
-
-      // Calculate max width for each column
-      const columnWidths: { [key: string]: number } = {};
-      columns.forEach((col: string) => {
-        let maxWidth = col.length;
-        for (let i = 0; i < rowCount; i++) {
-          const value = String(data[col][i.toString()] || '');
-          maxWidth = Math.max(maxWidth, value.length);
-        }
-        columnWidths[col] = maxWidth;
-      });
-
-      // Build header row
-      const headerRow = columns.map((col: string) => 
-        padString(col, columnWidths[col])
-      ).join('  ');
-      let result = headerRow + '\n';
-
-      // Build data rows
-      for (let i = 0; i < rowCount; i++) {
-        const rowValues = columns.map((col: string) => {
-          const value = String(data[col][i.toString()] || '');
-          return padString(value, columnWidths[col]);
-        });
-        result += rowValues.join('  ') + '\n';
-      }
-
-      return result;
-    } catch (e) {
-      return resultJson; // Return original if parsing fails
-    }
-  };
-
   const handleExecuteQuery = async () => {
-    console.log("Executing query:", query);
     const queries = query.split('\n').filter((q: string) => q.trim() !== '');
     const tables = getSelectedTablesData();
     const resp = await executeQuery(tables, queries);
     const queryStr = queries.join('\n');
-    
+
     // Format and display current result
-    const formattedResult = formatResultAsTable(resp.result);
+    const formattedResult = resp.result;
+    //const formattedResult = resp;
     setCurrentResult(formattedResult);
-    
+
     // Add to local history
     setQueryHistory((history) => [...history, { query: queryStr, result: formattedResult, timestamp: new Date() }]);
-    
+
     replaceResult(resp);
     addToHistory(queryStr, resp);
   };

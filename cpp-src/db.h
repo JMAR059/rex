@@ -18,22 +18,15 @@ public:
     Record(double data);
     Record(bool val);
 
-    double getDoubleValue();
-    void setDoubleValue(double val);
-    std::string getStringValue();
-    void setStringValue(std::string val);
-    bool getBooleanValue();
-    void setBooleanValue(bool val);
+    std::string getStringValue() const;
+    double getDoubleValue() const;
+    bool getBooleanValue() const;
 
-    bool operator==(Record &other) {
-        if (type == 'f' && other.type == 'f')
-            return getDoubleValue() == other.getDoubleValue();
-        if (type == 'b' && other.type == 'b')
-            return getBooleanValue() == other.getBooleanValue();
-        if (type == 's' || other.type == 's')
-            return getStringValue() == other.getStringValue();
-        return false;
-    }
+    void setStringValue(std::string val) { *this = Record(val); }
+    void setDoubleValue(double      val) { *this = Record(val); }
+    void setBooleanValue(bool       val) { *this = Record(val); }
+
+    bool operator==(const Record &other) const;
 };
 
 class Column {
@@ -55,8 +48,8 @@ public:
     void addCol(std::string name);
     void addRow(std::vector<Record> rowvals);
 
-    void addFromCSV(std::istream &stream);
-
+    std::string addFromCSV(std::istream *stream);
+    std::string addFromCSVString(const std::string &str);
     void print();
 
     Table(const std::string &name) : name(name) {}

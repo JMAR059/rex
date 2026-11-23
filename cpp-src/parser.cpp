@@ -282,6 +282,23 @@ Node Parser::parse_table_expr(Tokens tokens) {
         Node rhs = this->parse_table_expr(tokens);
         ERR(rhs);
         return NODE<ProductTableNode>(MOVE(ret), MOVE(rhs));
+    } else if (at.tt == TokenType::Join) {
+        this->eat(tokens);
+        // Parse optional condition (thetajoin vs naturaljoin)
+        if (this->peek(tokens).tt == TokenType::Underscore) {
+            // ThetaJoin, parse expr and rhs
+            this->eat(tokens);
+            Node expr = this->parse_tl_expr(tokens);
+            ERR(expr);
+            Node rhs = this->parse_table_expr(tokens);
+            ERR(rhs);
+            return NODE<ThetaJoinTableNode>(MOVE(ret), MOVE(expr), MOVE(rhs));
+        } else {
+            // NatJoin, parse rhs
+            Node rhs = this->parse_table_expr(tokens);
+            ERR(rhs);
+            return NODE<NatJoinTableNode>(MOVE(ret), MOVE(rhs));
+        }
     }
     return ret;
 }

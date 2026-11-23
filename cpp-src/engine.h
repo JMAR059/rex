@@ -32,6 +32,8 @@ public:
     bool run_select(SelectTableNode *node);
     bool run_project(ProjectionTableNode *node);
     bool run_product(ProductTableNode *node);
+    bool run_nat_join(NatJoinTableNode *node);
+    bool run_theta_join(ThetaJoinTableNode *node);
     bool run_lit(BaseLitExprNode *node);
     bool run_node(ASTNode *node, bool tl = false);
 

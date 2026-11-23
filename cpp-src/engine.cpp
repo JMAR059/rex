@@ -241,6 +241,98 @@ bool Engine::run_select(SelectTableNode *node) {
     return true;
 }
 
+bool Engine::run_nat_join(NatJoinTableNode *node) {
+    // Left
+    ERR(run_node(node->lhs.get()));
+    Table *lhs = anon;
+    if (lhs == NULL) {
+        return error("Got NULL lhs table for nat join! This should never happen!");
+    }
+    // Right
+    ERR(run_node(node->rhs.get()));
+    Table *rhs = anon;
+    if (rhs == NULL) {
+        return error("Got NULL rhs table for nat join! This should never happen!");
+    }
+
+    // Get matching col names
+    std::vector<int64_t> cols = {};
+    std::unordered_map<uint64_t, uint64_t> same_names = {};
+    for (int64_t li = 0; li < (int64_t) lhs->columns.size(); li++) {
+        const std::string &lname = lhs->columns[li].name;
+        cols.push_back(li);
+        for (int64_t ri = 0; ri < (int64_t) rhs->columns.size(); ri++) {
+            if (rhs->columns[ri].name == lname) {
+                same_names[ri] = li;
+                break;
+            }
+        }
+    }
+    for (int64_t ri = 0; ri < (int64_t) rhs->columns.size(); ri++) {
+        bool skip = false;
+        for (const auto &skipped : same_names) {
+            skip |= (int64_t)skipped.first == ri;
+        }
+        if (!skip) {
+            cols.push_back(-(ri + 1));
+        }
+    }
+
+    // Join
+    Table *tb = new Table("");
+    for (auto i : cols) {
+        if (i < 0) tb->addCol(rhs->columns[-i - 1].name);
+        else tb->addCol(lhs->columns[i].name);
+    }
+
+    // Get rows
+    size_t lhs_size = lhs->columns[0].records.size();
+    size_t rhs_size = rhs->columns[0].records.size();
+    Record invalid = Record(false);
+    for (size_t l = 0; l < lhs_size; l++) {
+        // Init the row with the lhs rows
+        std::vector<Record> next_row = {};
+        for (const auto &c : lhs->columns) next_row.push_back(c.records[l]);
+
+        // Check for a usable rhs
+        size_t os = next_row.size();
+        for (size_t row = 0; row < rhs_size; row++) {
+            bool use = true;
+            for (size_t rindex = 0; rindex < rhs->columns.size(); rindex++) {
+                const auto &c = rhs->columns[rindex];
+                const Record &rr = c.records[row];
+                if (same_names.contains(rindex)) {
+                    if (lhs->columns[same_names[rindex]].records[l] != rr) {
+                        use = false;
+                        break;
+                    }
+                } else {
+                    next_row.push_back(rr);
+                }
+            }
+            if (use) {
+                for (const auto &c : next_row) std::cout << c.getStringValue() << " ";
+                std::cout << std::endl;
+                tb->addRow(next_row);
+            }
+            // Try again
+            next_row.resize(os, invalid);
+        }
+    }
+
+    // Return
+    free_anon();
+    free_anon(lhs);
+    anon = tb;
+    return true;
+}
+
+bool Engine::run_theta_join(ThetaJoinTableNode *node) {
+    error("ThetaJoin isn't supported yet, sorry!");
+    (void) node;
+    return false;
+}
+
 bool Engine::run_lit(BaseLitExprNode *node) {
     // Get the table
     if (!tables.contains(node->str)) {
@@ -260,6 +352,10 @@ bool Engine::run_node(ASTNode *node, bool tl) {
         ERR(run_project((ProjectionTableNode *) node));
     } else if (node->type == ASTNodeType::ProductTable) {
         ERR(run_product((ProductTableNode *) node));
+    } else if (node->type == ASTNodeType::NatJoinTable) {
+        ERR(run_nat_join((NatJoinTableNode *) node));
+    } else if (node->type == ASTNodeType::ThetaJoinTable) {
+        ERR(run_theta_join((ThetaJoinTableNode *) node));
     } else if (node->type == ASTNodeType::LiteralExpr) {
         ERR(run_lit((BaseLitExprNode *) node));
     } else {
